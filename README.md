@@ -147,7 +147,7 @@ FAPI related accomplishments by FAPI-SIG and OAuth SIG, other contributors and k
 ### Automated Conformance Test Run Environment by this kc-fapi-sig repository
 
 The current environment uses the following software version.
-- Keycloak 26.3.3
+- Keycloak 26.3.4
 - Conformance-suite version : release-v5.1.36
 
 #### FAPI 1.0 Advanced (Final)​
@@ -415,6 +415,7 @@ We tagged the environment for every keycloak verion:
 |kc-26.3.1|26.3.1|release-v5.1.33|
 |kc-26.3.2|26.3.2|release-v5.1.33|
 |kc-26.3.3|26.3.3|release-v5.1.36|
+|kc-26.3.4|26.3.4|release-v5.1.36|
 
 |Keycloak version|FAPI 1.0 Advanced|FAPI-CIBA|Open Banking Brasil FAPI 1.0 (\*1,\*2)|Open Finance Brasil FAPI 1.0 (\*3)|Australia Consumer Data Right (CDR) (\*8)|UK Open Banking|OpenID Connect OP (\*4)|OpenID Connect OP for Logout Profile|FAPI 2.0 Security Profile Implementer’s Draft (\*6)|FAPI 2.0 Message Signing Implementer’s Draft (\*6)|FAPI 2.0 Security Profile (\*9)|FAPI 2.0 Message Signing (\*9)|
 |-|-|-|-|-|-|-|-|-|-|-|-|-|
@@ -492,6 +493,7 @@ We tagged the environment for every keycloak verion:
 |26.3.1|x|x|x|x|x|x|x|x|x|x|x(*10)|x(*11)|
 |26.3.2|x|x|x|x|x|x|x|x|x|x|x(*10)|x(*11)|
 |26.3.3|x|x|x|x|x|x|x|x|x|x|x(*10)|x(*11)|
+|26.3.4|x|x|x|x|x|x|x|x|x|x|x(*10)|x(*11)|
 
 Note: Keycloak legacy (wildfly) is no longer supported since [keycloak 20](https://www.keycloak.org/docs/latest/release_notes/index.html#wildfly-distribution-removed).
 
