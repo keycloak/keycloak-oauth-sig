@@ -165,8 +165,8 @@ services:
     ports:
      - "8787:8787"
     environment:
-     - DEBUG=true
-     - DEBUG_PORT=*:8787
+#     - DEBUG=true
+#     - DEBUG_PORT=*:8787
      - KEYCLOAK_ADMIN=${KEYCLOAK_USER}
      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_PASSWORD}
     volumes:
@@ -194,7 +194,7 @@ services:
       - "--https-certificate-file=/etc/x509/https/server.crt"
       - "--https-certificate-key-file=/etc/x509/https/tls.key"
       - "--https-client-auth=request"
-      - "--features=dpop"
+#      - "--features=dpop"
 
 # Keycloak Realm Setting Importer
 

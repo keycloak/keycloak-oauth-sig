@@ -59,7 +59,7 @@
             "tasks": [
                 {
                     "task": "Initial login",
-                    "match": "https://as.keycloak-fapi.org/auth/realms/test/protocol/openid-connect/auth*",
+                    "match": "https://as.keycloak-fapi.org/auth/realms/test/login-actions/authenticate*",
                     "optional": true,
                     "commands": [
                         [
@@ -116,7 +116,7 @@
                     "tasks": [
                         {
                             "task": "Initial login",
-                            "match": "https://as.keycloak-fapi.org/auth/realms/test/protocol/openid-connect/auth*",
+                            "match": "https://as.keycloak-fapi.org/auth/realms/test/login-actions/authenticate*",
                             "commands": [
                                 [
                                     "text",

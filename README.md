@@ -147,7 +147,7 @@ FAPI related accomplishments by FAPI-SIG and OAuth SIG, other contributors and k
 ### Automated Conformance Test Run Environment by this kc-fapi-sig repository
 
 The current environment uses the following software version.
-- Keycloak 26.3.5
+- Keycloak 26.4.0
 - Conformance-suite version : release-v5.1.36
 
 #### FAPI 1.0 Advanced (Final)​
@@ -417,6 +417,7 @@ We tagged the environment for every keycloak verion:
 |kc-26.3.3|26.3.3|release-v5.1.36|
 |kc-26.3.4|26.3.4|release-v5.1.36|
 |kc-26.3.5|26.3.5|release-v5.1.36|
+|kc-26.4.0|26.4.0|release-v5.1.36|
 
 |Keycloak version|FAPI 1.0 Advanced|FAPI-CIBA|Open Banking Brasil FAPI 1.0 (\*1,\*2)|Open Finance Brasil FAPI 1.0 (\*3)|Australia Consumer Data Right (CDR) (\*8)|UK Open Banking|OpenID Connect OP (\*4)|OpenID Connect OP for Logout Profile|FAPI 2.0 Security Profile Implementer’s Draft (\*6)|FAPI 2.0 Message Signing Implementer’s Draft (\*6)|FAPI 2.0 Security Profile (\*9)|FAPI 2.0 Message Signing (\*9)|
 |-|-|-|-|-|-|-|-|-|-|-|-|-|
@@ -496,6 +497,7 @@ We tagged the environment for every keycloak verion:
 |26.3.3|x|x|x|x|x|x|x|x|x|x|x(*10)|x(*11)|
 |26.3.4|x|x|x|x|x|x|x|x|x|x|x(*10)|x(*11)|
 |26.3.5|x|x|x|x|x|x|x|x|x|x|x(*10)|x(*11)|
+|26.4.0|x(*12)|x(*12)(*13)|x(*12)|x(*12)|x(*12)|x(*12)|x|x|x(*12)|x(*12)|x(*12)|x(*12)|
 
 Note: Keycloak legacy (wildfly) is no longer supported since [keycloak 20](https://www.keycloak.org/docs/latest/release_notes/index.html#wildfly-distribution-removed).
 
@@ -513,7 +515,7 @@ Note: Keycloak legacy (wildfly) is no longer supported since [keycloak 20](https
 
 \*7 : [ISSUE-39037](https://github.com/keycloak/keycloak/issues/39037)
 
-\*8 : According to [Australia CDR security profile specification](https://consumerdatastandardsaustralia.github.io/standards/#authentication-flows), From May 12th 2025, JARM is mandatory, and tt seems that the conformance suite from v5.1.33 only accepts the "AU-CDR Adv. OP w/ Private Key, PAR, JARM" conformance profile while the current Conformance Test Execution Platform can run the "AU-CDR Adv. OP w/ Private Key" and "AU-CDR Adv. OP w/ Private Key, PAR" conformance profile tests. Therfore, from the conformance suite version v5.1.33, it only tests "AU-CDR Adv. OP w/ Private Key, PAR, JARM" conformance profile.
+\*8 : According to [Australia CDR security profile specification](https://consumerdatastandardsaustralia.github.io/standards/#authentication-flows), From May 12th 2025, JARM is mandatory, and it seems that the conformance suite from v5.1.33 only accepts the "AU-CDR Adv. OP w/ Private Key, PAR, JARM" conformance profile while the current Conformance Test Execution Platform can run the "AU-CDR Adv. OP w/ Private Key" and "AU-CDR Adv. OP w/ Private Key, PAR" conformance profile tests. Therfore, from the conformance suite version v5.1.33, it only tests "AU-CDR Adv. OP w/ Private Key, PAR, JARM" conformance profile.
 
 \*9 : Since conformance suite version 5.1.33, FAPI 2.0 Security Profile Final and Message Signing Final conformance test is supported.
 
@@ -527,6 +529,33 @@ Note: Keycloak legacy (wildfly) is no longer supported since [keycloak 20](https
 \*11 : Due to [ISSUE-41119](https://github.com/keycloak/keycloak/issues/41119), , Keycloak can pass some conformance tests among the two conformance profiles' conformance tests of FAPI 2.0 Message Signing Final specification:
  - FAPI2MS JAR: passed (if not using private_key_jwt as client authentication method)
  - FAPI2MS JARM: passed (if not using private_key_jwt as client authentication method)
+
+\*12 : Due to [ISSUE-43269](https://github.com/keycloak/keycloak/issues/43269), Keycloak cannot pass the following conformance tests:
+ - FAPI 1.0 Advanced Final (w/ private_key_jwt as client authentication method)
+ - FAPI 2.0 Security Profile Final (w/ private_key_jwt as client authentication method)
+ - FAPI 2.0 Message Signing Final (w/ private_key_jwt as client authentication method)
+ - FAPI 2.0 Security Profile Implementer’s Draft version 2 (w/ private_key_jwt as client authentication method)
+ - FAPI 2.0 Message Signing Implementer’s Draft version 1 (w/ private_key_jwt as client authentication method)
+ - FAPI-CIBA (w/ private_key_jwt as client authentication method)
+ - UK Open Banking (w/ private_key_jwt as client authentication method)
+ - Australia Consumer Data Right (w/ private_key_jwt as client authentication method)
+ - Open Finance Brazil (w/ private_key_jwt as client authentication method)
+
+ while Keycloak still can pass the following conformance tests:
+ - FAPI 1.0 Advanced Final (w/ mtls as client authentication method)
+ - FAPI 2.0 Security Profile Final (w/ mtls as client authentication method)
+ - FAPI 2.0 Message Signing Final (w/ mtls as client authentication method)
+ - FAPI 2.0 Security Profile Implementer’s Draft version 2 (w/ mtls as client authentication method)
+ - FAPI 2.0 Message Signing Implementer’s Draft version 1 (w/ mtls as client authentication method)
+ - FAPI-CIBA (w/ mtls as client authentication method)
+ - UK Open Banking (w/ mtls as client authentication method)
+ - Open Finance Brazil (w/ mtls as client authentication method)
+
+\*13 : Due to [ISSUE-43270](https://github.com/keycloak/keycloak/issues/43270), Keycloak cannot pass the following conformance tests:
+ - FAPI-CIBA (w/ private_key_jwt as client authentication method)
+
+ while Keycloak still can pass the following conformance tests:
+ - FAPI-CIBA (w/ mtls as client authentication method)
 
 ## Other Contributions
 

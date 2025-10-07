@@ -65,7 +65,7 @@
             "tasks": [
                 {
                     "task": "Initial login",
-                    "match": "https://as.keycloak-fapi.org/auth/realms/test/protocol/openid-connect/auth*",
+                    "match": "https://as.keycloak-fapi.org/auth/realms/test/login-actions/authenticate*",
                     "optional": true,
                     "commands": [
                         [
@@ -123,7 +123,7 @@
                     "tasks": [
                         {
                             "task": "Initial login",
-                            "match": "https://as.keycloak-fapi.org/auth/realms/test/protocol/openid-connect/auth*",
+                            "match": "https://as.keycloak-fapi.org/auth/realms/test/login-actions/authenticate*",
                             "commands": [
                                 [
                                     "text",
@@ -332,6 +332,10 @@
                         }
                     ]
                 }
+            ]
+        },
+        "fapi1-advanced-final-par-ensure-reused-request-uri-prior-to-auth-completion-succeeds": {
+            "browser": [
             ]
         },
         "fapi1-advanced-final-par-attempt-reuse-request_uri": {
