@@ -124,6 +124,8 @@ FAPI related accomplishments by FAPI-SIG and OAuth SIG, other contributors and k
 #### Keycloak 26
 
   - [Initiating User Registration via OpenID Connect 1.0](https://openid.net/specs/openid-connect-prompt-create-1_0.html)
+  - [FAPI 2.0 Security Profile Final](https://openid.net/specs/fapi-security-profile-2_0-final.html)
+  - [FAPI 2.0 Message Signing Final](https://openid.net/specs/fapi-message-signing-2_0-final.html)
 
 #### In progress
 
