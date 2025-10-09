@@ -1381,6 +1381,152 @@
             }
         ]
     },
+    "clientProfiles": {
+      "profiles": [
+    {
+      "name": "fapi-2-security-profile-id2",
+      "description": "Client profile, which enforce clients to conform 'FAPI 2.0 Security Profile ID2' specification.",
+      "executors": [
+        {
+          "executor": "confidential-client",
+          "configuration": {}
+        },
+        {
+          "executor": "secure-client-authenticator",
+          "configuration": {
+            "allowed-client-authenticators": [
+              "client-jwt",
+              "client-x509"
+            ],
+            "default-client-authenticator": "client-jwt"
+          }
+        },
+        {
+          "executor": "secure-client-uris",
+          "configuration": {}
+        },
+        {
+          "executor": "secure-signature-algorithm",
+          "configuration": {
+            "default-algorithm": "PS256"
+          }
+        },
+        {
+          "executor": "secure-signature-algorithm-signed-jwt",
+          "configuration": {
+            "require-client-assertion": false
+          }
+        },
+        {
+          "executor": "consent-required",
+          "configuration": {
+            "auto-configure": true
+          }
+        },
+        {
+          "executor": "full-scope-disabled",
+          "configuration": {
+            "auto-configure": true
+          }
+        },
+        {
+          "executor": "reject-implicit-grant",
+          "configuration": {
+            "auto-configure": "true"
+          }
+        },
+        {
+          "executor": "holder-of-key-enforcer",
+          "configuration": {
+            "auto-configure": "true"
+          }
+        },
+        {
+          "executor": "pkce-enforcer",
+          "configuration": {
+            "auto-configure": "true"
+          }
+        },
+        {
+          "executor" : "secure-par-content",
+          "configuration" : {}
+        }
+      ]
+    },
+    {
+      "name": "fapi-2-dpop-security-profile-id2",
+      "description": "Client profile, which enforce clients to conform 'FAPI 2.0 Security Profile ID2' using DPoP specification.",
+      "executors": [
+        {
+          "executor": "confidential-client",
+          "configuration": {}
+        },
+        {
+          "executor": "secure-client-authenticator",
+          "configuration": {
+            "allowed-client-authenticators": [
+              "client-jwt",
+              "client-x509"
+            ],
+            "default-client-authenticator": "client-jwt"
+          }
+        },
+        {
+          "executor": "secure-client-uris",
+          "configuration": {}
+        },
+        {
+          "executor": "secure-signature-algorithm",
+          "configuration": {
+            "default-algorithm": "PS256"
+          }
+        },
+        {
+          "executor": "secure-signature-algorithm-signed-jwt",
+          "configuration": {
+            "require-client-assertion": false
+          }
+        },
+        {
+          "executor": "consent-required",
+          "configuration": {
+            "auto-configure": true
+          }
+        },
+        {
+          "executor": "full-scope-disabled",
+          "configuration": {
+            "auto-configure": true
+          }
+        },
+        {
+          "executor": "reject-implicit-grant",
+          "configuration": {
+            "auto-configure": "true"
+          }
+        },
+        {
+          "executor": "pkce-enforcer",
+          "configuration": {
+            "auto-configure": "true"
+          }
+        },
+        {
+          "executor": "secure-par-content",
+          "configuration": {}
+        },
+        {
+          "executor": "dpop-bind-enforcer",
+          "configuration": {
+            "auto-configure": "true",
+            "enforce-authorization-code-binding-to-dpop": "false",
+            "allow-only-refresh-token-binding": "false"
+          }
+        }
+      ]
+    }
+      ]
+    },
     "clientPolicies" : {
         "policies" : [ {
           "name": "fapi2-security-profile-policy",
@@ -1392,7 +1538,7 @@
                 "roles" : [ "fapi2-security-profile-client-role" ]
             }
           } ],
-          "profiles": [ "fapi-2-security-profile" ]
+          "profiles": [ "fapi-2-security-profile-id2" ]
         },
         {
           "name": "fapi2-dpop-security-profile-policy",
@@ -1410,7 +1556,7 @@
             }
           ],
           "profiles": [
-            "fapi-2-dpop-security-profile"
+            "fapi-2-dpop-security-profile-id2"
           ]
         } ]
     },
