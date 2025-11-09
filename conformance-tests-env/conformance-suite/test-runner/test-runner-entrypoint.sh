@@ -8,10 +8,11 @@ do
     sleep 30
 done
 
-echo "The 'docker internal host' available. Waiting 90 seconds before starting tests"
+TEST_START_DELAY=30
+echo "The 'docker internal host' available. Waiting $TEST_START_DELAY seconds before starting tests"
 
 # Sometimes keycloak is still starting up at this point if no maven dependencies need downloading in server service (sleep 90)
-sleep 90
+sleep $TEST_START_DELAY
 
 docker exec keycloak-fapi-server-1 bash -c "chmod a+x /conformance-suite/.gitlab-ci/run-tests.sh"
 docker exec keycloak-fapi-server-1 bash -c "chmod a+x /conformance-suite/scripts/*"
