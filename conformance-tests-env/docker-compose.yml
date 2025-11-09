@@ -169,6 +169,7 @@ services:
 #     - DEBUG_PORT=*:8787
      - KEYCLOAK_ADMIN=${KEYCLOAK_USER}
      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_PASSWORD}
+     - KC_SPI_PUBLIC_KEY_STORAGE__INFINISPAN__MIN_TIME_BETWEEN_REQUESTS=1
     volumes:
       # Need to add server.pem to the image at build-time for cacerts import
 #     - ./common/https/server.pem:/etc/x509/https/tls.crt
