@@ -552,6 +552,10 @@ makeFAPI1AdvancedTest() {
     TESTS="${TESTS} fapi1-advanced-final-test-plan[client_auth_type=mtls][fapi_profile=plain_fapi][fapi_response_mode=plain_response][fapi_auth_request_method=by_value] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi1-advanced/fapi1-advanced-final-with-mtls-ES256-ES256-automated.json"
 }
 
+makeFAPI1AdvancedTestCI() {
+    TESTS="${TESTS} fapi1-advanced-final-test-plan[client_auth_type=private_key_jwt][fapi_profile=plain_fapi][fapi_response_mode=plain_response][fapi_auth_request_method=by_value]:fapi1-advanced-final-discovery-end-point-verification,fapi1-advanced-final ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi1-advanced/fapi1-advanced-final-with-private-key-PS256-PS256-automated.json"
+}
+
 makeManualFAPI1AdvancedTest() {
     TESTS="${TESTS} fapi1-advanced-final-test-plan[client_auth_type=private_key_jwt][fapi_profile=plain_fapi][fapi_response_mode=plain_response][fapi_auth_request_method=by_value] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi1-advanced/fapi1-advanced-final-with-private-key-PS256-PS256.json"
     TESTS="${TESTS} fapi1-advanced-final-test-plan[client_auth_type=private_key_jwt][fapi_profile=plain_fapi][fapi_response_mode=plain_response][fapi_auth_request_method=by_value] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi1-advanced/fapi1-advanced-final-with-private-key-ES256-ES256.json"
@@ -1007,6 +1011,16 @@ elif [ "$#" -eq 1 ] && [ "$1" = "--fapi1-advanced-all" ]; then
     makeFAPI1AdvancedPARTest
     makeFAPI1AdvancedJARMTest
     makeFAPI1AdvancedPARJARMTest
+elif [ "$#" -eq 1 ] && [ "$1" = "--fapi1-advanced-all-ci" ]; then
+    echo "Run fapi1-advanced all tests"
+    EXPECTED_FAILURES_FILE="../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi1-advanced/expected-failures-fapi1-advanced-all-ci.json"
+    EXPECTED_SKIPS_FILE="../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi1-advanced/expected-skips-fapi1-advanced-all-ci.json"
+    makeFAPI1AdvancedTestCI
+    #makeFAPI1AdvancedPARTestCI
+    #makeFAPI1AdvancedJARMTestCI
+    #makeFAPI1AdvancedPARJARMTestCI
+    TESTS="${TESTS} --expected-failures-file ${EXPECTED_FAILURES_FILE}"
+    TESTS="${TESTS} --expected-skips-file ${EXPECTED_SKIPS_FILE}"
 elif [ "$#" -eq 1 ] && [ "$1" = "--fapi-ciba-all" ]; then
     echo "Run fapi-ciba all tests"
     makeCIBAPollTest
