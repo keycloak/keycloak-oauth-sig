@@ -1,0 +1,13 @@
+# Build and target folders
+target/
+
+# Keystore files
+*.pkcs12
+
+# IDE and editor configs
+/.idea/
+.vscode/
+
+# Docker Compose environment file (generated from config.yaml)
+.env*
+config.override.yaml

@@ -1,0 +1,55 @@
+[
+  {
+    "clientId": "oid4vc-demo-public",
+    "enabled": true,
+    "redirectUris": [],
+    "webOrigins": [],
+    "publicClient": true,
+    "frontchannelLogout": true,
+    "protocol": "openid-connect",
+    "attributes": {
+      "oid4vci.enabled": "true",
+      "post.logout.redirect.uris": ""
+    },
+    "authenticationFlowBindingOverrides": {},
+    "fullScopeAllowed": true,
+    "defaultClientScopes": [
+      "web-origins",
+      "acr",
+      "roles",
+      "profile",
+      "basic",
+      "email"
+    ]
+  },
+  {
+    "clientId": "openid4vc-rest-api",
+    "enabled": true,
+    "clientAuthenticatorType": "client-secret",
+    "secret": "",
+    "redirectUris": [
+      "http://back.localhost.com/*"
+    ],
+    "webOrigins": [],
+    "notBefore": 0,
+    "standardFlowEnabled": true,
+    "directAccessGrantsEnabled": true,
+    "publicClient": false,
+    "protocol": "openid-connect",
+    "attributes": {
+      "oid4vci.enabled": "true",
+      "client.secret.creation.time": "1719785014",
+      "post.logout.redirect.uris": "http://front.localhost.com",
+      "use.refresh.tokens": "true"
+    },
+    "fullScopeAllowed": true,
+    "defaultClientScopes": [
+      "web-origins",
+      "acr",
+      "roles",
+      "profile",
+      "basic",
+      "email"
+    ]
+  }
+]

@@ -1,0 +1,27 @@
+# Git
+.git
+.gitignore
+
+# Docs
+docs/
+*.md
+
+# Target folders not needed in container
+target/
+
+# AWS and other configs
+.aws/
+.github/
+
+# Docker compose (optional)
+docker-compose.yml
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,7 @@
+{
+    "enabled": true,
+    "verifiableCredentialsEnabled": true,
+    "attributes": {
+        "preAuthorizedCodeLifespanS": "120"
+    }
+}

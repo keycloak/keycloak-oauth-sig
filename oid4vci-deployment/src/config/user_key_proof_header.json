@@ -1,0 +1,10 @@
+{
+  "alg": "ES256",
+  "typ": "openid4vci-proof+jwt",
+  "jwk": {
+    "kty": "EC",
+    "crv": "P-256",
+    "x": "",
+    "y": ""
+  }
+}
