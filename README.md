@@ -138,7 +138,7 @@ FAPI related accomplishments by FAPI-SIG and OAuth SIG, other contributors and k
   - [JWT VC](https://identity.foundation/jwt-vc-presentation-profile/#jwt-vc)
   - [W3C Verfiable Credentials Data Format(VCDM)](https://www.w3.org/TR/vc-data-model/)
 
-###### Issurance Protocol
+###### Issuance Protocol
 
   - [OpenID for Verifiable Credential Issuance](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html)
 
