@@ -14,6 +14,9 @@
       "email": "fpo@mail.de",
       "createdTimestamp": 1732781977982,
       "enabled": true,
+      "realmRoles": [
+        "credential-offer-create"
+      ],
       "credentials": [
         {
           "id": "0a16e61d-c379-4f99-acdd-48aa57752e65",
@@ -147,14 +150,6 @@
           "config": {}
         },
         {
-          "id": "102b0638-6382-44de-ba29-79da000a4471",
-          "name": "status-list-claim-mapper",
-          "protocol": "oid4vc",
-          "protocolMapper": "oid4vc-status-list-claim-mapper",
-          "consentRequired": false,
-          "config": {}
-        },
-        {
           "id": "3559e36d-f013-4bc8-aa4c-1f937fa5d06b",
           "name": "nbf-oid4vc-issued-at-time-claim-mapper-identity_credential",
           "protocol": "oid4vc",
@@ -253,13 +248,6 @@
           "name": "id-mapper-kma",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-subject-id-mapper",
-          "consentRequired": false,
-          "config": {}
-        },
-        {
-          "name": "status-list-claim-mapper-kma",
-          "protocol": "oid4vc",
-          "protocolMapper": "oid4vc-status-list-claim-mapper",
           "consentRequired": false,
           "config": {}
         },
@@ -506,14 +494,6 @@
           "name": "id-mapper-bsk",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-subject-id-mapper",
-          "consentRequired": false,
-          "config": {}
-        },
-        {
-          "id": "bc96abbe-d539-4e4c-a134-4638d8b65f4e",
-          "name": "status-list-claim-mapper-bsk",
-          "protocol": "oid4vc",
-          "protocolMapper": "oid4vc-status-list-claim-mapper",
           "consentRequired": false,
           "config": {}
         },

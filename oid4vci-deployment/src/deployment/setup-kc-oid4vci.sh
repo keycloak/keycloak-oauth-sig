@@ -38,7 +38,7 @@ download_tarball() {
 # Clone custom Keycloak repository and build if needed
 # ---------------------------------------------------------------------------
 clone_and_build_keycloak() {
-    local repo_url="${KEYCLOAK_REPO_URL:-https://github.com/adorsys/keycloak-oid4vc.git}"
+    local repo_url="${KEYCLOAK_REPO_URL:-https://github.com/keycloak/keycloak.git}"
     local target_dir="$PROJECT_TARGET_DIR/$KEYCLOAK_OID4VCI_DIR"
     local build_artifact="$target_dir/quarkus/dist/target/keycloak-999.0.0-SNAPSHOT.tar.gz"
 
