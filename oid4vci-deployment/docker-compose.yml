@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=${DATABASE_USERNAME}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+    ports:
+      - "${DATABASE_EXPOSED_PORT}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  app:
+    # image: ghcr.io/adorsys/keycloak-ssi-deployment:latest
+    build:
+      context: .
+    environment:
+      - DATABASE_OPTS=--db postgres --db-url jdbc:postgresql://db:5432/${DATABASE_NAME} --db-username ${DATABASE_USERNAME} --db-password ${DATABASE_PASSWORD}
+    depends_on:
+      - db
+    ports:
+      - "${KEYCLOAK_HTTPS_PORT}:${KEYCLOAK_HTTPS_PORT}"
+
+volumes:
+  db_data:

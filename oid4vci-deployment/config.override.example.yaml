@@ -1,0 +1,15 @@
+# -----------------------------------------------------------------------------
+# Keycloak SSI Configuration Overrides
+# -----------------------------------------------------------------------------
+# This file allows you to override specific configuration values from config.yaml
+# Only include the values you want to override - this file is merged with config.yaml
+#
+
+# Example: Override realm name
+# keycloak:
+#   realm: "production-realm"
+
+# Example: Override database settings
+# database:
+#   password: "${PROD_DB_PASSWORD}"
+#   username: "${PROD_DB_USER}"

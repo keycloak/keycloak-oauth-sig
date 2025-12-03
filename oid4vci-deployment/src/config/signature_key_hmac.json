@@ -1,0 +1,28 @@
+{
+  "id": "hmac-signature-key",
+  "name": "hmac-signature-key",
+  "providerId": "java-keystore",
+  "providerType": "org.keycloak.keys.KeyProvider",
+  "config": {
+    "keystore": [
+      "$KEYSTORE_PATH"
+    ],
+    "keystoreType": [
+      "$KEYSTORE_TYPE"
+    ],
+    "keystorePassword": [
+      "$KEYSTORE_PASSWORD"
+    ],
+    "keyAlias":[
+      "$KEYSTORE_ALIASES_HMAC_SIG_KEY"
+    ],
+    "keyPassword": [
+      "$KEYSTORE_PASSWORD"
+    ],
+    "active": ["true"],
+    "priority": ["0"],
+    "enabled": ["true"],
+    "algorithm": ["HS512"],
+    "kid": ["UUID-HERE"]
+  }
+}

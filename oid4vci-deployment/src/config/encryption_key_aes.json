@@ -1,0 +1,28 @@
+{
+  "id": "aes-encryption-key",
+  "name": "aes-encryption-key",
+  "providerId": "java-keystore",
+  "providerType": "org.keycloak.keys.KeyProvider",
+  "config": {
+    "keystore": [
+      "$KEYSTORE_PATH"
+    ],
+    "keystoreType": [
+      "$KEYSTORE_TYPE"
+    ],
+    "keystorePassword": [
+      "$KEYSTORE_PASSWORD"
+    ],
+    "keyAlias":[
+      "$KEYSTORE_ALIASES_AES_ENC_KEY"
+    ],
+    "keyPassword": [
+      "$KEYSTORE_PASSWORD"
+    ],
+    "active": ["true"],
+    "priority": ["200"],
+    "enabled": ["true"],
+    "algorithm": ["AES"],
+    "kid": ["UUID-HERE"]    
+  }
+}

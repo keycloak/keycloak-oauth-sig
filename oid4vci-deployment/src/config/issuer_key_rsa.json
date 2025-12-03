@@ -1,0 +1,27 @@
+{
+  "id": "rsa-issuer-key",
+  "name": "rsa-issuer-key",
+  "providerId": "java-keystore",
+  "providerType": "org.keycloak.keys.KeyProvider",
+  "config": {
+    "keystore": [
+      "$KEYSTORE_PATH"
+    ],
+    "keystoreType": [
+      "$KEYSTORE_TYPE"
+    ],
+    "keystorePassword": [
+      "$KEYSTORE_PASSWORD"
+    ],
+    "keyAlias":[
+      "$KEYSTORE_ALIASES_RSA_SIG_KEY"
+    ],
+    "keyPassword": [
+      "$KEYSTORE_PASSWORD"
+    ],
+    "active": ["true"],
+    "priority": ["200"],
+    "enabled": ["true"],
+    "algorithm": ["RS256"]
+  }
+}
