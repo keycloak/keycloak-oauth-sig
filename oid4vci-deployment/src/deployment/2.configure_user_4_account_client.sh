@@ -56,6 +56,28 @@ log "Setting password for user Francis..."
 success "Password ensured for Francis."
 
 # -----------------------------------------------------------------------------
+# Ensure 'credential-offer-create' realm role is assigned to Francis
+# This realm role grants permission to create credential offers.
+# -----------------------------------------------------------------------------
+log "Checking existence of realm role 'credential-offer-create'..."
+
+if "$KCADM" get roles/credential-offer-create -r "$KEYCLOAK_REALM" >/dev/null 2>&1; then
+  log "Assigning realm role 'credential-offer-create' to user Francis..."
+  FRANCIS_USER_ID=$("$KCADM" get users -r "$KEYCLOAK_REALM" -q username="$USERS_FRANCIS_NAME" --fields id | jq -r '.[0].id')
+  if [ -n "$FRANCIS_USER_ID" ] && [ "$FRANCIS_USER_ID" != "null" ]; then
+    "$KCADM" add-roles -r "$KEYCLOAK_REALM" \
+      --uid "$FRANCIS_USER_ID" \
+      --rolename credential-offer-create || \
+      warn "Failed to assign 'credential-offer-create' role to user Francis (it may already be assigned)."
+    success "Realm role 'credential-offer-create' assigned to Francis."
+  else
+    error "Could not find user Francis to assign realm role 'credential-offer-create'."
+  fi
+else
+  error "Realm role 'credential-offer-create' does not exist in realm '$KEYCLOAK_REALM'."
+fi
+
+# -----------------------------------------------------------------------------
 # Prepare user key proof header if not existent
 # -----------------------------------------------------------------------------
 if [ ! -f "$PROJECT_TARGET_DIR/user_key_proof_header.json" ]; then

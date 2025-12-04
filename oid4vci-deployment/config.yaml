@@ -22,7 +22,7 @@ keycloak:
   # Keycloak installation directory (after unpack)
   install_dir: "${PROJECT_TOOLS_DIR}/keycloak-${KEYCLOAK_VERSION}"
   # Keycloak repository to clone
-  repo_url: "https://github.com/adorsys/keycloak-oid4vc.git"
+  # repo_url: "https://github.com/adorsys/keycloak-oid4vc.git"
   # Bootstrap admin credentials
   bootstrap:
     admin_username: "admin"
