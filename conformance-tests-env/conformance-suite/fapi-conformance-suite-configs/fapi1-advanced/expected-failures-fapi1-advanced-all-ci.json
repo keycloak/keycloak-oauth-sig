@@ -1,0 +1,30 @@
+[
+  {
+    "test-name": "fapi1-advanced-final",
+    "variant": {
+      "client_auth_type": "private_key_jwt",
+      "fapi_auth_request_method": "by_value",
+      "fapi_profile": "plain_fapi",
+      "fapi_response_mode": "plain_response"
+    },
+    "configuration-filename": "../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi1-advanced/fapi1-advanced-final-with-private-key-PS256-PS256-automated.json",
+    "current-block": "",
+    "condition": "EnsureIdTokenDoesNotContainNonRequestedClaims",
+    "expected-result": "warning",
+    "comment": "**CHANGE ME** explain why this failure occurs"
+  },
+  {
+    "test-name": "fapi1-advanced-final",
+    "variant": {
+      "client_auth_type": "private_key_jwt",
+      "fapi_auth_request_method": "by_value",
+      "fapi_profile": "plain_fapi",
+      "fapi_response_mode": "plain_response"
+    },
+    "configuration-filename": "../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi1-advanced/fapi1-advanced-final-with-private-key-PS256-PS256-automated.json",
+    "current-block": "",
+    "condition": "EnsureIdTokenDoesNotContainNonRequestedClaims",
+    "expected-result": "warning",
+    "comment": "**CHANGE ME** explain why this failure occurs"
+  }
+]

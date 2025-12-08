@@ -1,4 +1,5 @@
 {
     "acr_values_supported": [ "urn:brasil:openinsurance:loa2", "urn:brasil:openbanking:loa2", "urn:brasil:openbanking:loa3", "urn:mace:incommon:iap:silver", "urn:cds.au:cdr:2" ],
-    "claims_supported":[ "aud", "sub", "iss", "auth_time", "name", "given_name", "family_name", "preferred_username", "email", "acr", "cpf", "cnpj", "sharing_duration", "openbanking_intent_id" ]
+    "claims_supported":[ "aud", "sub", "iss", "auth_time", "name", "given_name", "family_name", "preferred_username", "email", "acr", "cpf", "cnpj", "sharing_duration", "openbanking_intent_id" ],
+    "authorization_details_types_supported": [ "urn:openfinanceuae:account-access-consent:v1.0" ]
 }
