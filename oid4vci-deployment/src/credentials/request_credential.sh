@@ -54,7 +54,7 @@ success "User Access Token retrieved."
 # ===============================
 log "Requesting credential offer for '$CREDENTIAL_TYPE'..."
 
-CREDENTIAL_OFFER_LINK=$(curl -k -s "$KEYCLOAK_ADMIN_ADDR/realms/$KEYCLOAK_REALM/protocol/oid4vc/credential-offer-uri?credential_configuration_id=$CREDENTIAL_TYPE&user_id=$USERS_FRANCIS_NAME" \
+CREDENTIAL_OFFER_LINK=$(curl -k -s "$KEYCLOAK_ADMIN_ADDR/realms/$KEYCLOAK_REALM/protocol/oid4vc/credential-offer-uri?credential_configuration_id=$CREDENTIAL_TYPE&username=$USERS_FRANCIS_NAME" \
   -H "Authorization: Bearer $USER_ACCESS_TOKEN" \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' | jq -r '"\(.issuer)\(.nonce)"')

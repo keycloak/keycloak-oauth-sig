@@ -191,4 +191,3 @@ request_credential() {
 # ===============================
 request_credential "$CREDENTIAL_TYPE"
 success "Credential request process completed successfully!"
-

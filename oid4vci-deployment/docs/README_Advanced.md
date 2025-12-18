@@ -407,7 +407,7 @@ Each Verifiable Credential type is now represented as a dedicated Client Scope. 
     "vc.supported_credential_types": "identity_credential",
     "vc.credential_contexts": "https://credentials.example.com/identity_credential",
     "vc.cryptographic_binding_methods_supported": "jwk",
-    "vc.proof_signing_alg_values_supported": "ES256,ES384",
+    "vc.credential_signing_alg": "ES256",
     "vc.display": "[{\"name\": \"Identity Credential\"}]",
     "vc.sd_jwt.number_of_decoys": "2",
     "vc.credential_build_config.sd_jwt.visible_claims": "iat,nbf",
@@ -476,7 +476,7 @@ Keycloak automates credential issuance, with a Credential Builder structuring cr
 All configuration for credential formats and issuance is now handled at the client scope level. Credential builders are still used but are loaded automatically at Keycloak startup, so manual configuration is no longer required.
 
 **Credential Signing:**
-Credential signing is still performed automatically by Keycloak during credential issuance. The signing algorithm and related settings are now specified in the client scope attributes (such as `vc.proof_signing_alg_values_supported` or similar). No separate credential signing configuration is required at the realm level.
+Credential signing is still performed automatically by Keycloak during credential issuance. The signing algorithm and related settings are now specified in the client scope attributes (such as `vc.credential_signing_alg` or similar). No separate credential signing configuration is required at the realm level.
 
 # Key Endpoints
 
