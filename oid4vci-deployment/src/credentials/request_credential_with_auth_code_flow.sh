@@ -136,13 +136,24 @@ request_credential() {
     --data-urlencode "code_verifier=${code_verifier}" \
     --data-urlencode "authorization_details=$authorization_details_json")
 
+  # Extract the server-generated credential_identifier from the token response.
+  # The credential endpoint requires this identifier (not the static configuration id).
+  credential_identifier=$(echo "$token_response" | jq -r '.authorization_details[0].credential_identifiers[0]')
+
   local access_token
   access_token=$(echo "$token_response" | jq -r '.access_token')
   if [ -z "$access_token" ] || [ "$access_token" == "null" ]; then
     error "Token exchange failed: $token_response"
     exit 1
   fi
+  
+  if [ -z "$credential_identifier" ] || [ "$credential_identifier" == "null" ]; then
+    error "Token response did not contain authorization_details.credential_identifiers: $token_response"
+    exit 1
+  fi
+
   success "Access token obtained successfully."
+  debug "Credential identifier received from token response: $credential_identifier"
 
   # Set the credential access token for key proof generation
   export CREDENTIAL_ACCESS_TOKEN="$access_token"
@@ -166,7 +177,7 @@ request_credential() {
 
   # Prepare credential request
   local req_body
-  req_body=$(jq --arg credential_identifier "$credential_id" --arg proof_jwt "$USER_KEY_PROOF" \
+  req_body=$(jq --arg credential_identifier "$credential_identifier" --arg proof_jwt "$USER_KEY_PROOF" \
     '.credential_identifier = $credential_identifier | .proofs.jwt = [ $proof_jwt ]' \
     "$WORK_DIR_CONFIG/credential_request_body.json")
 
