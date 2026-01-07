@@ -14,7 +14,7 @@ keycloak:
   # Branch to use for custom Keycloak
   target_branch: "main"
   # Keycloak version
-  version: "999.0.0-SNAPSHOT"
+  version: "26.5.0"
   # Directory name for cloned Keycloak repo
   oid4vci_dir: "keycloak_${KEYCLOAK_TARGET_BRANCH}"
   # Keycloak tarball path

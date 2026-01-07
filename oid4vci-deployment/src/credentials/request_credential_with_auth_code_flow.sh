@@ -193,7 +193,7 @@ request_credential() {
     exit 1
   fi
 
-  success "Credential '$credential_id' successfully issued."
+  success "'$credential_id' credential successfully issued."
   echo -e "\n$credential\n"
 }
 

@@ -158,5 +158,5 @@ if [ -z "$CREDENTIAL" ] || [ "$CREDENTIAL" == "null" ]; then
   exit 1
 fi
 
-success "Credential '$CREDENTIAL_TYPE' retrieved successfully!"
+success "'$CREDENTIAL_TYPE' credential retrieved successfully!"
 echo -e "\n$CREDENTIAL\n"
