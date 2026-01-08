@@ -149,8 +149,8 @@ FAPI related accomplishments by FAPI-SIG and OAuth SIG, other contributors and k
 ### Automated Conformance Test Run Environment by this kc-fapi-sig repository
 
 The current environment uses the following software version.
-- Keycloak 26.4.7
-- Conformance-suite version : release-v5.1.37
+- Keycloak 26.5.0
+- Conformance-suite version : release-v5.1.39
 
 #### FAPI 1.0 Advanced (Final)​
   - Client Authentication Method : MTLS, private_key_jwt​
@@ -426,8 +426,9 @@ We tagged the environment for every keycloak verion:
 |kc-26.4.5|26.4.5|release-v5.1.37|
 |kc-26.4.6|26.4.6|release-v5.1.37|
 |kc-26.4.7|26.4.7|release-v5.1.37|
+|kc-26.5.0|26.5.0|release-v5.1.39|
 
-|Keycloak version|FAPI 1.0 Advanced|FAPI-CIBA|Open Banking Brasil FAPI 1.0 (\*1,\*2)|Open Finance Brasil FAPI 1.0 (\*3)|Australia Consumer Data Right (CDR) (\*8)|UK Open Banking|OpenID Connect OP (\*4)|OpenID Connect OP for Logout Profile|FAPI 2.0 Security Profile Implementer’s Draft (\*6)|FAPI 2.0 Message Signing Implementer’s Draft (\*6)|FAPI 2.0 Security Profile (\*9)|FAPI 2.0 Message Signing (\*9)|
+|Keycloak version|FAPI 1.0 Advanced|FAPI-CIBA|Open Banking Brasil FAPI 1.0 (\*1,\*2),\*15|Open Finance Brasil FAPI 1.0 (\*3)|Australia Consumer Data Right (CDR) (\*8)|UK Open Banking|OpenID Connect OP (\*4)|OpenID Connect OP for Logout Profile|FAPI 2.0 Security Profile Implementer’s Draft (\*6,\*14)|FAPI 2.0 Message Signing Implementer’s Draft (\*6,\*14)|FAPI 2.0 Security Profile (\*9)|FAPI 2.0 Message Signing (\*9)|
 |-|-|-|-|-|-|-|-|-|-|-|-|-|
 |15.0.2|x|x|x|-|x|-|-|-|-|-|-|-|
 |17.0.0|x|x|x|-|x|-|-|-|-|-|-|-|
@@ -512,6 +513,7 @@ We tagged the environment for every keycloak verion:
 |26.4.5|x|x|x|x|x|x|x|x|x|x|x|x|
 |26.4.6|x|x|x|x|x|x|x|x|x|x|x|x|
 |26.4.7|x|x|x|x|x|x|x|x|x|x|x|x|
+|26.5.0|x|x|-|x|x|x|-(\*16)|x|-|-|x|x|
 
 Note: Keycloak legacy (wildfly) is no longer supported since [keycloak 20](https://www.keycloak.org/docs/latest/release_notes/index.html#wildfly-distribution-removed).
 
@@ -570,6 +572,12 @@ Note: Keycloak legacy (wildfly) is no longer supported since [keycloak 20](https
 
  while Keycloak still can pass the following conformance tests:
  - FAPI-CIBA (w/ mtls as client authentication method)
+
+\*14 : FAPI 2.0 final version was released. Therefore, FAPI 2.0 draft version conformance is no longer checked.
+
+\*15 : Open Finance Brasil, the successor of Open Banking Brasil was relased. Therefore, Open Banking Brasil is no longer checked.
+
+\*16 : [ISSUE-45250](https://github.com/keycloak/keycloak/issues/45250)
 
 ## Other Contributions
 
