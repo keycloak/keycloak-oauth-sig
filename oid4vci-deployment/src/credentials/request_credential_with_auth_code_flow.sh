@@ -139,16 +139,15 @@ request_credential() {
   # Extract the server-generated credential_identifier from the token response.
   # The credential endpoint requires this identifier (not the static configuration id).
   credential_identifier=$(echo "$token_response" | jq -r '.authorization_details[0].credential_identifiers[0]')
+  if [ -z "$credential_identifier" ] || [ "$credential_identifier" == "null" ]; then
+    error "Token response did not contain authorization_details.credential_identifiers: $token_response"
+    exit 1
+  fi
 
   local access_token
   access_token=$(echo "$token_response" | jq -r '.access_token')
   if [ -z "$access_token" ] || [ "$access_token" == "null" ]; then
     error "Token exchange failed: $token_response"
-    exit 1
-  fi
-  
-  if [ -z "$credential_identifier" ] || [ "$credential_identifier" == "null" ]; then
-    error "Token response did not contain authorization_details.credential_identifiers: $token_response"
     exit 1
   fi
 
