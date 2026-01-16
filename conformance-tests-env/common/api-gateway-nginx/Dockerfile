@@ -1,4 +1,6 @@
-FROM openresty/openresty:1.25.3.2-0-alpine-fat
+FROM openresty/openresty:alpine-fat
+
+RUN apk update && apk add ca-certificates
 
 RUN /usr/local/openresty/luajit/bin/luarocks install lua-resty-openidc \
   && /usr/local/openresty/luajit/bin/luarocks install lua-resty-jit-uuid
