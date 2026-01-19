@@ -14,7 +14,11 @@ keycloak:
   # Branch to use for custom Keycloak
   target_branch: "main"
   # Keycloak version
-  version: "26.5.0"
+  # Set to "latest" to automatically fetch the latest *patch* release within the current minor version
+  #   - Example: if the base is 26.5, this will track 26.5.x (26.5.1, 26.5.2, ...)
+  # Set to "999.0.0-SNAPSHOT" to build from the custom branch specified in target_branch
+  # Set to a specific version (e.g., "26.5.0") to use that exact release
+  version: "latest"
   # Directory name for cloned Keycloak repo
   oid4vci_dir: "keycloak_${KEYCLOAK_TARGET_BRANCH}"
   # Keycloak tarball path
