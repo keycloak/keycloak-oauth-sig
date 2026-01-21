@@ -9,7 +9,7 @@ init_script
 # ---------------------------------------------------------------------------
 # Generate self-signed server certificate if missing
 # ---------------------------------------------------------------------------
-if [[ ! -f "SSL_SERVER_KEY" || ! -f "$SSL_SERVER_CERT" ]]; then
+if [[ ! -f "$SSL_SERVER_KEY" || ! -f "$SSL_SERVER_CERT" ]]; then
     log "Generating self-signed server certificate..."
     openssl req -newkey rsa:2048 -nodes \
         -keyout "$SSL_SERVER_KEY" -x509 -days 3650 \

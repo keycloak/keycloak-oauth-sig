@@ -259,6 +259,11 @@ get_latest_keycloak_version() {
         )
     fi
 
+    # Validate that the resolved version is a proper semver (major.minor.patch)
+    if [[ ! "$latest_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        error "Resolved Keycloak version '$latest_version' is not a valid semantic version (expected format: major.minor.patch)"
+    fi
+
     if [[ -z "$latest_version" ]] || [[ "$latest_version" == "null" ]]; then
         warn "No patch version found for $base_version.*. Using base version as fallback." >&2
         # Fallback to the base version with .0 if no patch found
@@ -281,10 +286,6 @@ load_configuration() {
     local config_file="$WORK_DIR/config.yaml"
     local override_file="$WORK_DIR/config.override.yaml"
     local yq_files=("$config_file")
-    local temp_override_file="${WORK_DIR}/.config.latest_override.yaml"
-    
-    # Clean up any existing temp override file
-    rm -f "$temp_override_file"
 
     # Check if config.yaml exists
     if [[ ! -f "$config_file" ]]; then
@@ -294,54 +295,15 @@ load_configuration() {
 
     log "Loading configuration from $config_file"
 
-    # Check if version is set to "latest" and resolve it
-    local version_value
-    version_value=$(yq eval '.keycloak.version' "$config_file" 2>/dev/null || echo "")
-    
-    if [[ "$version_value" == "latest" ]]; then
-        log "Keycloak version is set to 'latest', fetching latest release..."
-        local latest_version
-        latest_version=$(get_latest_keycloak_version)
-        
-        if [[ -n "$latest_version" ]]; then
-            # Create a temporary override file with the resolved version
-            echo "keycloak:" > "$temp_override_file"
-            echo "  version: \"$latest_version\"" >> "$temp_override_file"
-            log "Resolved 'latest' to version: $latest_version"
-            yq_files+=("$temp_override_file")
-        fi
-    fi
-
     # Apply overrides from config.override.yaml if it exists
     if [[ -f "$override_file" ]]; then
         log "Applying overrides from $override_file"
         yq_files+=("$override_file")
-
-        # Also check override file for "latest"
-        local override_version
-        override_version=$(yq eval '.keycloak.version' "$override_file" 2>/dev/null || echo "")
-        if [[ "$override_version" == "latest" ]]; then
-            local latest_version
-            latest_version=$(get_latest_keycloak_version)
-            if [[ -n "$latest_version" ]]; then
-                # Update temp override or create new one
-                if [[ -f "$temp_override_file" ]]; then
-                    yq eval ".keycloak.version = \"$latest_version\"" -i "$temp_override_file"
-                else
-                    echo "keycloak:" > "$temp_override_file"
-                    echo "  version: \"$latest_version\"" >> "$temp_override_file"
-                    yq_files+=("$temp_override_file")
-                fi
-            fi
-        fi
     fi
 
     # Export variables using the new helper function.
     # The yq dependency check is now handled inside export_yaml_as_env.
     export_yaml_as_env "${yq_files[@]}" > /dev/null
-
-    # Clean up temp override file after loading
-    rm -f "$temp_override_file"
 }
 
 # -----------------------------------------------------------------------------
@@ -477,6 +439,50 @@ ensure_keycloak_crypto_materials() {
 }
 
 # -----------------------------------------------------------------------------
+# kcadm Helper
+# - Prefer local Keycloak install (after setup-kc-oid4vci.sh)
+# - Fallback to running kcadm inside the Docker Compose app container
+# -----------------------------------------------------------------------------
+kcadm() {
+    if [[ -x "${KEYCLOAK_INSTALL_DIR:-}/bin/kcadm.sh" ]]; then
+        "${KEYCLOAK_INSTALL_DIR}/bin/kcadm.sh" "$@"
+    else
+        # Fallback to containerized Keycloak; assumes compose service is named "app"
+        # and Keycloak is installed under /opt/keycloak in the container image.
+        docker compose exec -T app /opt/keycloak/bin/kcadm.sh "$@"
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Ensure KEYCLOAK_INSTALL_DIR is resolved if KEYCLOAK_VERSION is "latest"
+# - This ensures KEYCLOAK_INSTALL_DIR points to the actual installed directory
+#   (e.g., keycloak-26.5.1) instead of the literal "keycloak-latest"
+# -----------------------------------------------------------------------------
+ensure_keycloak_install_dir_resolved() {
+    if [[ "${KEYCLOAK_VERSION:-}" == "latest" ]]; then
+        local resolved_version
+        resolved_version="$(get_latest_keycloak_version)"
+        export KEYCLOAK_VERSION="$resolved_version"
+        export KEYCLOAK_INSTALL_DIR="${PROJECT_TOOLS_DIR}/keycloak-${KEYCLOAK_VERSION}"
+        export KEYCLOAK_TARBALL_PATH="${PROJECT_TARGET_DIR}/keycloak-${KEYCLOAK_VERSION}.tar.gz"
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Keycloak Truststore Path Helper
+# - Returns the appropriate truststore path for kcadm depending on where it runs
+#   - Local install: uses SSL_TRUST_STORE from config (host path)
+#   - Container:     uses /opt/keycloak/target/cacerts (mounted from host target/)
+# -----------------------------------------------------------------------------
+kc_truststore_path() {
+    if [[ -x "${KEYCLOAK_INSTALL_DIR:-}/bin/kcadm.sh" ]]; then
+        echo "${SSL_TRUST_STORE}"
+    else
+        echo "/opt/keycloak/target/cacerts"
+    fi
+}
+
+# -----------------------------------------------------------------------------
 # Prerequisite Checks
 # -----------------------------------------------------------------------------
 check_dependencies() {
@@ -515,4 +521,4 @@ init_script() {
 export -f log warn error success
 export -f setup_environment get_keycloak_pid stop_keycloak
 export -f urlencode detect_docker_compose init_script ensure_directory_exists check_dependencies export_yaml_as_env
-export -f ensure_keycloak_crypto_materials get_latest_keycloak_version
+export -f ensure_keycloak_crypto_materials get_latest_keycloak_version kcadm kc_truststore_path ensure_keycloak_install_dir_resolved
