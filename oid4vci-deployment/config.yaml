@@ -39,9 +39,9 @@ keycloak:
 # -----------------------------------------------------------------------------
 keystore:
   # Keycloak keystore file path
-  # Default ${PROJECT_TARGET_DIR}/kc_keystore.pkcs12
-  # 👉 Change this to "/opt/keycloak/target/kc_keystore.pkcs12" when running Keycloak inside Docker.
-  path: "${PROJECT_TARGET_DIR}/kc_keystore.pkcs12"
+  # Default /opt/keycloak/target/kc_keystore.pkcs12 (Docker container path)
+  # 👉 Change this to "${PROJECT_TARGET_DIR}/kc_keystore.pkcs12" when running Keycloak on the host machine.
+  path: "/opt/keycloak/target/kc_keystore.pkcs12"
   # Keystore type
   type: "PKCS12"
   # Keystore password
