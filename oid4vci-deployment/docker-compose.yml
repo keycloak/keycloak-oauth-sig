@@ -8,7 +8,7 @@ services:
     ports:
       - "${DATABASE_EXPOSED_PORT}:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql
 
   app:
     image: quay.io/keycloak/keycloak:26.5
