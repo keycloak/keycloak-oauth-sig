@@ -164,6 +164,122 @@ export_yaml_as_env() {
 }
 
 # -----------------------------------------------------------------------------
+# Get Latest Keycloak Release Version (Patch Only)
+# Fetches the latest patch version within the same minor version from GitHub API.
+# Only auto-updates patch versions (e.g., 26.5.*) to avoid breaking changes from
+# minor/major version updates that may require configuration changes.
+# IMPORTANT: This function must print ONLY the plain version string to stdout,
+# because callers capture its output via command substitution.
+# -----------------------------------------------------------------------------
+get_latest_keycloak_version() {
+    # Use a cache file in the project target directory or fallback to /tmp
+    local cache_dir="${PROJECT_TARGET_DIR:-${WORK_DIR:-/tmp}/target}"
+    local cache_file="${cache_dir}/.keycloak_latest_version_cache"
+    local base_version_file="${cache_dir}/.keycloak_base_version_cache"
+    local cache_age=3600  # Cache for 1 hour (3600 seconds)
+    local latest_version
+    local base_version=""  # e.g., "26.5" for version "26.5.1" (initialized to avoid set -u issues)
+
+    # Ensure cache directory exists
+    mkdir -p "$(dirname "$cache_file")" 2>/dev/null || true
+
+    # Check if we have a cached version that's still fresh
+    if [[ -f "$cache_file" ]] && [[ -f "$base_version_file" ]]; then
+        local cache_time
+        cache_time=$(stat -c %Y "$cache_file" 2>/dev/null || stat -f %m "$cache_file" 2>/dev/null || echo "0")
+        local current_time
+        current_time=$(date +%s)
+        local age=$((current_time - cache_time))
+
+        if [[ $age -lt $cache_age ]]; then
+            latest_version=$(cat "$cache_file" 2>/dev/null || echo "")
+            base_version=$(cat "$base_version_file" 2>/dev/null || echo "")
+            if [[ -n "$latest_version" ]] && [[ -n "$base_version" ]]; then
+                # Log to stderr so it does not pollute the captured value
+                log "Using cached latest Keycloak patch version: $latest_version (base: $base_version.*)" >&2
+                echo "$latest_version"
+                return 0
+            fi
+        else
+            # Cache expired, but we still need the base version for filtering
+            base_version=$(cat "$base_version_file" 2>/dev/null || echo "")
+        fi
+    fi
+
+    # If no base version exists, fetch the absolute latest to establish the base
+    if [[ -z "$base_version" ]]; then
+        log "Establishing base version from latest Keycloak release..." >&2
+        local absolute_latest
+        absolute_latest=$(
+            curl -sL "https://api.github.com/repos/keycloak/keycloak/releases/latest" | \
+            jq -r '.tag_name // .name' 2>/dev/null | \
+            sed 's/^v//' | \
+            grep -E '^[0-9]+\.[0-9]+\.[0-9]+' | \
+            head -n1 | \
+            tr -d '\r' | tr -d '\n'
+        )
+
+        if [[ -z "$absolute_latest" ]] || [[ "$absolute_latest" == "null" ]]; then
+            error "Failed to fetch latest Keycloak version. Please check your internet connection or set a specific version in config.yaml"
+        fi
+
+        # Extract base version (major.minor) from the latest version
+        base_version=$(echo "$absolute_latest" | sed -E 's/^([0-9]+\.[0-9]+)\.[0-9]+$/\1/')
+        echo "$base_version" > "$base_version_file"
+        log "Base version established: $base_version.*" >&2
+    fi
+
+    # Fetch latest patch version within the same minor version
+    log "Fetching latest patch version for $base_version.* from GitHub..." >&2
+    
+    # Get all releases and filter for the base version, then get the latest patch
+    latest_version=$(
+        curl -sL "https://api.github.com/repos/keycloak/keycloak/releases?per_page=100" | \
+        jq -r '.[].tag_name' 2>/dev/null | \
+        sed 's/^v//' | \
+        grep -E "^${base_version}\.[0-9]+$" | \
+        sort -V | \
+        tail -n1 | \
+        tr -d '\r' | tr -d '\n'
+    )
+
+    # Fallback: try parsing from releases page if API fails
+    if [[ -z "$latest_version" ]] || [[ "$latest_version" == "null" ]]; then
+        debug "GitHub API failed, trying alternative method..." >&2
+        # For fallback, we'll just get the latest and hope it matches
+        latest_version=$(
+            curl -sL "https://github.com/keycloak/keycloak/releases" | \
+            grep -oE 'releases/tag/[0-9]+\.[0-9]+\.[0-9]+' | \
+            sed 's|releases/tag/||' | \
+            sed 's/^v//' | \
+            grep -E "^${base_version}\.[0-9]+$" | \
+            sort -V | \
+            tail -n1 | \
+            tr -d '\r' | tr -d '\n'
+        )
+    fi
+
+    # Validate that the resolved version is a proper semver (major.minor.patch)
+    if [[ ! "$latest_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        error "Resolved Keycloak version '$latest_version' is not a valid semantic version (expected format: major.minor.patch)"
+    fi
+
+    if [[ -z "$latest_version" ]] || [[ "$latest_version" == "null" ]]; then
+        warn "No patch version found for $base_version.*. Using base version as fallback." >&2
+        # Fallback to the base version with .0 if no patch found
+        latest_version="${base_version}.0"
+    fi
+
+    # Cache the version and base version
+    echo "$latest_version" > "$cache_file"
+    echo "$base_version" > "$base_version_file"
+    success "Latest Keycloak patch version: $latest_version (base: $base_version.*)" >&2
+
+    # Print ONLY the version to stdout
+    echo "$latest_version"
+}
+
+# -----------------------------------------------------------------------------
 # Configuration Loading
 # -----------------------------------------------------------------------------
 load_configuration() {
@@ -323,11 +439,55 @@ ensure_keycloak_crypto_materials() {
 }
 
 # -----------------------------------------------------------------------------
+# kcadm Helper
+# - Prefer local Keycloak install (after setup-kc-oid4vci.sh)
+# - Fallback to running kcadm inside the Docker Compose app container
+# -----------------------------------------------------------------------------
+kcadm() {
+    if [[ -x "${KEYCLOAK_INSTALL_DIR:-}/bin/kcadm.sh" ]]; then
+        "${KEYCLOAK_INSTALL_DIR}/bin/kcadm.sh" "$@"
+    else
+        # Fallback to containerized Keycloak; assumes compose service is named "app"
+        # and Keycloak is installed under /opt/keycloak in the container image.
+        docker compose exec -T app /opt/keycloak/bin/kcadm.sh "$@"
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Ensure KEYCLOAK_INSTALL_DIR is resolved if KEYCLOAK_VERSION is "latest"
+# - This ensures KEYCLOAK_INSTALL_DIR points to the actual installed directory
+#   (e.g., keycloak-26.5.1) instead of the literal "keycloak-latest"
+# -----------------------------------------------------------------------------
+ensure_keycloak_install_dir_resolved() {
+    if [[ "${KEYCLOAK_VERSION:-}" == "latest" ]]; then
+        local resolved_version
+        resolved_version="$(get_latest_keycloak_version)"
+        export KEYCLOAK_VERSION="$resolved_version"
+        export KEYCLOAK_INSTALL_DIR="${PROJECT_TOOLS_DIR}/keycloak-${KEYCLOAK_VERSION}"
+        export KEYCLOAK_TARBALL_PATH="${PROJECT_TARGET_DIR}/keycloak-${KEYCLOAK_VERSION}.tar.gz"
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Keycloak Truststore Path Helper
+# - Returns the appropriate truststore path for kcadm depending on where it runs
+#   - Local install: uses SSL_TRUST_STORE from config (host path)
+#   - Container:     uses /opt/keycloak/target/cacerts (mounted from host target/)
+# -----------------------------------------------------------------------------
+kc_truststore_path() {
+    if [[ -x "${KEYCLOAK_INSTALL_DIR:-}/bin/kcadm.sh" ]]; then
+        echo "${SSL_TRUST_STORE}"
+    else
+        echo "/opt/keycloak/target/cacerts"
+    fi
+}
+
+# -----------------------------------------------------------------------------
 # Prerequisite Checks
 # -----------------------------------------------------------------------------
 check_dependencies() {
     local missing_deps=()
-    for dep in openssl keytool jq figlet yq; do
+    for dep in openssl keytool jq figlet yq stat; do
         if ! command -v "$dep" &>/dev/null; then
             missing_deps+=("$dep")
         fi
@@ -361,4 +521,4 @@ init_script() {
 export -f log warn error success
 export -f setup_environment get_keycloak_pid stop_keycloak
 export -f urlencode detect_docker_compose init_script ensure_directory_exists check_dependencies export_yaml_as_env
-export -f ensure_keycloak_crypto_materials
+export -f ensure_keycloak_crypto_materials get_latest_keycloak_version kcadm kc_truststore_path ensure_keycloak_install_dir_resolved

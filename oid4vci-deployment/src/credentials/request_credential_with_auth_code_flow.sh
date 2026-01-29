@@ -9,6 +9,12 @@ IFS=$'\n\t'
 source "$WORK_DIR/src/utils/helper.sh"
 init_script
 
+# -----------------------------------------------------------------------------
+# Ensure KEYCLOAK_INSTALL_DIR is resolved if KEYCLOAK_VERSION is "latest"
+# This is needed so the kcadm helper can find the local Keycloak install
+# -----------------------------------------------------------------------------
+ensure_keycloak_install_dir_resolved
+
 # ===============================
 # Paths
 # ===============================
@@ -31,11 +37,11 @@ CREDENTIAL_TYPE="$1"
 # Configure Admin
 # ===============================
 log "Configuring Keycloak admin credentials..."
-$KEYCLOAK_INSTALL_DIR/bin/kcadm.sh config truststore --trustpass "$SSL_TRUST_STORE_PASS" "$SSL_TRUST_STORE"
+kcadm config truststore --trustpass "$SSL_TRUST_STORE_PASS" "$(kc_truststore_path)"
 
-if ! $KEYCLOAK_INSTALL_DIR/bin/kcadm.sh get realms --server "$KEYCLOAK_ADMIN_ADDR" --realm master > /dev/null 2>&1; then
+if ! kcadm get realms --server "$KEYCLOAK_ADMIN_ADDR" --realm master > /dev/null 2>&1; then
   log "No existing admin credentials found. Configuring new credentials..."
-  $KEYCLOAK_INSTALL_DIR/bin/kcadm.sh config credentials \
+  kcadm config credentials \
     --server "$KEYCLOAK_ADMIN_ADDR" \
     --realm master \
     --user "$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME" \
@@ -51,7 +57,7 @@ fi
 # Check User 'francis'
 # ===============================
 log "Verifying user 'francis'..."
-if ! $KEYCLOAK_INSTALL_DIR/bin/kcadm.sh get users -r "$KEYCLOAK_REALM" --fields username | jq -e '.[] | select(.username=="francis")' > /dev/null; then
+if ! kcadm get users -r "$KEYCLOAK_REALM" --fields username | jq -e '.[] | select(.username=="francis")' > /dev/null; then
   error "User 'francis' does not exist. Run 2.configure_user_4_account_client.sh first."
   exit 1
 fi

@@ -10,39 +10,44 @@ source "$WORK_DIR/src/utils/helper.sh"
 init_script
 
 # -----------------------------------------------------------------------------
+# Ensure KEYCLOAK_INSTALL_DIR is resolved if KEYCLOAK_VERSION is "latest"
+# This is needed so the kcadm helper can find the local Keycloak install
+# -----------------------------------------------------------------------------
+ensure_keycloak_install_dir_resolved
+
+# -----------------------------------------------------------------------------
 # Get admin token using environment variables for credentials
 # -----------------------------------------------------------------------------
 log "Obtaining admin token..."
-KCADM="$KEYCLOAK_INSTALL_DIR/bin/kcadm.sh"
-"$KCADM" config truststore --trustpass "$SSL_TRUST_STORE_PASS" "$SSL_TRUST_STORE"
-"$KCADM" config credentials --server "$KEYCLOAK_ADMIN_ADDR" --realm master --user "$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME" --password "$KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD"
+kcadm config truststore --trustpass "$SSL_TRUST_STORE_PASS" "$(kc_truststore_path)"
+kcadm config credentials --server "$KEYCLOAK_ADMIN_ADDR" --realm master --user "$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME" --password "$KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD"
 success "Admin token obtained."
 
 # -----------------------------------------------------------------------------
 # Read the direct access property of the openid4vc-rest-api client
 # -----------------------------------------------------------------------------
 log "Reading direct access property of the openid4vc-rest-api client..."
-"$KCADM" get clients -r "$KEYCLOAK_REALM" -q clientId=openid4vc-rest-api --fields 'id,directAccessGrantsEnabled' || true
+kcadm get clients -r "$KEYCLOAK_REALM" -q clientId=openid4vc-rest-api --fields 'id,directAccessGrantsEnabled' || true
 
 # -----------------------------------------------------------------------------
 # Store property ACC_CLIENT_ID in an environment variable
 # -----------------------------------------------------------------------------
-export ACC_CLIENT_ID=$("$KCADM" get clients -r "$KEYCLOAK_REALM" -q clientId=openid4vc-rest-api --fields id | jq -r '.[0].id')
+export ACC_CLIENT_ID=$(kcadm get clients -r "$KEYCLOAK_REALM" -q clientId=openid4vc-rest-api --fields id | jq -r '.[0].id')
 log "Stored openid4vc-rest-api Client ID: $ACC_CLIENT_ID"
 
 # -----------------------------------------------------------------------------
 # Enable direct grant on the openid4vc-rest-api client
 # -----------------------------------------------------------------------------
 log "Enabling direct grant on the openid4vc-rest-api client..."
-"$KCADM" update clients/$ACC_CLIENT_ID -r "$KEYCLOAK_REALM" -s directAccessGrantsEnabled=true -o --fields 'id,directAccessGrantsEnabled' || true
+kcadm update clients/$ACC_CLIENT_ID -r "$KEYCLOAK_REALM" -s directAccessGrantsEnabled=true -o --fields 'id,directAccessGrantsEnabled' || true
 success "Direct grant enabled."
 
 # -----------------------------------------------------------------------------
 # Create a user named Francis
 # -----------------------------------------------------------------------------
 log "Creating user Francis if not exists..."
-if ! "$KCADM" get users -r "$KEYCLOAK_REALM" -q username=francis | jq -e '.[0].id' >/dev/null 2>&1; then
-  "$KCADM" create users -r "$KEYCLOAK_REALM" -s username=francis -s firstName=Francis -s lastName=Pouatcha -s email=fpo@mail.de -s enabled=true
+if ! kcadm get users -r "$KEYCLOAK_REALM" -q username=francis | jq -e '.[0].id' >/dev/null 2>&1; then
+  kcadm create users -r "$KEYCLOAK_REALM" -s username=francis -s firstName=Francis -s lastName=Pouatcha -s email=fpo@mail.de -s enabled=true
   success "User Francis created."
 else
   warn "User Francis already exists."
@@ -52,7 +57,7 @@ fi
 # Set password for Francis
 # -----------------------------------------------------------------------------
 log "Setting password for user Francis..."
-"$KCADM" set-password -r "$KEYCLOAK_REALM" --username "$USERS_FRANCIS_NAME" --new-password "$USERS_FRANCIS_PASSWORD" || true
+kcadm set-password -r "$KEYCLOAK_REALM" --username "$USERS_FRANCIS_NAME" --new-password "$USERS_FRANCIS_PASSWORD" || true
 success "Password ensured for Francis."
 
 # -----------------------------------------------------------------------------
@@ -61,11 +66,11 @@ success "Password ensured for Francis."
 # -----------------------------------------------------------------------------
 log "Checking existence of realm role 'credential-offer-create'..."
 
-if "$KCADM" get roles/credential-offer-create -r "$KEYCLOAK_REALM" >/dev/null 2>&1; then
+if kcadm get roles/credential-offer-create -r "$KEYCLOAK_REALM" >/dev/null 2>&1; then
   log "Assigning realm role 'credential-offer-create' to user Francis..."
-  FRANCIS_USER_ID=$("$KCADM" get users -r "$KEYCLOAK_REALM" -q username="$USERS_FRANCIS_NAME" --fields id | jq -r '.[0].id')
+  FRANCIS_USER_ID=$(kcadm get users -r "$KEYCLOAK_REALM" -q username="$USERS_FRANCIS_NAME" --fields id | jq -r '.[0].id')
   if [ -n "$FRANCIS_USER_ID" ] && [ "$FRANCIS_USER_ID" != "null" ]; then
-    "$KCADM" add-roles -r "$KEYCLOAK_REALM" \
+    kcadm add-roles -r "$KEYCLOAK_REALM" \
       --uid "$FRANCIS_USER_ID" \
       --rolename credential-offer-create || \
       warn "Failed to assign 'credential-offer-create' role to user Francis (it may already be assigned)."

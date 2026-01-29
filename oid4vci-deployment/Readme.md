@@ -33,7 +33,12 @@ keycloak-ssi help
 > - `docs/CLI_GUIDE.md` - This repo contains a CLI tool that will help you configure keycloak and run tests. Please make sure you have it before proceeding:
 
 ```bash
-keycloak-ssi compose up -d   # boots Postgres + Keycloak with HTTPS on localhost
+keycloak-ssi compose up -d   # boots Postgres + Keycloak with HTTPS on localhost\
+```
+
+**⚠️ Important:** After running the command above, ensure that Keycloak is fully started and accessible at `https://localhost:8443` before running any further commands.
+
+```bash
 keycloak-ssi config          # configures realm, clients, demo users, keys
 keycloak-ssi test preauth IdentityCredential
 ```
