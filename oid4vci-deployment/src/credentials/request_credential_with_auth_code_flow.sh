@@ -22,6 +22,14 @@ WORK_DIR_CONFIG="$WORK_DIR/src/config"
 UTILS_DIR="$WORK_DIR/src/utils/crypto"
 TARGET_DIR="${PROJECT_TARGET_DIR:-/tmp}"
 
+# Use internal admin address when running inside container (for curl calls)
+# Ensure we use the internal address if available and we're in container
+if [[ -n "${KEYCLOAK_SSI_IN_CONTAINER:-}" && -n "${KEYCLOAK_INTERNAL_ADMIN_ADDR:-}" ]]; then
+    ADMIN_ADDR="$KEYCLOAK_INTERNAL_ADMIN_ADDR"
+else
+    ADMIN_ADDR="${KEYCLOAK_INTERNAL_ADMIN_ADDR:-$KEYCLOAK_ADMIN_ADDR}"
+fi
+
 # ===============================
 # Argument Validation
 # ===============================
@@ -112,14 +120,33 @@ request_credential() {
   local encoded_scopes
   encoded_scopes=$(urlencode "$scopes")
   local issuer_state="state-$(uuidgen)"
-  local issuer_url="${KEYCLOAK_ADMIN_ADDR}/realms/${KEYCLOAK_REALM}"
+  # For authorization_details.locations, use internal URL (Keycloak validates against its internal view)
+  # For the authorization URL itself, use public URL (needs to work in browser)
+  local issuer_url_for_details="${ADMIN_ADDR}/realms/${KEYCLOAK_REALM}"
+  local public_auth_url="${KEYCLOAK_ADMIN_ADDR}/realms/${KEYCLOAK_REALM}"
 
   local authorization_details_json
-  authorization_details_json=$(jq -n --arg credential_id "$credential_id" --arg issuer_url "$issuer_url" '[{"type":"openid_credential", "credential_configuration_id": $credential_id, "locations": [$issuer_url]}]' | tr -d '\n')
+  # Use -c for compact JSON output (no extra whitespace)
+  # CRITICAL: Use internal URL for locations in authorization_details. Even though the authorization
+  # URL itself uses localhost (for browser access), the authorization_details.locations field
+  # must match what Keycloak expects internally (https://app:8443) for token exchange validation.
+  authorization_details_json=$(jq -c -n --arg credential_id "$credential_id" --arg issuer_url "$issuer_url_for_details" '[{"type":"openid_credential", "credential_configuration_id": $credential_id, "locations": [$issuer_url]}]')
+  
+  # Verify ADMIN_ADDR is set to internal address when in container
+  if [[ -n "${KEYCLOAK_SSI_IN_CONTAINER:-}" ]]; then
+    if [[ "$ADMIN_ADDR" != *"app:8443"* ]]; then
+      warn "WARNING: ADMIN_ADDR ($ADMIN_ADDR) does not appear to be internal address. Expected to contain 'app:8443' when running in container."
+    fi
+  fi
+  debug "ADMIN_ADDR: $ADMIN_ADDR"
+  debug "KEYCLOAK_INTERNAL_ADMIN_ADDR: ${KEYCLOAK_INTERNAL_ADMIN_ADDR:-not set}"
+  debug "issuer_url_for_details: $issuer_url_for_details"
+  debug "authorization_details_json: $authorization_details_json"
   local encoded_authorization_details
   encoded_authorization_details=$(urlencode "$authorization_details_json")
 
-  local auth_url="${KEYCLOAK_ADMIN_ADDR}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth?response_type=code&client_id=openid4vc-rest-api&redirect_uri=https://localhost:8443/callback&scope=${encoded_scopes}&issuer_state=${issuer_state}&authorization_details=${encoded_authorization_details}&code_challenge=${code_challenge}&code_challenge_method=S256"
+  # Use public URL for authorization URL (needs to work in browser)
+  local auth_url="${public_auth_url}/protocol/openid-connect/auth?response_type=code&client_id=openid4vc-rest-api&redirect_uri=https://localhost:8443/callback&scope=${encoded_scopes}&issuer_state=${issuer_state}&authorization_details=${encoded_authorization_details}&code_challenge=${code_challenge}&code_challenge_method=S256"
 
   warn "Manual step required: Open the following URL in your browser and login as 'francis':"
   echo -e "\n$auth_url\n"
@@ -133,14 +160,24 @@ request_credential() {
 
   log "Exchanging authorization code for token..."
   local token_response
-  token_response=$(curl -s -k -X POST "${KEYCLOAK_ADMIN_ADDR}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token" \
+  # authorization_details must match exactly what was sent in the authorization request
+  # Send as form data with proper URL encoding
+  token_response=$(curl -s -k -X POST "${ADMIN_ADDR}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token" \
     --data-urlencode "grant_type=authorization_code" \
     --data-urlencode "code=${auth_code}" \
     --data-urlencode "client_id=openid4vc-rest-api" \
     --data-urlencode "client_secret=${CLIENTS_SECRET}" \
     --data-urlencode "redirect_uri=https://localhost:8443/callback" \
     --data-urlencode "code_verifier=${code_verifier}" \
-    --data-urlencode "authorization_details=$authorization_details_json")
+    --data-urlencode "authorization_details=${authorization_details_json}")
+
+  # Check if token response contains an error
+  if echo "$token_response" | jq -e '.error' > /dev/null 2>&1; then
+    local error_msg
+    error_msg=$(echo "$token_response" | jq -r '.error_description // .error')
+    error "Token exchange failed: $error_msg. Full response: $token_response"
+    exit 1
+  fi
 
   # Extract the server-generated credential_identifier from the token response.
   # The credential endpoint requires this identifier (not the static configuration id).
@@ -159,13 +196,14 @@ request_credential() {
 
   success "Access token obtained successfully."
   debug "Credential identifier received from token response: $credential_identifier"
+  debug "Token response (first 200 chars): $(echo "$token_response" | head -c 200)"
 
   # Set the credential access token for key proof generation
   export CREDENTIAL_ACCESS_TOKEN="$access_token"
 
   # Retrieve nonce
   log "Retrieving nonce..."
-  C_NONCE=$(curl -k -s -X POST "$KEYCLOAK_ADMIN_ADDR/realms/$KEYCLOAK_REALM/protocol/oid4vc/nonce" | jq -r '.c_nonce')
+  C_NONCE=$(curl -k -s -X POST "$ADMIN_ADDR/realms/$KEYCLOAK_REALM/protocol/oid4vc/nonce" | jq -r '.c_nonce')
   if [ -z "$C_NONCE" ]; then
     error "Failed to retrieve C_NONCE"
     exit 1
@@ -188,7 +226,8 @@ request_credential() {
 
   log "Requesting credential..."
   local credential
-  credential=$(curl -s -k -X POST "${KEYCLOAK_ADMIN_ADDR}/realms/${KEYCLOAK_REALM}/protocol/oid4vc/credential" \
+  # Use internal URL for credential endpoint (we're calling from inside container)
+  credential=$(curl -s -k -X POST "${ADMIN_ADDR}/realms/${KEYCLOAK_REALM}/protocol/oid4vc/credential" \
     -H "Authorization: Bearer ${access_token}" \
     -H "Content-Type: application/json" \
     -d "$req_body" | jq .)

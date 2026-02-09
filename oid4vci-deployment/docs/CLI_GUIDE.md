@@ -22,20 +22,11 @@ It automates complex tasks such as realm setup, credential flow testing, and env
 
 ## Prerequisites
 
-Before using the CLI tool, ensure the following dependencies are installed on your system:
+On the **host machine**, you only need:
 
-- **OpenSSL** — for SSL/TLS certificate generation and cryptographic operations
-- **Keytool** — Java key and certificate management utility (included with JDK)
-- **jq** — lightweight and flexible command-line JSON processor
-- **yq** — portable command-line YAML processor (used for configuration management)
-- **figlet** — ASCII art generator for an enhanced CLI display
-- **Java Version:**
-  - A minimum of Java 17 is required.
-  - For compatibility with the `keycloak-ssi import` feature (which uses the [Keycloak Config CLI](https://github.com/adorsys/keycloak-config-cli)), Java 21 is recommended.
-    Make sure to set your JAVA_HOME environment variable accordingly:
-    ```bash
-    export JAVA_HOME=/usr/lib/jvm/jdk-21-oracle-x64/
-    ```
+- **Docker / Docker Compose** — to run the `app` (Keycloak) and `db` containers and the lightweight `cli` helper container.
+
+All other tooling (Java, OpenSSL, keytool, jq, yq, figlet, etc.) is bundled into the `cli` container image and does **not** need to be installed on the host OS.
 
 ---
 
@@ -103,12 +94,12 @@ keycloak-ssi <command> [options]
 | ------------------------------------------ | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `install`                                  | Install CLI to system PATH                                           | -                                                                                                                         |
 | `uninstall`                                | Remove CLI from system PATH                                          | -                                                                                                                         |
-| `compose up [-d]`                          | Start the Docker Compose stack (foreground or detached)              | -                                                                                                                         |
-| `compose down [-v]`                        | Stop and remove the Docker Compose stack (optionally remove volumes) | -                                                                                                                         |
-| `setup [-d]`                               | Build and start Keycloak with OID4VCI                                | `src/deployment/0.start-kc-oid4vci.sh`                                                                                    |
-| `config`                                   | Configure realm, keys, clients, and test users                       | `src/deployment/1.oid4vci_test_deployment.sh`, `src/deployment/2.configure_user_4_account_client.sh`                      |
+| `compose up [-d]`                          | Start the Docker Compose stack (foreground or detached)              | - (runs on host, starts `app`, `db`, and builds `cli` image)                                                              |
+| `compose down [-v]`                        | Stop and remove the Docker Compose stack (optionally remove volumes) | - (runs on host)                                                                                                          |
+| `setup [-d]`                               | Build and start Keycloak with OID4VCI (host-mode, advanced)          | `src/deployment/0.start-kc-oid4vci.sh`                                                                                    |
+| `config`                                   | Configure realm, keys, clients, and test users                       | `src/deployment/1.oid4vci_test_deployment.sh`, `src/deployment/2.configure_user_4_account_client.sh` (via `cli` service) |
 | `test <preauth/authcode> <CredentialType>` | Test credential issuance flows                                       | `src/credentials/request_credential.sh` (preauth), `src/credentials/request_credential_with_auth_code_flow.sh` (authcode) |
-| `import`                                   | Import a pre-configured realm                                        | `src/utils/import_kc_config.sh`                                                                                           |
+| `import`                                   | Import a pre-configured realm                                        | `src/utils/import_kc_config.sh` (via `cli` service)                                                                       |
 | `stop`                                     | Stop running Keycloak                                                | `src/utils/helper.sh` (stop_keycloak function)                                                                            |
 | `help`                                     | Show this help message                                               | -                                                                                                                         |
 
@@ -117,28 +108,22 @@ keycloak-ssi <command> [options]
 ## Quick Start Example
 
 ```bash
-# 1️⃣ Setup Keycloak (first run - may take 5–10 minutes)
-# Foreground (Ctrl+C to stop):
-keycloak-ssi setup
-# Detached (background, logs written to target/keycloak.log):
-keycloak-ssi setup -d
+# 1️⃣ Start Keycloak and Postgres via Docker Compose
+keycloak-ssi compose up -d
 
-# 2️⃣ Configure the realm and create a test user
+# 2️⃣ Configure the realm and create a test user (runs inside cli container)
 keycloak-ssi config
 
-# or import a preconfigured realm
+# or import a preconfigured realm (runs inside cli container)
 keycloak-ssi import
 
-# 3️⃣ Test credential flows
+# 3️⃣ Test credential flows (run inside cli container)
 keycloak-ssi test preauth IdentityCredential
 keycloak-ssi test authcode IdentityCredential
 
-# 4️⃣ Stop the Keycloak server
-keycloak-ssi stop
-
-# Stop the Docker Compose stack and remove volumes
+# 4️⃣ Stop the Docker Compose stack and remove volumes
 keycloak-ssi compose down -v
 
-# 5️⃣ Uninstall the CLI
+# 5️⃣ Uninstall the CLI (optional)
 keycloak-ssi uninstall
 ```

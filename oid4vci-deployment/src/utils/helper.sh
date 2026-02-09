@@ -62,6 +62,18 @@ setup_environment() {
         load_configuration
         export _CONFIGURATION_LOADED="true"
     fi
+
+    # Internal admin address for container-to-container communication.
+    # - From the host, KEYCLOAK_ADMIN_ADDR typically points to https://localhost:PORT.
+    # - From inside the cli container, Keycloak is reachable via the service name `app`.
+    #   We keep KEYCLOAK_ADMIN_ADDR unchanged for host use and derive an internal
+    #   address for in-cluster calls where TLS verification is already disabled.
+    if [[ -n "${KEYCLOAK_SSI_IN_CONTAINER:-}" && -n "${KEYCLOAK_ADMIN_ADDR:-}" ]]; then
+        KEYCLOAK_INTERNAL_ADMIN_ADDR="${KEYCLOAK_ADMIN_ADDR/localhost/app}"
+    else
+        KEYCLOAK_INTERNAL_ADMIN_ADDR="${KEYCLOAK_ADMIN_ADDR:-}"
+    fi
+    export KEYCLOAK_INTERNAL_ADMIN_ADDR
 }
 
 # -----------------------------------------------------------------------------
@@ -486,6 +498,11 @@ kc_truststore_path() {
 # Prerequisite Checks
 # -----------------------------------------------------------------------------
 check_dependencies() {
+    # Heavy dependencies are only required inside the CLI container.
+    if [[ -z "${KEYCLOAK_SSI_IN_CONTAINER:-}" ]]; then
+        return 0
+    fi
+
     local missing_deps=()
     for dep in openssl keytool jq figlet yq stat; do
         if ! command -v "$dep" &>/dev/null; then
@@ -494,7 +511,7 @@ check_dependencies() {
     done
 
     if [[ ${#missing_deps[@]} -gt 0 ]]; then
-        error "Missing dependencies: ${missing_deps[*]}. Please install them and try again."
+        error "Missing dependencies in CLI container: ${missing_deps[*]}. Please rebuild the cli image."
     fi
 }
 
