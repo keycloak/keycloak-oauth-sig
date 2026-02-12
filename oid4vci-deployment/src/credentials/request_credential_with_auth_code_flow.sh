@@ -199,8 +199,7 @@ request_credential() {
 
   log "Requesting credential..."
   local credential
-
-  # Use internal URL for credential endpoint (we're calling from inside container)
+  
   credential=$(curl -s -k -X POST "${KEYCLOAK_ADMIN_ADDR}/realms/${KEYCLOAK_REALM}/protocol/oid4vc/credential" \
     -H "Authorization: Bearer ${access_token}" \
     -H "Content-Type: application/json" \

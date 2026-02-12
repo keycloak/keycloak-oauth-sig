@@ -206,13 +206,9 @@ cmd_setup() {
 cmd_config() {
     log "Configuring realm, key providers, clients, and users..."
     
-    # Check if Keycloak is running (host-mode only). When running inside the
-    # cli container, connectivity is validated implicitly by the scripts via
-    # kcadm/curl and docker compose exec calls.
-    if [[ -z "${KEYCLOAK_SSI_IN_CONTAINER:-}" ]]; then
-        if ! curl -k -s "$KEYCLOAK_ADMIN_ADDR/realms/master" >/dev/null 2>&1; then
-            error "Keycloak is not running. Run 'keycloak-ssi setup' first."
-        fi
+    # Check if Keycloak is running
+    if ! curl -k -s "$KEYCLOAK_ADMIN_ADDR/realms/master" >/dev/null 2>&1; then
+        error "Keycloak is not running. Run 'keycloak-ssi setup' first."
     fi
     
     # Run configuration scripts
