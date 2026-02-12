@@ -14,6 +14,7 @@ RUN apt-get update && \
       xxd \
       coreutils \
       unzip \
+      uuid-runtime \
       gettext-base \
       gnupg \
       lsb-release && \

@@ -48,6 +48,7 @@ services:
       context: .
       dockerfile: Dockerfile.cli
     profiles: ["cli"]
+    network_mode: host
     working_dir: /workspace
     environment:
       WORK_DIR: /workspace

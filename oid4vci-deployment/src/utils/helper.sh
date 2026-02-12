@@ -62,18 +62,6 @@ setup_environment() {
         load_configuration
         export _CONFIGURATION_LOADED="true"
     fi
-
-    # Internal admin address for container-to-container communication.
-    # - From the host, KEYCLOAK_ADMIN_ADDR typically points to https://localhost:PORT.
-    # - From inside the cli container, Keycloak is reachable via the service name `app`.
-    #   We keep KEYCLOAK_ADMIN_ADDR unchanged for host use and derive an internal
-    #   address for in-cluster calls where TLS verification is already disabled.
-    if [[ -n "${KEYCLOAK_SSI_IN_CONTAINER:-}" && -n "${KEYCLOAK_ADMIN_ADDR:-}" ]]; then
-        KEYCLOAK_INTERNAL_ADMIN_ADDR="${KEYCLOAK_ADMIN_ADDR/localhost/app}"
-    else
-        KEYCLOAK_INTERNAL_ADMIN_ADDR="${KEYCLOAK_ADMIN_ADDR:-}"
-    fi
-    export KEYCLOAK_INTERNAL_ADMIN_ADDR
 }
 
 # -----------------------------------------------------------------------------

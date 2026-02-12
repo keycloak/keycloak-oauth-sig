@@ -120,33 +120,16 @@ request_credential() {
   local encoded_scopes
   encoded_scopes=$(urlencode "$scopes")
   local issuer_state="state-$(uuidgen)"
-  # For authorization_details.locations, use internal URL (Keycloak validates against its internal view)
-  # For the authorization URL itself, use public URL (needs to work in browser)
-  local issuer_url_for_details="${ADMIN_ADDR}/realms/${KEYCLOAK_REALM}"
-  local public_auth_url="${KEYCLOAK_ADMIN_ADDR}/realms/${KEYCLOAK_REALM}"
-
+  local issuer_url="${KEYCLOAK_ADMIN_ADDR}/realms/${KEYCLOAK_REALM}"
   local authorization_details_json
   # Use -c for compact JSON output (no extra whitespace)
-  # CRITICAL: Use internal URL for locations in authorization_details. Even though the authorization
-  # URL itself uses localhost (for browser access), the authorization_details.locations field
-  # must match what Keycloak expects internally (https://app:8443) for token exchange validation.
   authorization_details_json=$(jq -c -n --arg credential_id "$credential_id" --arg issuer_url "$issuer_url_for_details" '[{"type":"openid_credential", "credential_configuration_id": $credential_id, "locations": [$issuer_url]}]')
-  
-  # Verify ADMIN_ADDR is set to internal address when in container
-  if [[ -n "${KEYCLOAK_SSI_IN_CONTAINER:-}" ]]; then
-    if [[ "$ADMIN_ADDR" != *"app:8443"* ]]; then
-      warn "WARNING: ADMIN_ADDR ($ADMIN_ADDR) does not appear to be internal address. Expected to contain 'app:8443' when running in container."
-    fi
-  fi
-  debug "ADMIN_ADDR: $ADMIN_ADDR"
-  debug "KEYCLOAK_INTERNAL_ADMIN_ADDR: ${KEYCLOAK_INTERNAL_ADMIN_ADDR:-not set}"
-  debug "issuer_url_for_details: $issuer_url_for_details"
-  debug "authorization_details_json: $authorization_details_json"
+
   local encoded_authorization_details
   encoded_authorization_details=$(urlencode "$authorization_details_json")
 
   # Use public URL for authorization URL (needs to work in browser)
-  local auth_url="${public_auth_url}/protocol/openid-connect/auth?response_type=code&client_id=openid4vc-rest-api&redirect_uri=https://localhost:8443/callback&scope=${encoded_scopes}&issuer_state=${issuer_state}&authorization_details=${encoded_authorization_details}&code_challenge=${code_challenge}&code_challenge_method=S256"
+  local auth_url="${KEYCLOAK_ADMIN_ADDR}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth?response_type=code&client_id=openid4vc-rest-api&redirect_uri=https://localhost:8443/callback&scope=${encoded_scopes}&issuer_state=${issuer_state}&authorization_details=${encoded_authorization_details}&code_challenge=${code_challenge}&code_challenge_method=S256"
 
   warn "Manual step required: Open the following URL in your browser and login as 'francis':"
   echo -e "\n$auth_url\n"
@@ -226,6 +209,7 @@ request_credential() {
 
   log "Requesting credential..."
   local credential
+
   # Use internal URL for credential endpoint (we're calling from inside container)
   credential=$(curl -s -k -X POST "${ADMIN_ADDR}/realms/${KEYCLOAK_REALM}/protocol/oid4vc/credential" \
     -H "Authorization: Bearer ${access_token}" \

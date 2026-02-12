@@ -34,19 +34,8 @@ fi
 
 nonce="$C_NONCE"
 
-# Use the issuer DID (issuer identifier) for aud field, which matches what Keycloak advertises
-# Prefer ISSUER_DID from config, fallback to constructed value
-aud="${ISSUER_DID:-${KEYCLOAK_ISSUER_DID:-$KEYCLOAK_ADMIN_ADDR/realms/$KEYCLOAK_REALM}}"
-
-# Fetch actual issuer identifier from well-known endpoint to ensure aud matches
-ADMIN_ADDR="${KEYCLOAK_INTERNAL_ADMIN_ADDR:-$KEYCLOAK_ADMIN_ADDR}"
-WELL_KNOWN_RESPONSE=$(curl -ks "$ADMIN_ADDR/.well-known/openid-credential-issuer/realms/$KEYCLOAK_REALM" 2>/dev/null || echo "")
-if [[ -n "$WELL_KNOWN_RESPONSE" ]]; then
-    ACTUAL_ISSUER=$(echo "$WELL_KNOWN_RESPONSE" | jq -r '.credential_issuer // empty' 2>/dev/null || echo "")
-    if [[ -n "$ACTUAL_ISSUER" && "$ACTUAL_ISSUER" != "null" ]]; then
-        aud="$ACTUAL_ISSUER"
-    fi
-fi
+# Align audience with the public issuer URL (localhost) used in preauth flow
+aud="$KEYCLOAK_ADMIN_ADDR/realms/$KEYCLOAK_REALM"
 
 cat $WORK_DIR/src/config/user_key_proof_payload.json | jq --argjson iat $iat --arg nonce "$nonce" --arg aud "$aud" '.iat = $iat | .nonce=$nonce | .aud=$aud' > $PROJECT_TARGET_DIR/user_key_proof_payload.json
 
