@@ -234,12 +234,11 @@ cmd_test() {
         error "Usage: keycloak-ssi test <preauth|authcode> <CredentialType>"
     fi
     
-    # Check if Keycloak is running (use internal address when in container)
-    local admin_addr="${KEYCLOAK_INTERNAL_ADMIN_ADDR:-$KEYCLOAK_ADMIN_ADDR}"
-    if ! curl -k -s "$admin_addr/realms/master" >/dev/null 2>&1; then
+    # Check if Keycloak is running
+    if ! curl -k -s "$KEYCLOAK_ADMIN_ADDR/realms/master" >/dev/null 2>&1; then
         error "❌ Keycloak is not running. Run 'keycloak-ssi setup' first."
     fi
-    
+
     case "$flow" in
         "preauth")
             log "Testing Pre-authorized Code Flow..."
@@ -262,12 +261,11 @@ cmd_test() {
 cmd_import() {
     log "📥 Importing ready realm configuration..."
     
-    # Check if Keycloak is running (use internal address when in container)
-    local admin_addr="${KEYCLOAK_INTERNAL_ADMIN_ADDR:-$KEYCLOAK_ADMIN_ADDR}"
-    if ! curl -k -s "$admin_addr/realms/master" >/dev/null 2>&1; then
+    # Check if Keycloak is running
+    if ! curl -k -s "$KEYCLOAK_ADMIN_ADDR/realms/master" >/dev/null 2>&1; then
         error "❌ Keycloak is not running. Run 'keycloak-ssi setup' first."
     fi
-    
+
     # Run import script
     "$WORK_DIR/src/utils/import_kc_config.sh"
     

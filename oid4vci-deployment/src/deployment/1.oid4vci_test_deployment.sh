@@ -180,8 +180,7 @@ fi
 # Validate OID4VCI configuration
 # -----------------------------------------------------------------------------
 log "Validating OID4VCI configuration..."
-ISSUER_BASE="${KEYCLOAK_INTERNAL_ADMIN_ADDR:-$KEYCLOAK_ADMIN_ADDR}"
-response=$(curl -ks "$ISSUER_BASE/.well-known/openid-credential-issuer/realms/$KEYCLOAK_REALM")
+response=$(curl -ks "$KEYCLOAK_ADMIN_ADDR/.well-known/openid-credential-issuer/realms/$KEYCLOAK_REALM")
 [[ -z "$response" ]] && error "No response from Keycloak OIDC credential issuer endpoint."
 
 # Dynamically validate all credentials from the configuration file

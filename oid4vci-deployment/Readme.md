@@ -31,7 +31,7 @@ keycloak-ssi help
 ### Quick Local Spin-Up (Docker Compose)
 
 ```bash
-keycloak-ssi compose up -d   # boots Postgres + Keycloak (app) and Postgres (db)
+keycloak-ssi compose up -d   # Keycloak (app) and Postgres (db)
 ```
 
 **⚠️ Important:** After running the command above, ensure that Keycloak is fully started and accessible at `https://localhost:8443` before running any further commands.
