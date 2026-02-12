@@ -115,7 +115,7 @@ request_credential() {
   local issuer_url="${KEYCLOAK_ADMIN_ADDR}/realms/${KEYCLOAK_REALM}"
   local authorization_details_json
   
-  authorization_details_json=$(jq -c -n --arg credential_id "$credential_id" --arg issuer_url "$issuer_url_for_details" '[{"type":"openid_credential", "credential_configuration_id": $credential_id, "locations": [$issuer_url]}]')
+  authorization_details_json=$(jq -c -n --arg credential_id "$credential_id" --arg issuer_url "$issuer_url" '[{"type":"openid_credential", "credential_configuration_id": $credential_id, "locations": [$issuer_url]}]')
 
   local encoded_authorization_details
   encoded_authorization_details=$(urlencode "$authorization_details_json")
@@ -199,7 +199,7 @@ request_credential() {
 
   log "Requesting credential..."
   local credential
-  
+
   credential=$(curl -s -k -X POST "${KEYCLOAK_ADMIN_ADDR}/realms/${KEYCLOAK_REALM}/protocol/oid4vc/credential" \
     -H "Authorization: Bearer ${access_token}" \
     -H "Content-Type: application/json" \
