@@ -279,7 +279,7 @@ cmd_compose() {
 
     local args=("$@")
     local is_starting=false
-    
+
     # Check if this is a start command (up/start)
     for arg in "${args[@]}"; do
         case "$arg" in
@@ -290,26 +290,22 @@ cmd_compose() {
         esac
     done
 
-    # Ensure crypto materials only when starting
-    if "$is_starting"; then
-        log "Ensuring Keycloak certificates and keystore are present..."
-        ensure_keycloak_crypto_materials
-    fi
+    local env_file=""
+    if [[ -n "${KEYCLOAK_SSI_IN_CONTAINER:-}" ]]; then
+        if "$is_starting"; then
+            log "Ensuring Keycloak certificates and keystore are present..."
+            ensure_keycloak_crypto_materials
+            log "Generating temporary .env file from config.yaml..."
+        fi
 
-    # Generate .env file from merged config files
-    local env_file=".env.generated"
-    if "$is_starting"; then
-        log "Generating temporary .env file from config.yaml..."
+        local config_files=("$WORK_DIR/config.yaml")
+        local override_file="$WORK_DIR/config.override.yaml"
+        [[ -f "$override_file" ]] && config_files+=("$override_file")
+
+        env_file=".env.generated"
+        rm -f "$env_file"
+        export_yaml_as_env "${config_files[@]}" > "$env_file"
     fi
-    
-    # Build config file array: base config + optional override (same pattern as load_configuration)
-    local config_files=("$WORK_DIR/config.yaml")
-    local override_file="$WORK_DIR/config.override.yaml"
-    [[ -f "$override_file" ]] && config_files+=("$override_file")
-    
-    # Generate .env content from merged YAML configs
-    rm -f "$env_file"
-    export_yaml_as_env "${config_files[@]}" > "$env_file"
 
     # Prepare docker compose command
     local DOCKER_COMPOSE_CMD
@@ -338,12 +334,18 @@ cmd_compose() {
         new_args+=("-v")
     fi
 
-    # Execute docker compose with generated .env file
-    eval "$DOCKER_COMPOSE_CMD" "${new_args[@]}"
+    # Execute docker compose, optionally with generated .env file
+    if [[ -n "$env_file" ]]; then
+        eval "$DOCKER_COMPOSE_CMD --env-file $env_file" "${new_args[@]}"
+    else
+        eval "$DOCKER_COMPOSE_CMD" "${new_args[@]}"
+    fi
     local compose_exit_code=$?
 
-    # Clean up temporary .env file (silently)
-    rm -f "$env_file"
+    # Clean up temporary .env file (silently, if it was used)
+    if [[ -n "$env_file" ]]; then
+        rm -f "$env_file"
+    fi
 
     return "$compose_exit_code"
 }
@@ -443,20 +445,29 @@ cmd_uninstall() {
 # =============================================================================
 
 main() {
+    # Identify the requested top-level command early
+    local cmd="${1:-help}"
+
     # Delegate heavy commands into the cli container when running on the host.
     run_in_cli_container_if_needed "$@"
 
-    # Check dependencies first
+    # Inside the sidecar, ensure required tooling is present
     check_dependencies
 
     # Show banner
     show_banner
 
-    # Load configuration from config.yaml
-    setup_environment
+    # Only commands that actually need config.yaml / yq / crypto should load the
+    # full environment. This keeps "compose"/"stop"/"install"/"uninstall" light
+    # on the host (especially on Windows), where we only want docker + compose.
+    case "$cmd" in
+        "setup"|"config"|"test"|"import")
+            setup_environment
+            ;;
+    esac
 
-    # Parse command
-    case "${1:-help}" in
+    # Dispatch command
+    case "$cmd" in
         "setup")
             cmd_setup "${2:-}"
             ;;
