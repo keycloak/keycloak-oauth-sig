@@ -407,6 +407,8 @@ ensure_directory_exists() {
 # Keycloak Cryptographic Material
 # -----------------------------------------------------------------------------
 ensure_keycloak_crypto_materials() {
+    # Ensure PROJECT_TARGET_DIR is set (fallback to WORK_DIR/target if not configured)
+    PROJECT_TARGET_DIR="${PROJECT_TARGET_DIR:-${WORK_DIR:-/tmp}/target}"
     KEYSTORE_PATH="${PROJECT_TARGET_DIR}/kc_keystore.pkcs12"
 
     if [[ -z "${SSL_TRUST_STORE:-}" ]]; then
@@ -460,6 +462,8 @@ kcadm() {
 # -----------------------------------------------------------------------------
 ensure_keycloak_install_dir_resolved() {
     if [[ "${KEYCLOAK_VERSION:-}" == "latest" ]]; then
+        # Ensure PROJECT_TARGET_DIR is set (fallback to WORK_DIR/target if not configured)
+        PROJECT_TARGET_DIR="${PROJECT_TARGET_DIR:-${WORK_DIR:-/tmp}/target}"
         local resolved_version
         resolved_version="$(get_latest_keycloak_version)"
         export KEYCLOAK_VERSION="$resolved_version"
