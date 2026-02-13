@@ -10,7 +10,7 @@ Bring OpenID for Verifiable Credential Issuance (OID4VCI) to a vanilla Keycloak 
 
 ## TL;DR
 
-> Prereqs: `docker` / `docker compose` on the host. All other tools (Java, `openssl`, `keytool`, `jq`, `yq`, etc.) run inside the lightweight `cli` container.
+> Prereqs: Java 17+ (Java 21 for `import`), `openssl`, `keytool`, `jq`, `yq`, `docker`, and optionally `figlet` for pretty banners.
 >
 > - `docs/CLI_GUIDE.md` - 🚨 extended CLI reference and command list. Please take a look since it will help you understand how to interact with this repo.
 
@@ -55,7 +55,7 @@ keycloak-ssi stop            # stop a tarball-based run
 
 1. `setup` builds Keycloak from either an official tarball or a source branch (controlled by `keycloak.version` and `keycloak.target_branch`).
 2. `compose` runs the bundled `docker-compose.yml` (Postgres + Keycloak).
-3. `config` runs inside the `cli` container and applies the realm via Keycloak Config CLI (or kcadm) scripts, creating credential definitions as client scopes.
+3. `config` runs inside the `cli` container and applies the realm via kcadm scripts, creating credential definitions as client scopes.
 4. `test` runs inside the `cli` container and issues credentials through curl, covering pre-authorized and authorization-code + PKCE flows.
 
 ## Configuration Model

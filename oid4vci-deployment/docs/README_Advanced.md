@@ -82,7 +82,7 @@ After verifying your `config.yaml` file, run the following command to configure 
 ./keycloak-ssi.sh import
 ```
 
-This command imports the necessary Keycloak configuration using the settings defined in your `config.yaml` file. The `import` command runs directly on the host (not in a container).
+This command imports the necessary Keycloak configuration using the settings defined in your `config.yaml` file.
 
 > **Note**: Java 21 is required on the host machine to run this command. Make sure your `JAVA_HOME` is set to a **Java 21** installation.
 
@@ -101,8 +101,6 @@ After checking your `config.yaml` file, run the following command:
 ```bash
 ./keycloak-ssi.sh config
 ```
-
-> **Note**: The `config` command runs inside the `cli` container, so no additional tools need to be installed on the host.
 
 ## Requesting Credentials
 

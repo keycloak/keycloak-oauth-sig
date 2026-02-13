@@ -22,11 +22,20 @@ It automates complex tasks such as realm setup, credential flow testing, and env
 
 ## Prerequisites
 
-On the **host machine**, you only need:
+Before using the CLI tool, ensure the following dependencies are installed on your system:
 
-- **Docker / Docker Compose** — to run the `app` (Keycloak) and `db` containers and the lightweight `cli` helper container.
-
-All other tooling (Java, OpenSSL, keytool, jq, yq, figlet, etc.) is bundled into the `cli` container image and does **not** need to be installed on the host OS.
+- **OpenSSL** — for SSL/TLS certificate generation and cryptographic operations
+- **Keytool** — Java key and certificate management utility (included with JDK)
+- **jq** — lightweight and flexible command-line JSON processor
+- **yq** — portable command-line YAML processor (used for configuration management)
+- **figlet** — ASCII art generator for an enhanced CLI display
+- **Java Version:**
+  - A minimum of Java 17 is required.
+  - For compatibility with the `keycloak-ssi import` feature (which uses the [Keycloak Config CLI](https://github.com/adorsys/keycloak-config-cli)), Java 21 is recommended.
+    Make sure to set your JAVA_HOME environment variable accordingly:
+    ```bash
+    export JAVA_HOME=/usr/lib/jvm/jdk-21-oracle-x64/
+    ```
 
 ---
 
@@ -94,10 +103,10 @@ keycloak-ssi <command> [options]
 | ------------------------------------------ | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `install`                                  | Install CLI to system PATH                                           | -                                                                                                                         |
 | `uninstall`                                | Remove CLI from system PATH                                          | -                                                                                                                         |
-| `compose up [-d]`                          | Start the Docker Compose stack (foreground or detached)              | - (runs on host, starts `app`, `db`, and builds `cli` image)                                                              |
+| `compose up [-d]`                          | Start the Docker Compose stack (foreground or detached)              | - (runs on host, starts `app`, and `db`)                                                                                  |
 | `compose down [-v]`                        | Stop and remove the Docker Compose stack (optionally remove volumes) | - (runs on host)                                                                                                          |
 | `setup [-d]`                               | Build and start Keycloak with OID4VCI (host-mode, advanced)          | `src/deployment/0.start-kc-oid4vci.sh`                                                                                    |
-| `config`                                   | Configure realm, keys, clients, and test users                       | `src/deployment/1.oid4vci_test_deployment.sh`, `src/deployment/2.configure_user_4_account_client.sh` (via `cli` service) |
+| `config`                                   | Configure realm, keys, clients, and test users                       | `src/deployment/1.oid4vci_test_deployment.sh`, `src/deployment/2.configure_user_4_account_client.sh` (via `cli` service)  |
 | `test <preauth/authcode> <CredentialType>` | Test credential issuance flows                                       | `src/credentials/request_credential.sh` (preauth), `src/credentials/request_credential_with_auth_code_flow.sh` (authcode) |
 | `import`                                   | Import a pre-configured realm                                        | `src/utils/import_kc_config.sh` (via `cli` service)                                                                       |
 | `stop`                                     | Stop running Keycloak                                                | `src/utils/helper.sh` (stop_keycloak function)                                                                            |
