@@ -30,16 +30,14 @@ keycloak-ssi help
 
 ### Quick Local Spin-Up (Docker Compose)
 
-> - `docs/CLI_GUIDE.md` - This repo contains a CLI tool that will help you configure keycloak and run tests. Please make sure you have it before proceeding:
-
 ```bash
-keycloak-ssi compose up -d   # boots Postgres + Keycloak with HTTPS on localhost\
+keycloak-ssi compose up -d   # Keycloak (app) and Postgres (db)
 ```
 
 **⚠️ Important:** After running the command above, ensure that Keycloak is fully started and accessible at `https://localhost:8443` before running any further commands.
 
 ```bash
-keycloak-ssi config          # configures realm, clients, demo users, keys
+keycloak-ssi config          # configures realm, clients, demo users, keys (runs inside cli container)
 keycloak-ssi test preauth IdentityCredential
 ```
 
@@ -56,9 +54,9 @@ keycloak-ssi stop            # stop a tarball-based run
 ## How It Works
 
 1. `setup` builds Keycloak from either an official tarball or a source branch (controlled by `keycloak.version` and `keycloak.target_branch`).
-2. `compose` runs the bundled `docker-compose.yml` (Postgres + Keycloak) when you prefer containers.
-3. `config` applies the realm via Keycloak Config CLI (or kcadm) scripts, creating credential definitions as client scopes.
-4. `test` scripts issue credentials through curl, covering pre-authorized and authorization-code + PKCE flows.
+2. `compose` runs the bundled `docker-compose.yml` (Postgres + Keycloak).
+3. `config` runs inside the `cli` container and applies the realm via kcadm scripts, creating credential definitions as client scopes.
+4. `test` runs inside the `cli` container and issues credentials through curl, covering pre-authorized and authorization-code + PKCE flows.
 
 ## Configuration Model
 

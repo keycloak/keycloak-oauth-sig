@@ -84,11 +84,11 @@ After verifying your `config.yaml` file, run the following command to configure 
 
 This command imports the necessary Keycloak configuration using the settings defined in your `config.yaml` file.
 
-> **Note**: Java 21 is required to run this script and complete the configuration successfully. Make sure your `JAVA_HOME` is set to a **Java 21** installation.
+> **Note**: Java 21 is required on the host machine to run this command. Make sure your `JAVA_HOME` is set to a **Java 21** installation.
 
 ## Alternative-2: Manual Configuration Keycloak for Verifiable Credential Issuance
 
-We can also configure Keycloak manually using the kcadm.sh tool. This shall be executed on the same machine, as it uses `kcadm.sh` on localhost to access the admin interface and shares generated keystore files with Keycloak.
+We can also configure Keycloak manually using the kcadm.sh tool. The `config` command runs inside the `cli` container and uses `kcadm.sh` to access the admin interface and configure Keycloak.
 
 ### Prerequisites
 

@@ -34,7 +34,8 @@ fi
 
 nonce="$C_NONCE"
 
-aud=$KEYCLOAK_ADMIN_ADDR/realms/$KEYCLOAK_REALM
+aud="$KEYCLOAK_ADMIN_ADDR/realms/$KEYCLOAK_REALM"
+
 cat $WORK_DIR/src/config/user_key_proof_payload.json | jq --argjson iat $iat --arg nonce "$nonce" --arg aud "$aud" '.iat = $iat | .nonce=$nonce | .aud=$aud' > $PROJECT_TARGET_DIR/user_key_proof_payload.json
 
 # -----------------------------------------------------------------------------

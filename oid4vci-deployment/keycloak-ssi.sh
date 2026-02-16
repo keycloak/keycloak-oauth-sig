@@ -129,6 +129,46 @@ error() {
     exit 1
 }
 
+run_in_cli_container_if_needed() {
+    # When invoked on the host (outside the CLI container), delegate selected
+    # commands into the lightweight cli service to avoid host OS dependencies.
+    if [[ -n "${KEYCLOAK_SSI_IN_CONTAINER:-}" ]]; then
+        return 0
+    fi
+
+    local cmd="${1:-help}"
+    case "$cmd" in
+        config|test|import)
+            local DOCKER_COMPOSE_CMD
+            DOCKER_COMPOSE_CMD="$(detect_docker_compose)"
+            # Ensure docker compose inside the cli container sees the same
+            # project as the host stack by setting COMPOSE_PROJECT_NAME.
+            local project_name
+            project_name="$(basename "$WORK_DIR")"
+            # Generate an env file for docker compose from config.yaml to avoid
+            # relying on host environment variables for interpolation.
+            local env_file=".env"
+            local config_files=("$WORK_DIR/config.yaml")
+            local override_file="$WORK_DIR/config.override.yaml"
+            [[ -f "$override_file" ]] && config_files+=("$override_file")
+            rm -f "$env_file"
+            export_yaml_as_env "${config_files[@]}" > "$env_file"
+            # Forward all original arguments into the cli service, using the env file.
+            # Build command array to properly forward all arguments.
+            local compose_args=("--env-file" "$env_file" "run" "--rm" "cli")
+            # Append all original arguments
+            compose_args+=("$@")
+            # Execute with proper environment (use eval like cmd_compose does)
+            COMPOSE_PROJECT_NAME="$project_name" eval "$DOCKER_COMPOSE_CMD" "${compose_args[@]}"
+            exit $?
+            ;;
+        *)
+            # Other commands (setup, compose, stop, install, uninstall, help)
+            # are executed directly on the host.
+            ;;
+    esac
+}
+
 # =============================================================================
 # Command Functions
 # =============================================================================
@@ -194,7 +234,7 @@ cmd_test() {
     if ! curl -k -s "$KEYCLOAK_ADMIN_ADDR/realms/master" >/dev/null 2>&1; then
         error "❌ Keycloak is not running. Run 'keycloak-ssi setup' first."
     fi
-    
+
     case "$flow" in
         "preauth")
             log "Testing Pre-authorized Code Flow..."
@@ -221,7 +261,7 @@ cmd_import() {
     if ! curl -k -s "$KEYCLOAK_ADMIN_ADDR/realms/master" >/dev/null 2>&1; then
         error "❌ Keycloak is not running. Run 'keycloak-ssi setup' first."
     fi
-    
+
     # Run import script
     "$WORK_DIR/src/utils/import_kc_config.sh"
     
@@ -403,6 +443,9 @@ cmd_uninstall() {
 # =============================================================================
 
 main() {
+    # Delegate heavy commands into the cli container when running on the host.
+    run_in_cli_container_if_needed "$@"
+
     # Check dependencies first
     check_dependencies
 

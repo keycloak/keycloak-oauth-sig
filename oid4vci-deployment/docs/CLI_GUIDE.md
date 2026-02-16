@@ -103,12 +103,12 @@ keycloak-ssi <command> [options]
 | ------------------------------------------ | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `install`                                  | Install CLI to system PATH                                           | -                                                                                                                         |
 | `uninstall`                                | Remove CLI from system PATH                                          | -                                                                                                                         |
-| `compose up [-d]`                          | Start the Docker Compose stack (foreground or detached)              | -                                                                                                                         |
-| `compose down [-v]`                        | Stop and remove the Docker Compose stack (optionally remove volumes) | -                                                                                                                         |
-| `setup [-d]`                               | Build and start Keycloak with OID4VCI                                | `src/deployment/0.start-kc-oid4vci.sh`                                                                                    |
-| `config`                                   | Configure realm, keys, clients, and test users                       | `src/deployment/1.oid4vci_test_deployment.sh`, `src/deployment/2.configure_user_4_account_client.sh`                      |
+| `compose up [-d]`                          | Start the Docker Compose stack (foreground or detached)              | - (runs on host, starts `app`, and `db`)                                                                                  |
+| `compose down [-v]`                        | Stop and remove the Docker Compose stack (optionally remove volumes) | - (runs on host)                                                                                                          |
+| `setup [-d]`                               | Build and start Keycloak with OID4VCI (host-mode, advanced)          | `src/deployment/0.start-kc-oid4vci.sh`                                                                                    |
+| `config`                                   | Configure realm, keys, clients, and test users                       | `src/deployment/1.oid4vci_test_deployment.sh`, `src/deployment/2.configure_user_4_account_client.sh` (via `cli` service)  |
 | `test <preauth/authcode> <CredentialType>` | Test credential issuance flows                                       | `src/credentials/request_credential.sh` (preauth), `src/credentials/request_credential_with_auth_code_flow.sh` (authcode) |
-| `import`                                   | Import a pre-configured realm                                        | `src/utils/import_kc_config.sh`                                                                                           |
+| `import`                                   | Import a pre-configured realm                                        | `src/utils/import_kc_config.sh` (via `cli` service)                                                                       |
 | `stop`                                     | Stop running Keycloak                                                | `src/utils/helper.sh` (stop_keycloak function)                                                                            |
 | `help`                                     | Show this help message                                               | -                                                                                                                         |
 
@@ -117,28 +117,22 @@ keycloak-ssi <command> [options]
 ## Quick Start Example
 
 ```bash
-# 1️⃣ Setup Keycloak (first run - may take 5–10 minutes)
-# Foreground (Ctrl+C to stop):
-keycloak-ssi setup
-# Detached (background, logs written to target/keycloak.log):
-keycloak-ssi setup -d
+# 1️⃣ Start Keycloak and Postgres via Docker Compose
+keycloak-ssi compose up -d
 
-# 2️⃣ Configure the realm and create a test user
+# 2️⃣ Configure the realm and create a test user (runs inside cli container)
 keycloak-ssi config
 
-# or import a preconfigured realm
+# or import a preconfigured realm (runs inside cli container)
 keycloak-ssi import
 
-# 3️⃣ Test credential flows
+# 3️⃣ Test credential flows (run inside cli container)
 keycloak-ssi test preauth IdentityCredential
 keycloak-ssi test authcode IdentityCredential
 
-# 4️⃣ Stop the Keycloak server
-keycloak-ssi stop
-
-# Stop the Docker Compose stack and remove volumes
+# 4️⃣ Stop the Docker Compose stack and remove volumes
 keycloak-ssi compose down -v
 
-# 5️⃣ Uninstall the CLI
+# 5️⃣ Uninstall the CLI (optional)
 keycloak-ssi uninstall
 ```

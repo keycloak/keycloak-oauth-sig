@@ -113,9 +113,10 @@ request_credential() {
   encoded_scopes=$(urlencode "$scopes")
   local issuer_state="state-$(uuidgen)"
   local issuer_url="${KEYCLOAK_ADMIN_ADDR}/realms/${KEYCLOAK_REALM}"
-
   local authorization_details_json
-  authorization_details_json=$(jq -n --arg credential_id "$credential_id" --arg issuer_url "$issuer_url" '[{"type":"openid_credential", "credential_configuration_id": $credential_id, "locations": [$issuer_url]}]' | tr -d '\n')
+  
+  authorization_details_json=$(jq -c -n --arg credential_id "$credential_id" --arg issuer_url "$issuer_url" '[{"type":"openid_credential", "credential_configuration_id": $credential_id, "locations": [$issuer_url]}]')
+
   local encoded_authorization_details
   encoded_authorization_details=$(urlencode "$authorization_details_json")
 
@@ -133,6 +134,8 @@ request_credential() {
 
   log "Exchanging authorization code for token..."
   local token_response
+  # authorization_details must match exactly what was sent in the authorization request
+  # Send as form data with proper URL encoding
   token_response=$(curl -s -k -X POST "${KEYCLOAK_ADMIN_ADDR}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token" \
     --data-urlencode "grant_type=authorization_code" \
     --data-urlencode "code=${auth_code}" \
@@ -140,7 +143,15 @@ request_credential() {
     --data-urlencode "client_secret=${CLIENTS_SECRET}" \
     --data-urlencode "redirect_uri=https://localhost:8443/callback" \
     --data-urlencode "code_verifier=${code_verifier}" \
-    --data-urlencode "authorization_details=$authorization_details_json")
+    --data-urlencode "authorization_details=${authorization_details_json}")
+
+  # Check if token response contains an error
+  if echo "$token_response" | jq -e '.error' > /dev/null 2>&1; then
+    local error_msg
+    error_msg=$(echo "$token_response" | jq -r '.error_description // .error')
+    error "Token exchange failed: $error_msg. Full response: $token_response"
+    exit 1
+  fi
 
   # Extract the server-generated credential_identifier from the token response.
   # The credential endpoint requires this identifier (not the static configuration id).
@@ -159,7 +170,7 @@ request_credential() {
 
   success "Access token obtained successfully."
   debug "Credential identifier received from token response: $credential_identifier"
-
+  
   # Set the credential access token for key proof generation
   export CREDENTIAL_ACCESS_TOKEN="$access_token"
 
@@ -188,6 +199,7 @@ request_credential() {
 
   log "Requesting credential..."
   local credential
+
   credential=$(curl -s -k -X POST "${KEYCLOAK_ADMIN_ADDR}/realms/${KEYCLOAK_REALM}/protocol/oid4vc/credential" \
     -H "Authorization: Bearer ${access_token}" \
     -H "Content-Type: application/json" \

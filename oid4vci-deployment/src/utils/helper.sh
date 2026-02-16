@@ -161,6 +161,45 @@ export_yaml_as_env() {
     [[ -n "${ISSUER_ENDPOINTS_BACKEND:-}" ]] && export ISSUER_BACKEND_URL="${ISSUER_ENDPOINTS_BACKEND}"
     [[ -n "${ISSUER_ENDPOINTS_FRONTEND:-}" ]] && export ISSUER_FRONTEND_URL="${ISSUER_ENDPOINTS_FRONTEND}"
     [[ -n "${CLIENTS_TEST_CLIENT:-}" ]] && export TEST_CLIENT_URL="${CLIENTS_TEST_CLIENT}"
+    
+    # Adjust KEYSTORE_PATH based on where Keycloak is running
+    if [[ -n "${KEYSTORE_PATH:-}" ]]; then
+        local docker_compose_cmd
+        docker_compose_cmd="$(detect_docker_compose 2>/dev/null || echo "")"
+        local keycloak_in_docker=false
+        
+        # Check if Keycloak is running in Docker (app container)
+        if [[ -n "$docker_compose_cmd" ]]; then
+            if eval "$docker_compose_cmd" ps app --format json 2>/dev/null | grep -q '"State":"running"' 2>/dev/null || \
+               eval "$docker_compose_cmd" ps app 2>/dev/null | grep -q "app.*Up" 2>/dev/null; then
+                keycloak_in_docker=true
+            fi
+        fi
+        
+        if [[ "$keycloak_in_docker" == "true" ]]; then
+            # Keycloak in Docker: use container path
+            export KEYSTORE_PATH="/opt/keycloak/target/kc_keystore.pkcs12"
+        elif [[ -n "${KEYCLOAK_SSI_IN_CONTAINER:-}" ]]; then
+            # CLI in container, Keycloak on host: convert container path to host path
+            local host_project_root="${HOST_WORK_DIR:-}"
+            
+            # Try to detect host path from Docker volume mount if HOST_WORK_DIR not set
+            if [[ -z "$host_project_root" ]] && command -v docker &>/dev/null && [[ -S /var/run/docker.sock ]]; then
+                local container_name
+                container_name="$(hostname 2>/dev/null || echo "")"
+                if [[ -n "$container_name" ]]; then
+                    host_project_root=$(docker inspect "$container_name" 2>/dev/null | \
+                        jq -r '.[0].Mounts[] | select(.Destination == "/workspace") | .Source' 2>/dev/null | head -1 || echo "")
+                fi
+            fi
+            
+            if [[ -n "$host_project_root" ]]; then
+                export KEYSTORE_PATH="$host_project_root/target/kc_keystore.pkcs12"
+            else
+                warn "Cannot determine host path for KEYSTORE_PATH. Set HOST_WORK_DIR in docker-compose.yml."
+            fi
+        fi
+    fi
 }
 
 # -----------------------------------------------------------------------------
@@ -407,6 +446,8 @@ ensure_directory_exists() {
 # Keycloak Cryptographic Material
 # -----------------------------------------------------------------------------
 ensure_keycloak_crypto_materials() {
+    # Ensure PROJECT_TARGET_DIR is set (fallback to WORK_DIR/target if not configured)
+    PROJECT_TARGET_DIR="${PROJECT_TARGET_DIR:-${WORK_DIR:-/tmp}/target}"
     KEYSTORE_PATH="${PROJECT_TARGET_DIR}/kc_keystore.pkcs12"
 
     if [[ -z "${SSL_TRUST_STORE:-}" ]]; then
@@ -460,6 +501,8 @@ kcadm() {
 # -----------------------------------------------------------------------------
 ensure_keycloak_install_dir_resolved() {
     if [[ "${KEYCLOAK_VERSION:-}" == "latest" ]]; then
+        # Ensure PROJECT_TARGET_DIR is set (fallback to WORK_DIR/target if not configured)
+        PROJECT_TARGET_DIR="${PROJECT_TARGET_DIR:-${WORK_DIR:-/tmp}/target}"
         local resolved_version
         resolved_version="$(get_latest_keycloak_version)"
         export KEYCLOAK_VERSION="$resolved_version"
@@ -486,15 +529,20 @@ kc_truststore_path() {
 # Prerequisite Checks
 # -----------------------------------------------------------------------------
 check_dependencies() {
+    # Heavy dependencies are only required inside the CLI container.
+    if [[ -z "${KEYCLOAK_SSI_IN_CONTAINER:-}" ]]; then
+        return 0
+    fi
+
     local missing_deps=()
-    for dep in openssl keytool jq figlet yq stat; do
+    for dep in openssl keytool jq yq stat; do
         if ! command -v "$dep" &>/dev/null; then
             missing_deps+=("$dep")
         fi
     done
 
     if [[ ${#missing_deps[@]} -gt 0 ]]; then
-        error "Missing dependencies: ${missing_deps[*]}. Please install them and try again."
+        error "Missing dependencies in CLI container: ${missing_deps[*]}. Please rebuild the cli image."
     fi
 }
 
