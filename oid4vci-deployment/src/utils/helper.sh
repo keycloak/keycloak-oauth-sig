@@ -359,16 +359,21 @@ stop_keycloak() {
 
     # -------------------------------------------------------------------------
     # Stop and remove database container + volume using Docker Compose
+    # Only if DATABASE_OPTS is not set (i.e., using auto-managed DB)
     # -------------------------------------------------------------------------
-    DOCKER_COMPOSE_FILE="${WORK_DIR}/docker-compose.yml"
-    if [[ -f "$DOCKER_COMPOSE_FILE" ]]; then
-        DOCKER_COMPOSE_COMMAND="$(detect_docker_compose)"
-        log "Stopping and removing database container..."
-        eval "$DOCKER_COMPOSE_COMMAND -f \"$DOCKER_COMPOSE_FILE\" down -v db" || \
-            warn "Failed to stop/remove database container or volume. You may need to clean manually."
-        log "Database container and volume removed."
+    if [[ -z "${DATABASE_OPTS:-}" ]]; then
+        DOCKER_COMPOSE_FILE="${WORK_DIR}/docker-compose.yml"
+        if [[ -f "$DOCKER_COMPOSE_FILE" ]]; then
+            DOCKER_COMPOSE_COMMAND="$(detect_docker_compose)"
+            log "Stopping and removing database container..."
+            eval "$DOCKER_COMPOSE_COMMAND -f \"$DOCKER_COMPOSE_FILE\" down -v db" || \
+                warn "Failed to stop/remove database container or volume. You may need to clean manually."
+            log "Database container and volume removed."
+        else
+            warn "docker-compose.yml not found. Cannot stop DB container."
+        fi
     else
-        warn "docker-compose.yml not found. Cannot stop DB container."
+        log "Using manual DATABASE_OPTS, skipping database container stop."
     fi
 }
 

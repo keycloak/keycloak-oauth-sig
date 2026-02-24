@@ -16,7 +16,7 @@
       "vc.display": "[{\"name\": \"Identity Credential\"}]",
       "vc.issuer_did": "",
       "vc.sd_jwt.number_of_decoys": "2",
-      "vc.credential_build_config.sd_jwt.visible_claims": "id,iat,nbf,exp,jti",
+      "vc.credential_build_config.sd_jwt.visible_claims": "id,iat,nbf,exp,jti,status",
       "vc.credential_build_config.hash_algorithm": "sha-256",
       "vc.credential_build_config.token_jws_type": "dc+sd-jwt",
       "vc.include_in_metadata": "true"
@@ -109,7 +109,7 @@
       "vc.display": "[{\"locale\":\"de-DE\",\"name\":\"SteuerberaterIdentität\",\"logo\":{\"uri\":\"https://steuerberaterplattform-bstbk.de/typo3conf/ext/webtemp/Resources/Public/Images/logo-stb-plattform.jpg\",\"alt_text\":\"SteuerberaterIdentität\"},\"background_color\":\"#f0f0f0\",\"text_color\":\"#000000\"},{\"locale\":\"en-US\",\"name\":\"SteuerberaterIdentität\",\"logo\":{\"uri\":\"https://steuerberaterplattform-bstbk.de/typo3conf/ext/webtemp/Resources/Public/Images/logo-stb-plattform.jpg\",\"alt_text\":\"SteuerberaterIdentität\"},\"background_color\":\"#f0f0f0\",\"text_color\":\"#000000\"}]",
       "vc.issuer_did": "",
       "vc.sd_jwt.number_of_decoys": "2",
-      "vc.credential_build_config.sd_jwt.visible_claims": "id,iat,nbf,exp,jti",
+      "vc.credential_build_config.sd_jwt.visible_claims": "id,iat,nbf,exp,jti,status",
       "vc.credential_build_config.hash_algorithm": "sha-256",
       "vc.credential_build_config.token_jws_type": "dc+sd-jwt",
       "vc.include_in_metadata": "true"
@@ -319,7 +319,7 @@
       "vc.display": "[{\"locale\":\"de-DE\",\"name\":\"Steuerberaterkammer Westfalen-Lippe\",\"logo\":{\"uri\":\"https://kci-portal.solutions.adorsys.com/credential_files/stbk-wl-icon.png\",\"alt_text\":\"Steuerberaterkammer Westfalen-Lippe\"},\"background_color\":\"#d3dce0\",\"text_color\":\"#000000\"},{\"locale\":\"en-US\",\"name\":\"Steuerberaterkammer Westfalen-Lippe\",\"logo\":{\"uri\":\"https://kci-portal.solutions.adorsys.com/credential_files/stbk-wl-icon.png\",\"alt_text\":\"Steuerberaterkammer Westfalen-Lippe\"},\"background_color\":\"#d3dce0\",\"text_color\":\"#000000\"}]",
       "vc.issuer_did": "",
       "vc.sd_jwt.number_of_decoys": "2",
-      "vc.credential_build_config.sd_jwt.visible_claims": "id,iat,nbf,exp,jti",
+      "vc.credential_build_config.sd_jwt.visible_claims": "id,iat,nbf,exp,jti,status",
       "vc.credential_build_config.hash_algorithm": "sha-256",
       "vc.credential_build_config.token_jws_type": "dc+sd-jwt",
       "vc.include_in_metadata": "true"

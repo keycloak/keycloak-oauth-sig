@@ -11,6 +11,8 @@ project:
 # Keycloak setup
 # -----------------------------------------------------------------------------
 keycloak:
+  # Hostname for Keycloak (ngrok URL)
+  hostname: "87db-2605-59c0-1ee8-3c10-d20c-26be-5f0c-bfa6.ngrok-free.app"
   # Branch to use for custom Keycloak
   target_branch: "main"
   # Keycloak version
@@ -18,7 +20,7 @@ keycloak:
   #   - Example: if the base is 26.5, this will track 26.5.x (26.5.1, 26.5.2, ...)
   # Set to "999.0.0-SNAPSHOT" to build from the custom branch specified in target_branch
   # Set to a specific version (e.g., "26.5.0") to use that exact release
-  version: "latest"
+  version: "999.0.0-SNAPSHOT"
   # Directory name for cloned Keycloak repo
   oid4vci_dir: "keycloak_${KEYCLOAK_TARGET_BRANCH}"
   # Keycloak tarball path
@@ -26,7 +28,7 @@ keycloak:
   # Keycloak installation directory (after unpack)
   install_dir: "${PROJECT_TOOLS_DIR}/keycloak-${KEYCLOAK_VERSION}"
   # Keycloak repository to clone
-  # repo_url: "https://github.com/adorsys/keycloak-oid4vc.git"
+  repo_url: "https://github.com/adorsys/keycloak-oid4vc.git"
   # Bootstrap admin credentials
   bootstrap:
     admin_username: "admin"
@@ -39,9 +41,8 @@ keycloak:
 # -----------------------------------------------------------------------------
 keystore:
   # Keycloak keystore file path
-  # Default /opt/keycloak/target/kc_keystore.pkcs12 (Docker container path)
-  # 👉 Change this to "${PROJECT_TARGET_DIR}/kc_keystore.pkcs12" when running Keycloak on the host machine.
-  path: "/opt/keycloak/target/kc_keystore.pkcs12"
+  # Path for host machine (changed from Docker container path)
+  path: "${PROJECT_TARGET_DIR}/kc_keystore.pkcs12"
   # Keystore type
   type: "PKCS12"
   # Keystore password
@@ -86,18 +87,18 @@ keycloak_endpoints:
   # HTTPS port for Keycloak
   https_port: 8443
   # Keycloak admin address
-  admin_addr: "https://localhost:${KEYCLOAK_HTTPS_PORT}"
+  admin_addr: "https://${KEYCLOAK_HOSTNAME}"
   # Issuer DID (Decentralized Identifier)
-  issuer_did: "${KEYCLOAK_ADMIN_ADDR}/realms/${KEYCLOAK_REALM}"
+  issuer_did: "https://${KEYCLOAK_HOSTNAME}/realms/${KEYCLOAK_REALM}"
 
 # -----------------------------------------------------------------------------
 # Issuer endpoints
 # -----------------------------------------------------------------------------
 issuer_endpoints:
   # Issuer backend URL
-  backend: "https://issuer.eudi-adorsys.com/services"
+  backend: "https://${KEYCLOAK_HOSTNAME}/services"
   # Issuer frontend URL
-  frontend: "https://issuer.eudi-adorsys.com"
+  frontend: "https://${KEYCLOAK_HOSTNAME}"
 
 # -----------------------------------------------------------------------------
 # SSL configuration
@@ -125,12 +126,12 @@ database:
   # Database password
   password: "postgres"
   # Optional manual DB options (takes precedence if set)
-  # opts: "--db postgres --db-url jdbc:postgresql://localhost:5432/keycloak --db-username postgres --db-password postgres"
+  opts: "--db postgres --db-url jdbc:postgresql://localhost:5433/keycloak --db-username postgres --db-password postgres"
 
 # -----------------------------------------------------------------------------
 # Keycloak start command
 # -----------------------------------------------------------------------------
-start_command: "start --hostname-strict=false --https-port=${KEYCLOAK_HTTPS_PORT} --https-certificate-file=${SSL_SERVER_CERT} --https-certificate-key-file=${SSL_SERVER_KEY}"
+start_command: "start --hostname-strict=false --hostname=${KEYCLOAK_HOSTNAME} --https-port=${KEYCLOAK_HTTPS_PORT} --https-certificate-file=${SSL_SERVER_CERT} --https-certificate-key-file=${SSL_SERVER_KEY}"
 
 # -----------------------------------------------------------------------------
 # Keycloak config CLI
