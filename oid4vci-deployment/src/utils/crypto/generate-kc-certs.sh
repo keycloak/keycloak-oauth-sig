@@ -33,4 +33,22 @@ else
     log "Trust store already exists. Skipping import."
 fi
 
+# ---------------------------------------------------------------------------
+# Import local Root CA into truststore if exists
+# ---------------------------------------------------------------------------
+ROOT_CA_CERT="${PROJECT_TARGET_DIR}/root-ca.crt.pem"
+if [[ -f "$ROOT_CA_CERT" ]]; then
+    log "Importing local Root CA into trust store..."
+    # Check if already exists in truststore
+    if ! keytool -list -alias root-ca -keystore "$SSL_TRUST_STORE" -storepass "$SSL_TRUST_STORE_PASS" >/dev/null 2>&1; then
+        keytool -importcert -trustcacerts -noprompt \
+            -alias root-ca \
+            -file "$ROOT_CA_CERT" \
+            -keystore "$SSL_TRUST_STORE" \
+            -storepass "$SSL_TRUST_STORE_PASS"
+    else
+        log "Root CA already in trust store."
+    fi
+fi
+
 log "Certificate setup completed."

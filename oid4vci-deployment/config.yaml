@@ -14,7 +14,7 @@ keycloak:
   # Hostname for Keycloak (ngrok URL)
   hostname: "87db-2605-59c0-1ee8-3c10-d20c-26be-5f0c-bfa6.ngrok-free.app"
   # Branch to use for custom Keycloak
-  target_branch: "main"
+  target_branch: "oid4vci-conformance"
   # Keycloak version
   # Set to "latest" to automatically fetch the latest *patch* release within the current minor version
   #   - Example: if the base is 26.5, this will track 26.5.x (26.5.1, 26.5.2, ...)
@@ -86,8 +86,10 @@ clients:
 keycloak_endpoints:
   # HTTPS port for Keycloak
   https_port: 8443
-  # Keycloak admin address
-  admin_addr: "https://${KEYCLOAK_HOSTNAME}"
+  # Keycloak admin address (internal)
+  admin_addr: "https://localhost:${KEYCLOAK_ENDPOINTS_HTTPS_PORT}"
+  # Keycloak external address (public)
+  external_addr: "https://${KEYCLOAK_HOSTNAME}"
   # Issuer DID (Decentralized Identifier)
   issuer_did: "https://${KEYCLOAK_HOSTNAME}/realms/${KEYCLOAK_REALM}"
 
@@ -131,7 +133,7 @@ database:
 # -----------------------------------------------------------------------------
 # Keycloak start command
 # -----------------------------------------------------------------------------
-start_command: "start --hostname-strict=false --hostname=${KEYCLOAK_HOSTNAME} --https-port=${KEYCLOAK_HTTPS_PORT} --https-certificate-file=${SSL_SERVER_CERT} --https-certificate-key-file=${SSL_SERVER_KEY}"
+start_command: "start --hostname-strict=false --hostname=${KEYCLOAK_HOSTNAME} --https-port=${KEYCLOAK_HTTPS_PORT} --https-certificate-file=${SSL_SERVER_CERT} --https-certificate-key-file=${SSL_SERVER_KEY} --log-level=info"
 
 # -----------------------------------------------------------------------------
 # Keycloak config CLI

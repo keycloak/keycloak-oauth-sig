@@ -151,6 +151,9 @@ export_yaml_as_env() {
             "keycloak_endpoints.issuer_did")
                 export ISSUER_DID="$resolved_value"
                 ;;
+            "keycloak_endpoints.external_addr")
+                export KEYCLOAK_EXTERNAL_ADDR="$resolved_value"
+                ;;
         esac
     done <<< "$raw_props_output"
     set -u # Restore 'nounset'

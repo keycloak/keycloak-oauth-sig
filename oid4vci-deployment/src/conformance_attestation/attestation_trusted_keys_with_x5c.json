@@ -1,0 +1,16 @@
+{
+    "keys": [
+        {
+            "kty": "EC",
+            "use": "sig",
+            "crv": "P-256",
+            "kid": "key-1",
+            "x": "LDsQQM6BGmtG5Ae1cF16H5lfCGNKfT_rYR1tNiqPloI",
+            "y": "f8RHQbxq8cTnU9WcZ52O5-naEN6oRI1IYPUcgkQwqT0",
+            "alg": "ES256",
+            "x5c": [
+                "MIIBHzCBxqADAgECAhQloLWePQ7nVcJ9C5VtRoMmbGF++jAKBggqhkjOPQQDAjAQMQ4wDAYDVQQDDAVrZXktMTAeFw0yNjAyMjMxMjMzMjVaFw0yNzAyMjQxMjMzMjVaMBAxDjAMBgNVBAMMBWtleS0xMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAELDsQQM6BGmtG5Ae1cF16H5lfCGNKfT/rYR1tNiqPloJ/xEdBvGrxxOdT1ZxnnY7n6doQ3qhEjUhg9RyCRDCpPTAKBggqhkjOPQQDAgNIADBFAiEApTrB/YUZ5xL3jcsSJ2PIk/KokzrPd9MYtntyXDn7764CIEUIhSAFg3ePIpXoif7DBepR4jFCMbPbHGjbCv7vCk8f"
+            ]
+        }
+    ]
+}
