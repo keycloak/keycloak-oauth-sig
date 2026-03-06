@@ -2,6 +2,7 @@
     "enabled": true,
     "verifiableCredentialsEnabled": true,
     "attributes": {
-        "preAuthorizedCodeLifespanS": "120"
+        "preAuthorizedCodeLifespanS": "120",
+        "loginTheme": "keycloak.v2+oid4vp"
     }
 }
