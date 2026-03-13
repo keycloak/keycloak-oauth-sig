@@ -18,7 +18,7 @@ if [[ ! -f "$WORK_DIR/src/utils/helper.sh" ]]; then
 fi
 
 source "$WORK_DIR/src/utils/helper.sh"
-setup_environment
+init_script
 
 export KC_BOOTSTRAP_ADMIN_USERNAME="${KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME}"
 export KC_BOOTSTRAP_ADMIN_PASSWORD="${KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD}"
