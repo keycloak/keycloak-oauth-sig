@@ -176,12 +176,12 @@ export_yaml_as_env() {
                 fi
             fi
 
-        if [[ "$keycloak_in_docker" == "true" ]]; then
-            # Keycloak in Docker: use container path
-            export KEYSTORE_PATH="/opt/keycloak/target/kc_keystore.pkcs12"
-        elif [[ -n "${KEYCLOAK_SSI_IN_CONTAINER:-}" ]]; then
-            # CLI in container, Keycloak on host: convert container path to host path
-            local host_project_root="${HOST_WORK_DIR:-}"
+            if [[ "$keycloak_in_docker" == "true" ]]; then
+                # Keycloak in Docker: use container path
+                export KEYSTORE_PATH="/opt/keycloak/target/kc_keystore.pkcs12"
+            elif [[ -n "${KEYCLOAK_SSI_IN_CONTAINER:-}" ]]; then
+                # CLI in container, Keycloak on host: convert container path to host path
+                local host_project_root="${HOST_WORK_DIR:-}"
 
             # Try to detect host path from Docker volume mount if HOST_WORK_DIR not set
             if [[ -z "$host_project_root" ]] && command -v docker &>/dev/null && [[ -S /var/run/docker.sock ]]; then
