@@ -167,22 +167,22 @@ export_yaml_as_env() {
         local docker_compose_cmd
         docker_compose_cmd="$(detect_docker_compose 2>/dev/null || echo "")"
         local keycloak_in_docker=false
-        
+
         # Check if Keycloak is running in Docker (app container)
         if [[ -n "$docker_compose_cmd" ]]; then
             if eval "$docker_compose_cmd" ps app --format json 2>/dev/null | grep -q '"State":"running"' 2>/dev/null || \
-               eval "$docker_compose_cmd" ps app 2>/dev/null | grep -q "app.*Up" 2>/dev/null; then
+                eval "$docker_compose_cmd" ps app 2>/dev/null | grep -q "app.*Up" 2>/dev/null; then
                 keycloak_in_docker=true
             fi
         fi
-        
+
         if [[ "$keycloak_in_docker" == "true" ]]; then
             # Keycloak in Docker: use container path
             export KEYSTORE_PATH="/opt/keycloak/target/kc_keystore.pkcs12"
         elif [[ -n "${KEYCLOAK_SSI_IN_CONTAINER:-}" ]]; then
             # CLI in container, Keycloak on host: convert container path to host path
             local host_project_root="${HOST_WORK_DIR:-}"
-            
+
             # Try to detect host path from Docker volume mount if HOST_WORK_DIR not set
             if [[ -z "$host_project_root" ]] && command -v docker &>/dev/null && [[ -S /var/run/docker.sock ]]; then
                 local container_name
@@ -192,7 +192,7 @@ export_yaml_as_env() {
                         jq -r '.[0].Mounts[] | select(.Destination == "/workspace") | .Source' 2>/dev/null | head -1 || echo "")
                 fi
             fi
-            
+
             if [[ -n "$host_project_root" ]]; then
                 export KEYSTORE_PATH="$host_project_root/target/kc_keystore.pkcs12"
             else
@@ -552,6 +552,8 @@ check_dependencies() {
 init_script() {
     # Ensure environment and WORK_DIR are initialized
     setup_environment
+    # Resolve KEYCLOAK_VERSION \"latest\" to a concrete version and set KEYCLOAK_INSTALL_DIR/KEYCLOAK_TARBALL_PATH
+    ensure_keycloak_install_dir_resolved
 
     # Log script start
     local script_name

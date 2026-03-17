@@ -35,7 +35,7 @@ WORKDIR /opt/keycloak
 
 # Runtime dependencies required by helper scripts
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends gettext-base && \
+    apt-get install -y --no-install-recommends gettext-base jq && \
     rm -rf /var/lib/apt/lists/*
 
 # Create a non-privileged user

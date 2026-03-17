@@ -14,12 +14,6 @@ IFS=$'\n\t'
 source "$WORK_DIR/src/utils/helper.sh"
 init_script
 
-# -----------------------------------------------------------------------------
-# Ensure KEYCLOAK_INSTALL_DIR is resolved if KEYCLOAK_VERSION is "latest"
-# This is needed so the kcadm helper can find the local Keycloak install
-# -----------------------------------------------------------------------------
-ensure_keycloak_install_dir_resolved
-
 # ---------------------------------------------------------------------------
 # Stop any running Keycloak instance
 # ---------------------------------------------------------------------------

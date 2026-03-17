@@ -1,7 +1,7 @@
 {
-    "enabled": true,
-    "verifiableCredentialsEnabled": true,
-    "attributes": {
-        "preAuthorizedCodeLifespanS": "120"
-    }
+  "enabled": true,
+  "verifiableCredentialsEnabled": true,
+  "attributes": {
+    "preAuthorizedCodeLifespanS": "120"
+  }
 }
