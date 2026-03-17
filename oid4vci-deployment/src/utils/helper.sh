@@ -168,20 +168,20 @@ export_yaml_as_env() {
         docker_compose_cmd="$(detect_docker_compose 2>/dev/null || echo "")"
         local keycloak_in_docker=false
 
-            # Check if Keycloak is running in Docker (app container)
-            if [[ -n "$docker_compose_cmd" ]]; then
-                if eval "$docker_compose_cmd" ps app --format json 2>/dev/null | grep -q '"State":"running"' 2>/dev/null || \
-                   eval "$docker_compose_cmd" ps app 2>/dev/null | grep -q "app.*Up" 2>/dev/null; then
-                    keycloak_in_docker=true
-                fi
+        # Check if Keycloak is running in Docker (app container)
+        if [[ -n "$docker_compose_cmd" ]]; then
+            if eval "$docker_compose_cmd" ps app --format json 2>/dev/null | grep -q '"State":"running"' 2>/dev/null || \
+                eval "$docker_compose_cmd" ps app 2>/dev/null | grep -q "app.*Up" 2>/dev/null; then
+                keycloak_in_docker=true
             fi
+        fi
 
-            if [[ "$keycloak_in_docker" == "true" ]]; then
-                # Keycloak in Docker: use container path
-                export KEYSTORE_PATH="/opt/keycloak/target/kc_keystore.pkcs12"
-            elif [[ -n "${KEYCLOAK_SSI_IN_CONTAINER:-}" ]]; then
-                # CLI in container, Keycloak on host: convert container path to host path
-                local host_project_root="${HOST_WORK_DIR:-}"
+        if [[ "$keycloak_in_docker" == "true" ]]; then
+            # Keycloak in Docker: use container path
+            export KEYSTORE_PATH="/opt/keycloak/target/kc_keystore.pkcs12"
+        elif [[ -n "${KEYCLOAK_SSI_IN_CONTAINER:-}" ]]; then
+            # CLI in container, Keycloak on host: convert container path to host path
+            local host_project_root="${HOST_WORK_DIR:-}"
 
             # Try to detect host path from Docker volume mount if HOST_WORK_DIR not set
             if [[ -z "$host_project_root" ]] && command -v docker &>/dev/null && [[ -S /var/run/docker.sock ]]; then
