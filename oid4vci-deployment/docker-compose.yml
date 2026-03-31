@@ -35,7 +35,7 @@ services:
 
     command:
       - start
-      - --features=oid4vc-vci,oid4vc-vci-preauth-code
+      - --features=${KEYCLOAK_FEATURES}
 
     depends_on:
       - db
