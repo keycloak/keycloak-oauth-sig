@@ -162,6 +162,11 @@ export_yaml_as_env() {
     [[ -n "${ISSUER_ENDPOINTS_FRONTEND:-}" ]] && export ISSUER_FRONTEND_URL="${ISSUER_ENDPOINTS_FRONTEND}"
     [[ -n "${CLIENTS_TEST_CLIENT:-}" ]] && export TEST_CLIENT_URL="${CLIENTS_TEST_CLIENT}"
     
+    # Collect features to start Keycloak with
+    KEYCLOAK_FEATURES="${KEYCLOAK_FEATURES:-oid4vc-vci}"
+    [[ "${KEYCLOAK_ENABLE_PREAUTH_CODE:-}" == "true" ]] && KEYCLOAK_FEATURES="$KEYCLOAK_FEATURES,oid4vc-vci-preauth-code"
+    export KEYCLOAK_FEATURES
+
     # Adjust KEYSTORE_PATH based on where Keycloak is running
     if [[ -n "${KEYSTORE_PATH:-}" ]]; then
         local docker_compose_cmd
