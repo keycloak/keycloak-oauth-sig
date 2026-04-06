@@ -726,6 +726,7 @@ Not only OAuth SIG member but others can communicate with each other by the foll
 - Meeting : Web meeting on a regular basis
   - When: https://zoom-lfx.platform.linuxfoundation.org/meetings/keycloak?view=week
   - Where: https://zoom-lfx.platform.linuxfoundation.org/meeting/96822989424?password=b61bd841-bb84-48e3-a88b-f1750d41d801
+  - Agenda and minute: https://hackmd.io/@keycloak-oauth-sig
 
 ## Automated Conformance Test Run Environment
 
