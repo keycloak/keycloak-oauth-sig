@@ -597,6 +597,9 @@ Note: Keycloak legacy (wildfly) is no longer supported since [keycloak 20](https
 
 ### Hosting Conferences
 
+#### Keyconf 26 (Holiday Inn Prague, Prague, Czech Republic, October 8, 2026)
+- URL: https://keyconf.dev
+
 #### Keyconf 25 (Van der Valk Hotel Amsterdam Zuidas – RAI, Amsterdam, Netherlands, August 28, 2025)
 - URL: https://keyconf.dev/2025/
 
