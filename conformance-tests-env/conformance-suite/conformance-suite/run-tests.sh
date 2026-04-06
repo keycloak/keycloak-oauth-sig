@@ -602,31 +602,31 @@ makeManualFAPI1AdvancedPARJARMTest() {
 }
 
 makeCIBAPollTest() {
-    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=private_key_jwt][fapi_profile=plain_fapi][ciba_mode=poll][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-poll-private-key-PS256-PS256-automated.json"
-    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=private_key_jwt][fapi_profile=plain_fapi][ciba_mode=poll][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-poll-private-key-ES256-ES256-automated.json"
-    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=mtls][fapi_profile=plain_fapi][ciba_mode=poll][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-poll-mtls-PS256-PS256-automated.json"
-    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=mtls][fapi_profile=plain_fapi][ciba_mode=poll][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-poll-mtls-ES256-ES256-automated.json"
+    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=private_key_jwt][fapi_ciba_profile=plain_fapi][ciba_mode=poll][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-poll-private-key-PS256-PS256-automated.json"
+    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=private_key_jwt][fapi_ciba_profile=plain_fapi][ciba_mode=poll][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-poll-private-key-ES256-ES256-automated.json"
+    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=mtls][fapi_ciba_profile=plain_fapi][ciba_mode=poll][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-poll-mtls-PS256-PS256-automated.json"
+    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=mtls][fapi_ciba_profile=plain_fapi][ciba_mode=poll][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-poll-mtls-ES256-ES256-automated.json"
 }
 
 makeManualCIBAPollTest() {
-    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=private_key_jwt][fapi_profile=plain_fapi][ciba_mode=poll][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-poll-private-key-PS256-PS256.json"
-    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=private_key_jwt][fapi_profile=plain_fapi][ciba_mode=poll][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-poll-private-key-ES256-ES256.json"
-    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=mtls][fapi_profile=plain_fapi][ciba_mode=poll][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-poll-mtls-PS256-PS256.json"
-    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=mtls][fapi_profile=plain_fapi][ciba_mode=poll][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-poll-mtls-ES256-ES256.json"
+    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=private_key_jwt][fapi_ciba_profile=plain_fapi][ciba_mode=poll][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-poll-private-key-PS256-PS256.json"
+    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=private_key_jwt][fapi_ciba_profile=plain_fapi][ciba_mode=poll][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-poll-private-key-ES256-ES256.json"
+    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=mtls][fapi_ciba_profile=plain_fapi][ciba_mode=poll][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-poll-mtls-PS256-PS256.json"
+    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=mtls][fapi_ciba_profile=plain_fapi][ciba_mode=poll][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-poll-mtls-ES256-ES256.json"
 }
 
 makeCIBAPingTest() {
-    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=private_key_jwt][fapi_profile=plain_fapi][ciba_mode=ping][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-ping-private-key-PS256-PS256-automated.json"
-    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=private_key_jwt][fapi_profile=plain_fapi][ciba_mode=ping][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-ping-private-key-ES256-ES256-automated.json"
-    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=mtls][fapi_profile=plain_fapi][ciba_mode=ping][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-ping-mtls-PS256-PS256-automated.json"
-    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=mtls][fapi_profile=plain_fapi][ciba_mode=ping][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-ping-mtls-ES256-ES256-automated.json"
+    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=private_key_jwt][fapi_ciba_profile=plain_fapi][ciba_mode=ping][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-ping-private-key-PS256-PS256-automated.json"
+    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=private_key_jwt][fapi_ciba_profile=plain_fapi][ciba_mode=ping][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-ping-private-key-ES256-ES256-automated.json"
+    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=mtls][fapi_ciba_profile=plain_fapi][ciba_mode=ping][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-ping-mtls-PS256-PS256-automated.json"
+    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=mtls][fapi_ciba_profile=plain_fapi][ciba_mode=ping][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-ping-mtls-ES256-ES256-automated.json"
 }
 
 makeManualCIBAPingTest() {
-    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=private_key_jwt][fapi_profile=plain_fapi][ciba_mode=ping][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-ping-private-key-PS256-PS256.json"
-    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=private_key_jwt][fapi_profile=plain_fapi][ciba_mode=ping][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-ping-private-key-ES256-ES256.json"
-    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=mtls][fapi_profile=plain_fapi][ciba_mode=ping][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-ping-mtls-PS256-PS256.json"
-    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=mtls][fapi_profile=plain_fapi][ciba_mode=ping][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-ping-mtls-ES256-ES256.json"
+    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=private_key_jwt][fapi_ciba_profile=plain_fapi][ciba_mode=ping][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-ping-private-key-PS256-PS256.json"
+    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=private_key_jwt][fapi_ciba_profile=plain_fapi][ciba_mode=ping][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-ping-private-key-ES256-ES256.json"
+    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=mtls][fapi_ciba_profile=plain_fapi][ciba_mode=ping][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-ping-mtls-PS256-PS256.json"
+    TESTS="${TESTS} fapi-ciba-id1-test-plan[client_auth_type=mtls][fapi_ciba_profile=plain_fapi][ciba_mode=ping][client_registration=static_client] ../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/fapi-ciba-id1-ping-mtls-ES256-ES256.json"
 }
 
 makeOBBRFAPI1AdvancedTest() {

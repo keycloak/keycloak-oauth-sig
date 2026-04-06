@@ -21,7 +21,7 @@ services:
     depends_on:
      - keycloak
      - api_gateway_nginx
-     - httpd
+     - nginx
     networks:
       default:
         aliases:
@@ -106,15 +106,15 @@ services:
 
 # Reverse Proxy
 
-  httpd:
+  nginx:
     build:
-      context: ${OPENID_GIT_URL}#${OPENID_GIT_TAG}:httpd
+      context: ${OPENID_GIT_URL}#${OPENID_GIT_TAG}:nginx
     ports:
       - "8443:8443"
     volumes:
       # to pass FAPI CIBA tests automatically, use generated certificate instead of original certificate
-      - ./common/https/server.pem:/etc/ssl/certs/ssl-cert-snakeoil.pem
-      - ./common/https/server-key.pem:/etc/ssl/private/ssl-cert-snakeoil.key
+      - ./common/https/server.pem:/etc/ssl/certs/nginx-selfsigned.crt
+      - ./common/https/server-key.pem:/etc/ssl/private/nginx-selfsigned.key
     depends_on:
       - server
 
