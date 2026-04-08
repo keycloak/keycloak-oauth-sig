@@ -19,7 +19,10 @@
       "vc.credential_build_config.sd_jwt.visible_claims": "id,sub,iat,nbf,exp,jti",
       "vc.credential_build_config.hash_algorithm": "sha-256",
       "vc.credential_build_config.token_jws_type": "dc+sd-jwt",
-      "vc.include_in_metadata": "true"
+      "vc.include_in_metadata": "true",
+      "vc.binding_required": "true",
+      "vc.binding_methods_supported": "jwk",
+      "vc.binding_required_proof_types": "jwt"
     },
     "protocolMappers": [
       {
@@ -115,7 +118,10 @@
       "vc.credential_build_config.sd_jwt.visible_claims": "id,sub,iat,nbf,exp,jti",
       "vc.credential_build_config.hash_algorithm": "sha-256",
       "vc.credential_build_config.token_jws_type": "dc+sd-jwt",
-      "vc.include_in_metadata": "true"
+      "vc.include_in_metadata": "true",
+      "vc.binding_required": "true",
+      "vc.binding_methods_supported": "jwk",
+      "vc.binding_required_proof_types": "jwt"
     },
     "protocolMappers": [
       {
@@ -328,7 +334,10 @@
       "vc.credential_build_config.sd_jwt.visible_claims": "id,sub,iat,nbf,exp,jti",
       "vc.credential_build_config.hash_algorithm": "sha-256",
       "vc.credential_build_config.token_jws_type": "dc+sd-jwt",
-      "vc.include_in_metadata": "true"
+      "vc.include_in_metadata": "true",
+      "vc.binding_required": "true",
+      "vc.binding_methods_supported": "jwk",
+      "vc.binding_required_proof_types": "jwt"
     },
     "protocolMappers": [
       {
