@@ -1,0 +1,11 @@
+[
+    {
+        "test-name": "fapi1-advanced-final",
+        "variant": "*",
+        "configuration-filename": "../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi1-advanced/fapi1-advanced-*.json",
+        "current-block": "",
+        "condition": "EnsureIdTokenDoesNotContainNonRequestedClaims",
+        "expected-result": "warning",
+        "comment": "typ is a JWS claim."
+    }
+]

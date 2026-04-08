@@ -169,6 +169,7 @@ services:
 #     - DEBUG_PORT=*:8787
      - KEYCLOAK_ADMIN=${KEYCLOAK_USER}
      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_PASSWORD}
+     - KC_SPI_PUBLIC_KEY_STORAGE__INFINISPAN__MIN_TIME_BETWEEN_REQUESTS=1
     volumes:
       # Need to add server.pem to the image at build-time for cacerts import
 #     - ./common/https/server.pem:/etc/x509/https/tls.crt
@@ -212,7 +213,8 @@ services:
       && /opt/keycloak/bin/kcadm.sh config credentials --server http://keycloak:8080/auth --realm master --user $$KEYCLOAK_ADMIN --password $$KEYCLOAK_ADMIN_PASSWORD 
       && echo Importing realm from $$KEYCLOAK_REALM_IMPORT_FILENAME to Keycloak...
       && /opt/keycloak/bin/kcadm.sh create realms -f /opt/keycloak/import/$$KEYCLOAK_REALM_IMPORT_FILENAME"
-
+    depends_on:
+      - keycloak
 #
 # Test Target Specific Entities
 #
