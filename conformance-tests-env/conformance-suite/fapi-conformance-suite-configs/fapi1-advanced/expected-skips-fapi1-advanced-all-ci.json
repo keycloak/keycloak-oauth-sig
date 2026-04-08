@@ -1,22 +1,3 @@
 [
-    {
-        "test-name": "fapi1-advanced-final-ensure-signed-request-object-with-RS256-fails",
-        "variant": {
-                "client_auth_type": "private_key_jwt",
-                "fapi_auth_request_method": "by_value",
-                "fapi_profile": "plain_fapi",
-                "fapi_response_mode": "plain_response"
-        },
-         "configuration-filename": "../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi1-advanced/fapi1-advanced-final-with-private-key-ES256-ES256-automated.json"
-    },
-    {
-        "test-name": "fapi1-advanced-final-ensure-signed-client-assertion-with-RS256-fails",
-        "variant": {
-                "client_auth_type": "private_key_jwt",
-                "fapi_auth_request_method": "by_value",
-                "fapi_profile": "plain_fapi",
-                "fapi_response_mode": "plain_response"
-        },
-         "configuration-filename": "../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi1-advanced/fapi1-advanced-final-with-private-key-ES256-ES256-automated.json"
-    }
+
 ]
