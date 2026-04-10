@@ -1,5 +1,4 @@
 {
-  "id": "5aa6d5e1-5ca0-405a-a04d-a0bdeae27358",
   "realm": "$(env:KEYCLOAK_REALM)",
   "enabled": true,
   "attributes": {
@@ -7,19 +6,15 @@
   },
   "users": [
     {
-      "id": "0bfbee8a-447d-41a1-9495-43c293e4b79f",
       "username": "francis",
       "firstName": "Francis",
       "lastName": "Pouatcha",
       "email": "fpo@mail.de",
       "createdTimestamp": 1732781977982,
       "enabled": true,
-      "realmRoles": [
-        "credential-offer-create"
-      ],
+      "realmRoles": [],
       "credentials": [
         {
-          "id": "0a16e61d-c379-4f99-acdd-48aa57752e65",
           "type": "password",
           "createdDate": 1732781977982,
           "secretData": "{\"value\":\"0m5OT6yrLP1YngVMuZB1QKXv085qxGOQ5lHFurtlbcY=\",\"salt\":\"VoTbbvYbZp/ur2a2G3hymQ==\",\"additionalParameters\":{}}",
@@ -64,7 +59,6 @@
       ]
     },
     {
-      "id": "4c486109-a4ab-4207-9028-65d4364459dd",
       "clientId": "openid4vc-rest-api",
       "clientAuthenticatorType": "client-secret",
       "secret": "$(env:CLIENTS_SECRET)",
@@ -92,7 +86,6 @@
   ],
   "clientScopes": [
     {
-      "id": "a64a4195-246a-4a18-86b8-fec69c377e7b",
       "name": "IdentityCredential",
       "protocol": "oid4vc",
       "attributes": {
@@ -112,11 +105,13 @@
         "vc.include_in_metadata": "true",
         "vc.credential_build_config.token_jws_type": "dc+sd-jwt",
         "vc.sd_jwt.number_of_decoys": "2",
-        "vc.credential_identifier": "IdentityCredential"
+        "vc.credential_identifier": "IdentityCredential",
+        "vc.binding_required": "true",
+        "vc.binding_methods_supported": "jwk",
+        "vc.binding_required_proof_types": "jwt"
       },
       "protocolMappers": [
         {
-          "id": "9743f004-c4c6-47ff-9a65-9350da8494d6",
           "name": "given_name-mapper",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-user-attribute-mapper",
@@ -129,7 +124,6 @@
           }
         },
         {
-          "id": "f24cec46-d6df-4e39-a1c9-47760f08a263",
           "name": "family_name-mapper",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-user-attribute-mapper",
@@ -142,7 +136,6 @@
           }
         },
         {
-          "id": "id-mapper-identity-001",
           "name": "id-mapper-identity",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-subject-id-mapper",
@@ -150,7 +143,6 @@
           "config": {}
         },
         {
-          "id": "3559e36d-f013-4bc8-aa4c-1f937fa5d06b",
           "name": "nbf-oid4vc-issued-at-time-claim-mapper-identity_credential",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-issued-at-time-claim-mapper",
@@ -161,7 +153,6 @@
           }
         },
         {
-          "id": "f0e40673-b9c4-45a5-afdb-2ac90cd5f70f",
           "name": "iat-oid4vc-issued-at-time-claim-mapper-identity_credential",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-issued-at-time-claim-mapper",
@@ -173,7 +164,6 @@
           }
         },
         {
-          "id": "d86bd438-5efe-4082-84c3-b4234daa8726",
           "name": "birthdate-mapper",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-user-attribute-mapper",
@@ -186,7 +176,6 @@
           }
         },
         {
-          "id": "d937a1de-cde0-49b8-9dc4-eb3a458181ca",
           "name": "username-mapper",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-user-attribute-mapper",
@@ -199,7 +188,6 @@
       ]
     },
     {
-      "id": "a7091d4b-b873-4ebf-aabd-35e2120ed473",
       "name": "KMACredential",
       "protocol": "oid4vc",
       "attributes": {
@@ -219,7 +207,10 @@
         "vc.include_in_metadata": "true",
         "vc.credential_build_config.token_jws_type": "dc+sd-jwt",
         "vc.sd_jwt.number_of_decoys": "2",
-        "vc.credential_identifier": "KMACredential"
+        "vc.credential_identifier": "KMACredential",
+        "vc.binding_required": "true",
+        "vc.binding_methods_supported": "jwk",
+        "vc.binding_required_proof_types": "jwt"
       },
       "protocolMappers": [
         {
@@ -244,7 +235,6 @@
           }
         },
         {
-          "id": "id-mapper-kma-001",
           "name": "id-mapper-kma",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-subject-id-mapper",
@@ -430,7 +420,6 @@
       ]
     },
     {
-      "id": "6cc273d7-c41f-4a95-b163-1448f03dd7e1",
       "name": "SteuerberaterCredential",
       "protocol": "oid4vc",
       "attributes": {
@@ -450,11 +439,13 @@
         "vc.include_in_metadata": "true",
         "vc.credential_build_config.token_jws_type": "dc+sd-jwt",
         "vc.sd_jwt.number_of_decoys": "2",
-        "vc.credential_identifier": "SteuerberaterCredential"
+        "vc.credential_identifier": "SteuerberaterCredential",
+        "vc.binding_required": "true",
+        "vc.binding_methods_supported": "jwk",
+        "vc.binding_required_proof_types": "jwt"
       },
       "protocolMappers": [
         {
-          "id": "d0bdb356-d049-438e-9fd1-6138f77d4fa2",
           "name": "address_country-mapper-bsk",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-user-attribute-mapper",
@@ -466,7 +457,6 @@
           }
         },
         {
-          "id": "8377a08f-7389-4534-994d-84aa0d616694",
           "name": "address_postal_code-mapper-bsk",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-user-attribute-mapper",
@@ -478,7 +468,6 @@
           }
         },
         {
-          "id": "051623f0-7f36-4379-a8e6-a89de9d68ad1",
           "name": "family_name-mapper-bsk",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-user-attribute-mapper",
@@ -490,7 +479,6 @@
           }
         },
         {
-          "id": "id-mapper-bsk-001",
           "name": "id-mapper-bsk",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-subject-id-mapper",
@@ -498,7 +486,6 @@
           "config": {}
         },
         {
-          "id": "16a20d5f-c862-4195-a85a-c7cae1530b7c",
           "name": "username-mapper-bsk",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-user-attribute-mapper",
@@ -509,7 +496,6 @@
           }
         },
         {
-          "id": "e342523b-24fc-45f6-bd66-50a71d217952",
           "name": "address_street_address-mapper-bsk",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-user-attribute-mapper",
@@ -521,7 +507,6 @@
           }
         },
         {
-          "id": "becdc156-5874-48b9-9b6d-906e97e3d767",
           "name": "given_name-mapper-bsk",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-user-attribute-mapper",
@@ -533,7 +518,6 @@
           }
         },
         {
-          "id": "42cb5e06-e608-49eb-be56-7cdf0761138d",
           "name": "member_id-mapper-bsk",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-user-attribute-mapper",
@@ -545,7 +529,6 @@
           }
         },
         {
-          "id": "ffd10cd6-2f0a-4954-8eda-7192ee47de81",
           "name": "nbf-oid4vc-issued-at-time-claim-mapper-bsk",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-issued-at-time-claim-mapper",
@@ -556,7 +539,6 @@
           }
         },
         {
-          "id": "7f4cbafa-d7a9-45e2-a4f2-d0c1ae3d77dc",
           "name": "date_of_birth-mapper-bsk",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-user-attribute-mapper",
@@ -568,7 +550,6 @@
           }
         },
         {
-          "id": "aa618980-27a5-48ca-9e08-c7cab89ef4b2",
           "name": "address_locality-mapper-bsk",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-user-attribute-mapper",
@@ -580,7 +561,6 @@
           }
         },
         {
-          "id": "ba5a1028-b50d-436c-af5e-58bc03987c53",
           "name": "academic_title-mapper-bsk",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-static-claim-mapper",
@@ -592,7 +572,6 @@
           }
         },
         {
-          "id": "bc556368-38dc-45d3-8846-8cda29f4a70e",
           "name": "iat-oid4vc-issued-at-time-claim-mapper-bsk",
           "protocol": "oid4vc",
           "protocolMapper": "oid4vc-issued-at-time-claim-mapper",
