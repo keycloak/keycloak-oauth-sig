@@ -36,6 +36,18 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Create temporary JSON file with conditional realmRoles
+# ---------------------------------------------------------------------------
+TEMP_CONFIG_FILE="$WORK_DIR/temp-keycloak-config.json"
+if [[ "$KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE" == "true" ]]; then
+    log "Creating temporary config with credential-offer-create role..."
+    jq '.users[0].realmRoles = ["credential-offer-create"]' "$CLI_REALM_FILE" > "$TEMP_CONFIG_FILE"
+else
+    log "Creating temporary config without credential-offer-create role..."
+    jq '.users[0].realmRoles = []' "$CLI_REALM_FILE" > "$TEMP_CONFIG_FILE"
+fi
+
+# ---------------------------------------------------------------------------
 # Run CLI JAR to import realm configuration
 # ---------------------------------------------------------------------------
 log "Running Keycloak Config CLI..."
@@ -56,6 +68,9 @@ cd "$WORK_DIR" && java -DCLIENT_SECRET="$CLIENTS_SECRET" \
      --keycloak.password="$KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD" \
      --keycloak.ssl-verify=false \
      --logging.level.root=info \
-     --import.files.locations="$CLI_REALM_FILE"
+     --import.files.locations="$TEMP_CONFIG_FILE"
+
+# Clean up temporary file
+rm -f "$TEMP_CONFIG_FILE"
 
 log "Realm configuration imported successfully."

@@ -151,6 +151,9 @@ export_yaml_as_env() {
             "keycloak_endpoints.issuer_did")
                 export ISSUER_DID="$resolved_value"
                 ;;
+            "keycloak.enable_credential_offer_create")
+                export KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE="$resolved_value"
+                ;;
         esac
     done <<< "$raw_props_output"
     set -u # Restore 'nounset'
