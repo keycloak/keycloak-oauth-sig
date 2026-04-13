@@ -129,7 +129,6 @@ services:
     ports:
       - "9999:9999"
     volumes:
-      - ${MVN_HOME}:/root/.m2
       - ./report:/conformance-suite/report
       - ./conformance-suite/fapi-conformance-suite-configs/:/conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/
     environment:
@@ -184,7 +183,8 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:8080/auth/"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 12
+      start_period: 30s
     command:
       - "--verbose"
       - "start-dev"
@@ -209,10 +209,18 @@ services:
       - ./test-target/keycloak/keycloak/realms:/opt/keycloak/import:z
     entrypoint: /usr/bin/bash
     command: >
-      -c "sleep 60; echo Connecting to Keycloak...
-      && /opt/keycloak/bin/kcadm.sh config credentials --server http://keycloak:8080/auth --realm master --user $$KEYCLOAK_ADMIN --password $$KEYCLOAK_ADMIN_PASSWORD 
-      && echo Importing realm from $$KEYCLOAK_REALM_IMPORT_FILENAME to Keycloak...
-      && /opt/keycloak/bin/kcadm.sh create realms -f /opt/keycloak/import/$$KEYCLOAK_REALM_IMPORT_FILENAME"
+      -c "
+      until
+        echo Connecting to Keycloak... &&
+        /opt/keycloak/bin/kcadm.sh config credentials --server http://keycloak:8080/auth --realm master --user $$KEYCLOAK_ADMIN --password $$KEYCLOAK_ADMIN_PASSWORD &&
+        echo Importing realm from $$KEYCLOAK_REALM_IMPORT_FILENAME to Keycloak... &&
+        /opt/keycloak/bin/kcadm.sh create realms -f /opt/keycloak/import/$$KEYCLOAK_REALM_IMPORT_FILENAME
+      do
+        echo 'Realm import failed. Retrying in 10 seconds...';
+        sleep 10;
+      done;
+      echo 'Realm import complete.';
+      sleep infinity"
     depends_on:
       - keycloak
 #
