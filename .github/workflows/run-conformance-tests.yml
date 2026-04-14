@@ -1,10 +1,98 @@
 name: run-conformance-tests
-run-name: ${{ github.actor }} is running GitHub Actions for automatic conformance tests run
+run-name: ${{ github.actor }} is running FAPI1 Advanced conformance tests
+
 on:
   workflow_dispatch:
+
 jobs:
-  dummy:
-    if: ${{ false }}
+  run-conformance-test:
     runs-on: ubuntu-latest
+    continue-on-error: true
+    defaults:
+      run:
+        working-directory: ./
     steps:
-      - run: ""
+      - uses: actions/checkout@v4
+
+      - name: Add hosts entries
+        run: |
+          sudo echo "127.0.0.1 as.keycloak-fapi.org aes.keycloak-fapi.org rs.keycloak-fapi.org cs.keycloak-fapi.org conformance-suite.keycloak-fapi.org" | sudo tee -a /etc/hosts
+
+      - name: Run conformance tests
+        run: |
+          docker compose -p keycloak-fapi -f conformance-tests-env/docker-compose.yml up --build --exit-code-from test_runner | tee ${{ github.workspace }}/outputs.txt
+        env:
+          OPENID_GIT_URL: https://gitlab.com/openid/conformance-suite.git
+          OPENID_GIT_TAG: release-v5.1.41
+          RESOURCE_FQDN: rs.keycloak-fapi.org
+          CONSENT_FQDN: cs.keycloak-fapi.org
+          CONFORMANCE_SUITE_FQDN: conformance-suite.keycloak-fapi.org
+          AUTOMATE_TESTS: true
+          TEST_PLAN: --fapi1-advanced-all-ci
+          KEYCLOAK_BASE_IMAGE: quay.io/keycloak/keycloak:26.6.0
+          KEYCLOAK_REALM: test
+          KEYCLOAK_USER: admin
+          KEYCLOAK_PASSWORD: admin
+          KEYCLOAK_REALM_IMPORT_FILENAME: realm-fapi1-advanced.json
+          KEYCLOAK_FQDN: as.keycloak-fapi.org
+          AUTH_ENTITY_FQDN: aes.keycloak-fapi.org
+          KEYCLOAK_FRONTEND_URL: https://as.keycloak-fapi.org/auth
+          KEYCLOAK_INTROSPECTION_ENDPOINT_FROM_API_GATEWAY: https://as.keycloak-fapi.org/auth/realms/test/protocol/openid-connect/token/introspect
+          KEYCLOAK_SPI_0: custom-spi.txt
+
+      - name: Upload test outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: conformance-test-outputs
+          path: ${{ github.workspace }}/outputs.txt
+
+  evaluate-test-results:
+    needs: [run-conformance-test]
+    runs-on: ubuntu-latest
+    if: always()
+    defaults:
+      run:
+        working-directory: ./
+    steps:
+      - name: Download test outputs
+        uses: actions/download-artifact@v4
+        with:
+          path: matrix-job-outputs
+
+      - name: Evaluate results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs')
+            const path = require('path')
+            const readline = require('readline')
+            const failPattern = /[1-9] FAILURE, /g
+            const failTestPattern = / Test [\w-]+/g
+            const outputs = []
+
+            const directory = path.resolve('./matrix-job-outputs')
+            for (const dirName of fs.readdirSync(directory)) {
+              const readFilePath = path.join(directory, dirName, 'outputs.txt')
+              if (!fs.existsSync(readFilePath)) continue
+              const writeFilePath = path.join(directory, dirName, 'failedtests.txt')
+              console.log(readFilePath)
+              const rs = fs.createReadStream(readFilePath)
+              const ws = fs.createWriteStream(writeFilePath)
+              const rl = readline.createInterface({input: rs, output: ws})
+              rl.on('line', (lineString) => {
+                if (failPattern.test(lineString)) {
+                  const result = lineString.match(failTestPattern)
+                  outputs.push(result[0].substring(6))
+                  console.log(outputs)
+                }
+              })
+              rl.on('close', () => {})
+            }
+            fs.writeFileSync("${{ github.workspace }}/all-tests-outputs.txt", JSON.stringify(outputs))
+
+      - name: Upload evaluation results
+        uses: actions/upload-artifact@v4
+        with:
+          name: all-tests-outputs
+          path: ${{ github.workspace }}/all-tests-outputs.txt
