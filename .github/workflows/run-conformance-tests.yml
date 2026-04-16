@@ -1,5 +1,5 @@
 name: run-conformance-tests
-run-name: ${{ github.actor }} is running FAPI1 Advanced conformance tests
+run-name: ${{ github.actor }} is running FAPI conformance tests
 
 on:
   workflow_dispatch:
@@ -8,6 +8,10 @@ jobs:
   run-conformance-test:
     runs-on: ubuntu-latest
     continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [fapi1-advanced, fapi2-sp-final]
     defaults:
       run:
         working-directory: ./
@@ -28,12 +32,12 @@ jobs:
           CONSENT_FQDN: cs.keycloak-fapi.org
           CONFORMANCE_SUITE_FQDN: conformance-suite.keycloak-fapi.org
           AUTOMATE_TESTS: true
-          TEST_PLAN: --fapi1-advanced-all-ci
+          TEST_PLAN: --${{ matrix.profile }}-all-ci
           KEYCLOAK_BASE_IMAGE: quay.io/keycloak/keycloak:26.6.0
           KEYCLOAK_REALM: test
           KEYCLOAK_USER: admin
           KEYCLOAK_PASSWORD: admin
-          KEYCLOAK_REALM_IMPORT_FILENAME: realm-fapi1-advanced.json
+          KEYCLOAK_REALM_IMPORT_FILENAME: realm-${{ matrix.profile }}.json
           KEYCLOAK_FQDN: as.keycloak-fapi.org
           AUTH_ENTITY_FQDN: aes.keycloak-fapi.org
           KEYCLOAK_FRONTEND_URL: https://as.keycloak-fapi.org/auth
@@ -44,7 +48,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: conformance-test-outputs
+          name: conformance-test-outputs-${{ matrix.profile }}
           path: ${{ github.workspace }}/outputs.txt
 
   evaluate-test-results:
@@ -58,6 +62,7 @@ jobs:
       - name: Download test outputs
         uses: actions/download-artifact@v4
         with:
+          pattern: conformance-test-outputs-*
           path: matrix-job-outputs
 
       - name: Evaluate results
@@ -66,30 +71,164 @@ jobs:
           script: |
             const fs = require('fs')
             const path = require('path')
-            const readline = require('readline')
-            const failPattern = /[1-9] FAILURE, /g
-            const failTestPattern = / Test [\w-]+/g
-            const outputs = []
+
+            const testConfigs = {
+              'fapi1-advanced': [
+                { variant: { client_auth_type: 'private_key_jwt', fapi_auth_request_method: 'by_value', fapi_profile: 'plain_fapi', fapi_response_mode: 'plain_response' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi1-advanced-final-with-private-key-PS256-PS256-automated.json', certificationProfile: 'FAPI Adv. OP w/ Private Key' },
+                { variant: { client_auth_type: 'private_key_jwt', fapi_auth_request_method: 'by_value', fapi_profile: 'plain_fapi', fapi_response_mode: 'plain_response' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi1-advanced-final-with-private-key-ES256-ES256-automated.json', certificationProfile: 'FAPI Adv. OP w/ Private Key' },
+                { variant: { client_auth_type: 'mtls', fapi_auth_request_method: 'by_value', fapi_profile: 'plain_fapi', fapi_response_mode: 'plain_response' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi1-advanced-final-with-mtls-PS256-PS256-automated.json', certificationProfile: 'FAPI Adv. OP w/ MTLS' },
+                { variant: { client_auth_type: 'mtls', fapi_auth_request_method: 'by_value', fapi_profile: 'plain_fapi', fapi_response_mode: 'plain_response' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi1-advanced-final-with-mtls-ES256-ES256-automated.json', certificationProfile: 'FAPI Adv. OP w/ MTLS' },
+                { variant: { client_auth_type: 'private_key_jwt', fapi_auth_request_method: 'pushed', fapi_profile: 'plain_fapi', fapi_response_mode: 'plain_response' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi1-advanced-par-private-key-PS256-PS256-automated.json', certificationProfile: 'FAPI Adv. OP w/ Private Key, PAR' },
+                { variant: { client_auth_type: 'private_key_jwt', fapi_auth_request_method: 'pushed', fapi_profile: 'plain_fapi', fapi_response_mode: 'plain_response' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi1-advanced-par-private-key-ES256-ES256-automated.json', certificationProfile: 'FAPI Adv. OP w/ Private Key, PAR' },
+                { variant: { client_auth_type: 'mtls', fapi_auth_request_method: 'pushed', fapi_profile: 'plain_fapi', fapi_response_mode: 'plain_response' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi1-advanced-par-mtls-PS256-PS256-automated.json', certificationProfile: 'FAPI Adv. OP w/ MTLS, PAR' },
+                { variant: { client_auth_type: 'mtls', fapi_auth_request_method: 'pushed', fapi_profile: 'plain_fapi', fapi_response_mode: 'plain_response' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi1-advanced-par-mtls-ES256-ES256-automated.json', certificationProfile: 'FAPI Adv. OP w/ MTLS, PAR' },
+                { variant: { client_auth_type: 'private_key_jwt', fapi_auth_request_method: 'by_value', fapi_profile: 'plain_fapi', fapi_response_mode: 'jarm' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi1-advanced-jarm-private-key-PS256-PS256-automated.json', certificationProfile: 'FAPI Adv. OP w/ Private Key, JARM' },
+                { variant: { client_auth_type: 'private_key_jwt', fapi_auth_request_method: 'by_value', fapi_profile: 'plain_fapi', fapi_response_mode: 'jarm' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi1-advanced-jarm-private-key-ES256-ES256-automated.json', certificationProfile: 'FAPI Adv. OP w/ Private Key, JARM' },
+                { variant: { client_auth_type: 'mtls', fapi_auth_request_method: 'by_value', fapi_profile: 'plain_fapi', fapi_response_mode: 'jarm' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi1-advanced-jarm-mtls-PS256-PS256-automated.json', certificationProfile: 'FAPI Adv. OP w/ MTLS, JARM' },
+                { variant: { client_auth_type: 'mtls', fapi_auth_request_method: 'by_value', fapi_profile: 'plain_fapi', fapi_response_mode: 'jarm' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi1-advanced-jarm-mtls-ES256-ES256-automated.json', certificationProfile: 'FAPI Adv. OP w/ MTLS, JARM' },
+                { variant: { client_auth_type: 'private_key_jwt', fapi_auth_request_method: 'pushed', fapi_profile: 'plain_fapi', fapi_response_mode: 'jarm' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi1-advanced-par-jarm-private-key-PS256-PS256-automated.json', certificationProfile: 'FAPI Adv. OP w/ Private Key, PAR, JARM' },
+                { variant: { client_auth_type: 'private_key_jwt', fapi_auth_request_method: 'pushed', fapi_profile: 'plain_fapi', fapi_response_mode: 'jarm' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi1-advanced-par-jarm-private-key-ES256-ES256-automated.json', certificationProfile: 'FAPI Adv. OP w/ Private Key, PAR, JARM' },
+                { variant: { client_auth_type: 'mtls', fapi_auth_request_method: 'pushed', fapi_profile: 'plain_fapi', fapi_response_mode: 'jarm' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi1-advanced-par-jarm-mtls-PS256-PS256-automated.json', certificationProfile: 'FAPI Adv. OP w/ MTLS, PAR, JARM' },
+                { variant: { client_auth_type: 'mtls', fapi_auth_request_method: 'pushed', fapi_profile: 'plain_fapi', fapi_response_mode: 'jarm' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi1-advanced-par-jarm-mtls-ES256-ES256-automated.json', certificationProfile: 'FAPI Adv. OP w/ MTLS, PAR, JARM' }
+              ],
+              'fapi2-sp-final': [
+                { variant: { sender_constrain: 'dpop', client_auth_type: 'mtls', authorization_request_type: 'simple', openid: 'plain_oauth', fapi_profile: 'plain_fapi' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi2-final-FAPI2SP-DPOP-MTLS-MTLS-ES256-ES256-automated.json', certificationProfile: 'FAPI2SP OP MTLS + DPoP' },
+                { variant: { sender_constrain: 'dpop', client_auth_type: 'private_key_jwt', authorization_request_type: 'simple', openid: 'plain_oauth', fapi_profile: 'plain_fapi' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi2-final-FAPI2SP-DPOP-private-key-MTLS-PS256-PS256-automated.json', certificationProfile: 'FAPI2SP OP private key + DPoP' },
+                { variant: { sender_constrain: 'dpop', client_auth_type: 'mtls', authorization_request_type: 'simple', openid: 'openid_connect', fapi_profile: 'plain_fapi' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi2-final-FAPI2SP-OpenID-Connect-DPOP-ES256-ES256-automated.json', certificationProfile: 'FAPI2SP OP OpenID Connect, FAPI2SP OP MTLS + DPoP' },
+                { variant: { sender_constrain: 'mtls', client_auth_type: 'mtls', authorization_request_type: 'simple', openid: 'plain_oauth', fapi_profile: 'plain_fapi' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi2-final-FAPI2SP-MTLS-MTLS-ES256-ES256-automated.json', certificationProfile: 'FAPI2SP OP MTLS + MTLS' },
+                { variant: { sender_constrain: 'mtls', client_auth_type: 'private_key_jwt', authorization_request_type: 'simple', openid: 'plain_oauth', fapi_profile: 'plain_fapi' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi2-final-FAPI2SP-private-key-MTLS-PS256-PS256-automated.json', certificationProfile: 'FAPI2SP OP private key + MTLS' },
+                { variant: { sender_constrain: 'mtls', client_auth_type: 'mtls', authorization_request_type: 'simple', openid: 'openid_connect', fapi_profile: 'plain_fapi' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi2-final-FAPI2SP-OpenID-Connect-ES256-ES256-automated.json', certificationProfile: 'FAPI2SP OP OpenID Connect, FAPI2SP OP MTLS + MTLS' }
+              ]
+            }
 
             const directory = path.resolve('./matrix-job-outputs')
+            const allResults = []
+
             for (const dirName of fs.readdirSync(directory)) {
               const readFilePath = path.join(directory, dirName, 'outputs.txt')
               if (!fs.existsSync(readFilePath)) continue
-              const writeFilePath = path.join(directory, dirName, 'failedtests.txt')
-              console.log(readFilePath)
-              const rs = fs.createReadStream(readFilePath)
-              const ws = fs.createWriteStream(writeFilePath)
-              const rl = readline.createInterface({input: rs, output: ws})
-              rl.on('line', (lineString) => {
-                if (failPattern.test(lineString)) {
-                  const result = lineString.match(failTestPattern)
-                  outputs.push(result[0].substring(6))
-                  console.log(outputs)
+
+              const profileMatch = dirName.match(/conformance-test-outputs-(.+)/)
+              const profileName = profileMatch ? profileMatch[1] : dirName
+
+              const content = fs.readFileSync(readFilePath, 'utf8')
+              const lines = content.split('\n')
+
+              // Parse per-variant results by matching "Results for [N] ... with configuration <config>"
+              // followed by "Overall totals: ran N test modules..." lines
+              // Log lines may have timestamp and container name prefixes, so match loosely
+              const resultsHeaderPattern = /Results for \[\d+\] .+ with configuration (.+):\s*$/
+              const totalsPattern = /Overall totals: ran (\d+) test modules\. Conditions: (\d+) successes, (\d+) failures, (\d+) warnings\. ([\d.]+) seconds/
+              const failPattern = /[1-9] FAILURE, /
+              const failTestPattern = / Test ([\w-]+)/
+
+              const perVariantResults = {}
+              const failedTests = []
+              let currentConfigFile = null
+
+              for (const line of lines) {
+                const headerMatch = line.match(resultsHeaderPattern)
+                if (headerMatch) {
+                  // Extract basename from the full config path
+                  const fullPath = headerMatch[1].trim()
+                  currentConfigFile = fullPath.split('/').pop()
+                  continue
                 }
+                const totalsMatch = line.match(totalsPattern)
+                if (totalsMatch && currentConfigFile) {
+                  perVariantResults[currentConfigFile] = {
+                    testModules: parseInt(totalsMatch[1]),
+                    conditions: {
+                      successes: parseInt(totalsMatch[2]),
+                      failures: parseInt(totalsMatch[3]),
+                      warnings: parseInt(totalsMatch[4])
+                    },
+                    elapsedTimeInSeconds: parseFloat(totalsMatch[5])
+                  }
+                  currentConfigFile = null
+                }
+                if (failPattern.test(line)) {
+                  const result = line.match(failTestPattern)
+                  if (result) failedTests.push(result[1])
+                }
+              }
+
+              // Match per-variant results to configs and compute test plan totals
+              const configs = testConfigs[profileName] || []
+              const planTotals = { testModules: 0, conditions: { successes: 0, failures: 0, warnings: 0 }, elapsedTimeInSeconds: 0 }
+
+              for (const c of configs) {
+                const variantResult = perVariantResults[c.configFile] || null
+                c.results = variantResult
+                if (variantResult) {
+                  planTotals.testModules += variantResult.testModules
+                  planTotals.conditions.successes += variantResult.conditions.successes
+                  planTotals.conditions.failures += variantResult.conditions.failures
+                  planTotals.conditions.warnings += variantResult.conditions.warnings
+                  planTotals.elapsedTimeInSeconds += variantResult.elapsedTimeInSeconds
+                }
+              }
+              planTotals.elapsedTimeInSeconds = Math.round(planTotals.elapsedTimeInSeconds * 10) / 10
+
+              // Console output
+              console.log('')
+              console.log('========================================')
+              console.log(`Test Plan Name: ${profileName}`)
+              console.log('========================================')
+
+              for (let i = 0; i < configs.length; i++) {
+                const c = configs[i]
+                console.log(`\n  [${i + 1}] Variant:`)
+                for (const [key, value] of Object.entries(c.variant)) {
+                  console.log(`      ${key}: ${value}`)
+                }
+                console.log(`  Signature Algorithm: ${c.signatureAlgorithm}`)
+                console.log(`  Config File: ${c.configFile}`)
+                console.log(`  Certification Profile: ${c.certificationProfile}`)
+                if (c.results) {
+                  console.log(`  testModules: ${c.results.testModules}`)
+                  console.log('  conditions:')
+                  console.log(`    successes: ${c.results.conditions.successes}`)
+                  console.log(`    failures: ${c.results.conditions.failures}`)
+                  console.log(`    warnings: ${c.results.conditions.warnings}`)
+                  console.log(`  elapsedTimeInSeconds: ${c.results.elapsedTimeInSeconds}`)
+                } else {
+                  console.log('  (No results found for this variant)')
+                }
+              }
+
+              const hasResults = configs.some(c => c.results)
+              console.log('')
+              console.log('  ----------------------------------------')
+              console.log(`  Test Plan Totals (${profileName}):`)
+              if (hasResults) {
+                console.log(`  testModules: ${planTotals.testModules}`)
+                console.log('  conditions:')
+                console.log(`    successes: ${planTotals.conditions.successes}`)
+                console.log(`    failures: ${planTotals.conditions.failures}`)
+                console.log(`    warnings: ${planTotals.conditions.warnings}`)
+                console.log(`  elapsedTimeInSeconds: ${planTotals.elapsedTimeInSeconds}`)
+              } else {
+                console.log('  (No results found)')
+              }
+
+              if (failedTests.length > 0) {
+                console.log('')
+                console.log('  Failed Tests:')
+                for (const t of failedTests) {
+                  console.log(`    - ${t}`)
+                }
+              }
+
+              allResults.push({
+                testPlanName: profileName,
+                configurations: configs,
+                planTotals: hasResults ? planTotals : null,
+                failedTests: failedTests
               })
-              rl.on('close', () => {})
             }
-            fs.writeFileSync("${{ github.workspace }}/all-tests-outputs.txt", JSON.stringify(outputs))
+
+            fs.writeFileSync("${{ github.workspace }}/all-tests-outputs.txt", JSON.stringify(allResults, null, 2))
 
       - name: Upload evaluation results
         uses: actions/upload-artifact@v4
