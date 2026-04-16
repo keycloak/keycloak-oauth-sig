@@ -1,0 +1,35 @@
+[
+    {
+        "test-name": "fapi2-security-profile-final-attempt-reuse-authorization-code-after-one-second",
+        "variant": {
+            "sender_constrain": "dpop"
+        },
+        "configuration-filename": "../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi2-ms-final/fapi2-final-*-DPOP-*-automated.json",
+        "current-block": "Testing if access token was revoked after authorization code reuse (the AS 'should' have revoked the access token)",
+        "condition": "EnsureHttpStatusCodeIs4xx",
+        "expected-result": "warning",
+        "comment": "It is resource server's matter, not authorization server's matter."
+    },
+    {
+        "test-name": "fapi2-security-profile-final-dpop-negative-tests",
+        "variant": {
+            "sender_constrain": "dpop"
+        },
+        "configuration-filename": "../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi2-ms-final/fapi2-final-*-DPOP-*-automated.json",
+        "current-block": "Try DPoP proof expecting RS to compare scheme and hostname using case independent mode when validating htu claim",
+        "condition": "EnsureHttpStatusCodeIs200or201",
+        "expected-result": "warning",
+        "comment": "It is resource server's matter, not authorization server's matter."
+    },
+    {
+        "test-name": "fapi2-security-profile-final-dpop-negative-tests",
+        "variant": {
+            "sender_constrain": "dpop"
+        },
+        "configuration-filename": "../conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/fapi2-ms-final/fapi2-final-*-DPOP-*-automated.json",
+        "current-block": "Try DPoP proof expecting Scheme based normalization of htu claim, where the port is not considered if that is the default for the scheme.",
+        "condition": "EnsureHttpStatusCodeIs200or201",
+        "expected-result": "warning",
+        "comment": "It is resource server's matter, not authorization server's matter."
+    }
+]
