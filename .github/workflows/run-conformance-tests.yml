@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        profile: [fapi1-advanced, fapi2-sp-final]
+        profile: [fapi1-advanced, fapi2-sp-final, fapi2-ms-final]
     defaults:
       run:
         working-directory: ./
@@ -24,7 +24,18 @@ jobs:
 
       - name: Run conformance tests
         run: |
+          set +e
+          set -o pipefail
           docker compose -p keycloak-fapi -f conformance-tests-env/docker-compose.yml up --build --exit-code-from test_runner | tee ${{ github.workspace }}/outputs.txt
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "failed" > ${{ github.workspace }}/test-result.txt
+            REASON=$(grep "test_runner-1 exited with code" ${{ github.workspace }}/outputs.txt || echo "test_runner exited with code $EXIT_CODE")
+            echo "$REASON" >> ${{ github.workspace }}/test-result.txt
+          else
+            echo "success" > ${{ github.workspace }}/test-result.txt
+          fi
+          exit $EXIT_CODE
         env:
           OPENID_GIT_URL: https://gitlab.com/openid/conformance-suite.git
           OPENID_GIT_TAG: release-v5.1.41
@@ -49,7 +60,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: conformance-test-outputs-${{ matrix.profile }}
-          path: ${{ github.workspace }}/outputs.txt
+          path: |
+            ${{ github.workspace }}/outputs.txt
+            ${{ github.workspace }}/test-result.txt
 
   evaluate-test-results:
     needs: [run-conformance-test]
@@ -64,6 +77,43 @@ jobs:
         with:
           pattern: conformance-test-outputs-*
           path: matrix-job-outputs
+
+      - name: Check for job failures
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs')
+            const path = require('path')
+
+            const directory = path.resolve('./matrix-job-outputs')
+            const failures = []
+
+            for (const dirName of fs.readdirSync(directory)) {
+              const resultFilePath = path.join(directory, dirName, 'test-result.txt')
+              if (!fs.existsSync(resultFilePath)) continue
+
+              const profileMatch = dirName.match(/conformance-test-outputs-(.+)/)
+              const profileName = profileMatch ? profileMatch[1] : dirName
+
+              const content = fs.readFileSync(resultFilePath, 'utf8').trim()
+              const lines = content.split('\n')
+              const result = lines[0]
+
+              if (result === 'failed') {
+                const reason = lines.slice(1).join('\n') || 'Unknown reason'
+                failures.push({ profile: profileName, reason })
+              }
+            }
+
+            if (failures.length > 0) {
+              core.error('The following conformance test jobs failed:')
+              for (const f of failures) {
+                core.error(`  - Profile "${f.profile}": ${f.reason}`)
+              }
+              core.setFailed(`${failures.length} conformance test job(s) failed`)
+            } else {
+              core.info('All conformance test jobs completed successfully')
+            }
 
       - name: Evaluate results
         uses: actions/github-script@v7
@@ -98,6 +148,16 @@ jobs:
                 { variant: { sender_constrain: 'mtls', client_auth_type: 'mtls', authorization_request_type: 'simple', openid: 'plain_oauth', fapi_profile: 'plain_fapi' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi2-final-FAPI2SP-MTLS-MTLS-ES256-ES256-automated.json', certificationProfile: 'FAPI2SP OP MTLS + MTLS' },
                 { variant: { sender_constrain: 'mtls', client_auth_type: 'private_key_jwt', authorization_request_type: 'simple', openid: 'plain_oauth', fapi_profile: 'plain_fapi' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi2-final-FAPI2SP-private-key-MTLS-PS256-PS256-automated.json', certificationProfile: 'FAPI2SP OP private key + MTLS' },
                 { variant: { sender_constrain: 'mtls', client_auth_type: 'mtls', authorization_request_type: 'simple', openid: 'openid_connect', fapi_profile: 'plain_fapi' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi2-final-FAPI2SP-OpenID-Connect-ES256-ES256-automated.json', certificationProfile: 'FAPI2SP OP OpenID Connect, FAPI2SP OP MTLS + MTLS' }
+              ],
+              'fapi2-ms-final': [
+                { variant: { sender_constrain: 'dpop', client_auth_type: 'mtls', authorization_request_type: 'simple', openid: 'plain_oauth', fapi_request_method: 'signed_non_repudiation', fapi_profile: 'plain_fapi', fapi_response_mode: 'plain_response' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi2-final-FAPI2MS-DPOP-JAR-MTLS-MTLS-ES256-ES256-automated.json', certificationProfile: 'FAPI2SP OP MTLS + DPoP, FAPI2MS OP JAR' },
+                { variant: { sender_constrain: 'dpop', client_auth_type: 'mtls', authorization_request_type: 'simple', openid: 'plain_oauth', fapi_request_method: 'signed_non_repudiation', fapi_profile: 'plain_fapi', fapi_response_mode: 'jarm' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi2-final-FAPI2MS-DPOP-JARM-MTLS-MTLS-ES256-ES256-automated.json', certificationProfile: 'FAPI2SP OP MTLS + DPoP, FAPI2MS OP JAR, FAPI2MS OP JARM' },
+                { variant: { sender_constrain: 'mtls', client_auth_type: 'mtls', authorization_request_type: 'simple', openid: 'plain_oauth', fapi_request_method: 'signed_non_repudiation', fapi_profile: 'plain_fapi', fapi_response_mode: 'plain_response' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi2-final-FAPI2MS-JAR-MTLS-MTLS-ES256-ES256-automated.json', certificationProfile: 'FAPI2SP OP MTLS + MTLS, FAPI2MS OP JAR' },
+                { variant: { sender_constrain: 'mtls', client_auth_type: 'mtls', authorization_request_type: 'simple', openid: 'plain_oauth', fapi_request_method: 'signed_non_repudiation', fapi_profile: 'plain_fapi', fapi_response_mode: 'jarm' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi2-final-FAPI2MS-JARM-MTLS-MTLS-ES256-ES256-automated.json', certificationProfile: 'FAPI2SP OP MTLS + MTLS, FAPI2MS OP JAR, FAPI2MS OP JARM' },
+                { variant: { sender_constrain: 'mtls', client_auth_type: 'private_key_jwt', authorization_request_type: 'simple', openid: 'plain_oauth', fapi_request_method: 'signed_non_repudiation', fapi_profile: 'plain_fapi', fapi_response_mode: 'plain_response' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi2-final-FAPI2MS-JAR-private-key-MTLS-ES256-ES256-automated.json', certificationProfile: 'FAPI2SP OP private key + MTLS, FAPI2MS OP JAR' },
+                { variant: { sender_constrain: 'mtls', client_auth_type: 'private_key_jwt', authorization_request_type: 'simple', openid: 'plain_oauth', fapi_request_method: 'signed_non_repudiation', fapi_profile: 'plain_fapi', fapi_response_mode: 'jarm' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi2-final-FAPI2MS-JARM-private-key-MTLS-PS256-PS256-automated.json', certificationProfile: 'FAPI2SP OP private key + MTLS, FAPI2MS OP JAR, FAPI2MS OP JARM' },
+                { variant: { sender_constrain: 'dpop', client_auth_type: 'private_key_jwt', authorization_request_type: 'simple', openid: 'plain_oauth', fapi_request_method: 'signed_non_repudiation', fapi_profile: 'plain_fapi', fapi_response_mode: 'plain_response' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi2-final-FAPI2MS-DPOP-JAR-private-key-MTLS-PS256-PS256-automated.json', certificationProfile: 'FAPI2SP OP private key + DPoP, FAPI2MS OP JAR' },
+                { variant: { sender_constrain: 'dpop', client_auth_type: 'private_key_jwt', authorization_request_type: 'simple', openid: 'plain_oauth', fapi_request_method: 'signed_non_repudiation', fapi_profile: 'plain_fapi', fapi_response_mode: 'jarm' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi2-final-FAPI2MS-DPOP-JARM-private-key-MTLS-ES256-ES256-automated.json', certificationProfile: 'FAPI2SP OP private key + DPoP, FAPI2MS OP JAR, FAPI2MS OP JARM' }
               ]
             }
 
