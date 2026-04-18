@@ -129,6 +129,7 @@ services:
     ports:
       - "9999:9999"
     volumes:
+      - ${MVN_HOME}:/root/.m2
       - ./report:/conformance-suite/report
       - ./conformance-suite/fapi-conformance-suite-configs/:/conformance-suite/.gitlab-ci/fapi-conformance-suite-configs/
     environment:
