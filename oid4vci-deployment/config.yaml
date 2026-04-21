@@ -36,7 +36,7 @@ keycloak:
   # Enable pre-authorized code flow. In newer Keycloak versions, the pre-auth code flow
   # must be explicitly enabled to be used for credential issuance. In older versions,
   # it is enabled by default and this must be set to false.
-  enable_preauth_code: false
+  enable_preauth_code: true
   # Enable credential-offer-create role for users
   enable_credential_offer_create: false
 

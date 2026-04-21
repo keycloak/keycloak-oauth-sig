@@ -332,12 +332,6 @@ cmd_compose() {
         new_args+=("$arg")
     done
     
-    # Auto-add -v to 'down' command if not specified
-    if "$has_down" && ! "$has_volumes"; then
-        log "Adding -v flag to 'docker compose down' command."
-        new_args+=("-v")
-    fi
-
     # Execute docker compose with generated .env file
     eval "$DOCKER_COMPOSE_CMD" "${new_args[@]}"
     local compose_exit_code=$?

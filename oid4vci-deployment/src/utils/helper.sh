@@ -84,18 +84,40 @@ export_yaml_as_env() {
     fi
     
     # 1. Merge config files, flatten to properties, and clean up for shell export.
-    #    Store this raw output for two passes.
-    # Strategy: Merge files sequentially where later files override earlier ones
-    # Use unified approach: ireduce works for both single and multiple files
+    # Strategy: Merge files sequentially where later files override earlier ones.
+    
+    # Check if yq supports 'to_props' (added in yq v4.11.1) to avoid silent failures on older versions.
+    if ! yq eval '. | to_props' --help &>/dev/null; then
+        error "Installed yq version does not support 'to_props'. Please upgrade to mikefarah/yq v4.11.1 or later."
+    fi
+
+    # Separate declaration and assignment to correctly capture exit codes with 'set -e'
+    local raw_props_output=""
     set +u # Temporarily disable 'nounset' for yq and sed pipeline
     
-    # Merge files using yq: later files override earlier ones
-    # This works for both single file (no-op merge) and multiple files (actual merge)
-    local raw_props_output=$(yq eval-all '. as $item ireduce ({}; . * $item) | to_props' "${existing_files[@]}" | \
+    # Wrap pipeline to capture errors but allow empty results (from grep)
+    # Use a temporary file for stderr to avoid cluttering stdout
+    local yq_err_log="/tmp/yq_export_err_$$.log"
+    
+    # We use a subshell for the assignment; 'set +e' inside ensures we can handle the status
+    raw_props_output=$(
+        set -o pipefail
+        yq eval-all '. as $item ireduce ({}; . * $item) | to_props' "${existing_files[@]}" 2>"$yq_err_log" | \
         sed -E 's/^[[:space:]]*//; s/[[:space:]]*=[[:space:]]*/=/' | \
         grep -vE '^\s*#' | \
-        grep -E '^[a-zA-Z_][a-zA-Z0-9_.]*='
+        grep -E '^[a-zA-Z_][a-zA-Z0-9_.]*=' || true
     )
+    local pipeline_status=$?
+
+    # Check for fundamental yq errors (not just empty grep)
+    if [[ -s "$yq_err_log" ]]; then
+        if grep -qiE "error|failed" "$yq_err_log"; then
+            local yq_err_msg; yq_err_msg=$(cat "$yq_err_log")
+            rm -f "$yq_err_log"
+            error "Configuration export failed - yq error: $yq_err_msg"
+        fi
+    fi
+    rm -f "$yq_err_log"
 
     # Pass 1: Export all variables with their raw values first.
     # This makes all potential reference targets available as environment variables.
@@ -411,9 +433,9 @@ stop_keycloak() {
     if [[ -f "$DOCKER_COMPOSE_FILE" ]]; then
         DOCKER_COMPOSE_COMMAND="$(detect_docker_compose)"
         log "Stopping and removing database container..."
-        eval "$DOCKER_COMPOSE_COMMAND -f \"$DOCKER_COMPOSE_FILE\" down -v db" || \
-            warn "Failed to stop/remove database container or volume. You may need to clean manually."
-        log "Database container and volume removed."
+        eval "$DOCKER_COMPOSE_COMMAND -f \"$DOCKER_COMPOSE_FILE\" down db" || \
+            warn "Failed to stop/remove database container. You may need to clean manually."
+        log "Database container stopped."
     else
         warn "docker-compose.yml not found. Cannot stop DB container."
     fi
