@@ -30,7 +30,7 @@ keycloak:
   # Bootstrap admin credentials
   bootstrap:
     admin_username: "admin"
-    admin_password: "admin"
+    admin_password: "admin@2+24!"
   # Keycloak realm
   realm: "oid4vc-vci"
   # Enable pre-authorized code flow. In newer Keycloak versions, the pre-auth code flow
@@ -137,6 +137,8 @@ database:
   username: "postgres"
   # Database password
   password: "postgres"
+  # Preserve DB container/network/volumes on stop/setup restart (faster local iteration)
+  preserve_on_stop: true
   # Optional manual DB options (takes precedence if set)
   # opts: "--db postgres --db-url jdbc:postgresql://localhost:5432/keycloak --db-username postgres --db-password postgres"
 

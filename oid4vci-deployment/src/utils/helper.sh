@@ -427,14 +427,22 @@ stop_keycloak() {
     fi
 
     # -------------------------------------------------------------------------
-    # Stop and remove database container + volume using Docker Compose
+    # Stop database container using Docker Compose
+    # - If DATABASE_PRESERVE_ON_STOP=true: keep container/volume/network
+    # - Otherwise: keep previous behavior (down db)
     # -------------------------------------------------------------------------
     DOCKER_COMPOSE_FILE="${WORK_DIR}/docker-compose.yml"
     if [[ -f "$DOCKER_COMPOSE_FILE" ]]; then
         DOCKER_COMPOSE_COMMAND="$(detect_docker_compose)"
-        log "Stopping and removing database container..."
-        eval "$DOCKER_COMPOSE_COMMAND -f \"$DOCKER_COMPOSE_FILE\" down db" || \
-            warn "Failed to stop/remove database container. You may need to clean manually."
+        if [[ "${DATABASE_PRESERVE_ON_STOP:-true}" == "true" ]]; then
+            log "Stopping database container (preserving container, network, and volumes)..."
+            eval "$DOCKER_COMPOSE_COMMAND -f \"$DOCKER_COMPOSE_FILE\" stop db" || \
+                warn "Failed to stop database container. You may need to stop it manually."
+        else
+            log "Stopping and removing database container..."
+            eval "$DOCKER_COMPOSE_COMMAND -f \"$DOCKER_COMPOSE_FILE\" down db" || \
+                warn "Failed to stop/remove database container. You may need to clean manually."
+        fi
         log "Database container stopped."
     else
         warn "docker-compose.yml not found. Cannot stop DB container."

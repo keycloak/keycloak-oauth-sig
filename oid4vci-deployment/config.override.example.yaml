@@ -13,3 +13,4 @@
 # database:
 #   password: "${PROD_DB_PASSWORD}"
 #   username: "${PROD_DB_USER}"
+#   preserve_on_stop: true
