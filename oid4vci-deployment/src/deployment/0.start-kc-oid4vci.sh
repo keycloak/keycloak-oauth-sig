@@ -89,11 +89,11 @@ fi
 log "Ensuring bootstrap admin user exists..."
 bootstrap_output="$(bash -c "bin/kc.sh bootstrap-admin user --username \"$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME\" --password:env KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD $DATABASE_OPTS" 2>&1)" || bootstrap_status=$?
 bootstrap_status="${bootstrap_status:-0}"
-echo "$bootstrap_output"
 if [[ "$bootstrap_status" -ne 0 ]]; then
   if echo "$bootstrap_output" | grep -Eq "user with username exists|duplicate key value"; then
     log "Bootstrap admin already exists. Continuing startup."
   else
+    echo "$bootstrap_output"
     error "Failed to bootstrap admin user."
   fi
 fi
