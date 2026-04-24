@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        profile: [fapi1-advanced, fapi2-sp-final, fapi2-ms-final]
+        profile: [fapi1-advanced, fapi2-sp-final, fapi2-ms-final, fapi-ciba]
     defaults:
       run:
         working-directory: ./
@@ -158,6 +158,16 @@ jobs:
                 { variant: { sender_constrain: 'mtls', client_auth_type: 'private_key_jwt', authorization_request_type: 'simple', openid: 'plain_oauth', fapi_request_method: 'signed_non_repudiation', fapi_profile: 'plain_fapi', fapi_response_mode: 'jarm' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi2-final-FAPI2MS-JARM-private-key-MTLS-PS256-PS256-automated.json', certificationProfile: 'FAPI2SP OP private key + MTLS, FAPI2MS OP JAR, FAPI2MS OP JARM' },
                 { variant: { sender_constrain: 'dpop', client_auth_type: 'private_key_jwt', authorization_request_type: 'simple', openid: 'plain_oauth', fapi_request_method: 'signed_non_repudiation', fapi_profile: 'plain_fapi', fapi_response_mode: 'plain_response' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi2-final-FAPI2MS-DPOP-JAR-private-key-MTLS-PS256-PS256-automated.json', certificationProfile: 'FAPI2SP OP private key + DPoP, FAPI2MS OP JAR' },
                 { variant: { sender_constrain: 'dpop', client_auth_type: 'private_key_jwt', authorization_request_type: 'simple', openid: 'plain_oauth', fapi_request_method: 'signed_non_repudiation', fapi_profile: 'plain_fapi', fapi_response_mode: 'jarm' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi2-final-FAPI2MS-DPOP-JARM-private-key-MTLS-ES256-ES256-automated.json', certificationProfile: 'FAPI2SP OP private key + DPoP, FAPI2MS OP JAR, FAPI2MS OP JARM' }
+              ],
+              'fapi-ciba': [
+                { variant: { client_auth_type: 'private_key_jwt', fapi_ciba_profile: 'plain_fapi', ciba_mode: 'poll', client_registration: 'static_client' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi-ciba-id1-poll-private-key-PS256-PS256-automated.json', certificationProfile: 'FAPI-CIBA OP poll w/ Private Key' },
+                { variant: { client_auth_type: 'private_key_jwt', fapi_ciba_profile: 'plain_fapi', ciba_mode: 'poll', client_registration: 'static_client' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi-ciba-id1-poll-private-key-ES256-ES256-automated.json', certificationProfile: 'FAPI-CIBA OP poll w/ Private Key' },
+                { variant: { client_auth_type: 'mtls', fapi_ciba_profile: 'plain_fapi', ciba_mode: 'poll', client_registration: 'static_client' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi-ciba-id1-poll-mtls-PS256-PS256-automated.json', certificationProfile: 'FAPI-CIBA OP poll w/ MTLS' },
+                { variant: { client_auth_type: 'mtls', fapi_ciba_profile: 'plain_fapi', ciba_mode: 'poll', client_registration: 'static_client' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi-ciba-id1-poll-mtls-ES256-ES256-automated.json', certificationProfile: 'FAPI-CIBA OP poll w/ MTLS' },
+                { variant: { client_auth_type: 'private_key_jwt', fapi_ciba_profile: 'plain_fapi', ciba_mode: 'ping', client_registration: 'static_client' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi-ciba-id1-ping-private-key-PS256-PS256-automated.json', certificationProfile: 'FAPI-CIBA OP ping w/ Private Key' },
+                { variant: { client_auth_type: 'private_key_jwt', fapi_ciba_profile: 'plain_fapi', ciba_mode: 'ping', client_registration: 'static_client' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi-ciba-id1-ping-private-key-ES256-ES256-automated.json', certificationProfile: 'FAPI-CIBA OP ping w/ Private Key' },
+                { variant: { client_auth_type: 'mtls', fapi_ciba_profile: 'plain_fapi', ciba_mode: 'ping', client_registration: 'static_client' }, signatureAlgorithm: 'RequestObject:PS256/IDToken:PS256', configFile: 'fapi-ciba-id1-ping-mtls-PS256-PS256-automated.json', certificationProfile: 'FAPI-CIBA OP ping w/ MTLS' },
+                { variant: { client_auth_type: 'mtls', fapi_ciba_profile: 'plain_fapi', ciba_mode: 'ping', client_registration: 'static_client' }, signatureAlgorithm: 'RequestObject:ES256/IDToken:ES256', configFile: 'fapi-ciba-id1-ping-mtls-ES256-ES256-automated.json', certificationProfile: 'FAPI-CIBA OP ping w/ MTLS' }
               ]
             }
 
