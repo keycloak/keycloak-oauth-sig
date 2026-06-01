@@ -111,7 +111,6 @@ request_credential() {
 
   local encoded_scopes
   encoded_scopes=$(urlencode "$scopes")
-  local issuer_state="state-$(uuidgen)"
   local issuer_url="${KEYCLOAK_ADMIN_ADDR}/realms/${KEYCLOAK_REALM}"
   local authorization_details_json
   
@@ -120,7 +119,7 @@ request_credential() {
   local encoded_authorization_details
   encoded_authorization_details=$(urlencode "$authorization_details_json")
 
-  local auth_url="${KEYCLOAK_ADMIN_ADDR}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth?response_type=code&client_id=openid4vc-rest-api&redirect_uri=https://localhost:8443/callback&scope=${encoded_scopes}&issuer_state=${issuer_state}&authorization_details=${encoded_authorization_details}&code_challenge=${code_challenge}&code_challenge_method=S256"
+  local auth_url="${KEYCLOAK_ADMIN_ADDR}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth?response_type=code&client_id=openid4vc-rest-api&redirect_uri=https://localhost:8443/callback&scope=${encoded_scopes}&authorization_details=${encoded_authorization_details}&code_challenge=${code_challenge}&code_challenge_method=S256"
 
   warn "Manual step required: Open the following URL in your browser and login as 'francis':"
   echo -e "\n$auth_url\n"

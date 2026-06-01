@@ -149,8 +149,8 @@ FAPI related accomplishments by FAPI-SIG and OAuth SIG, other contributors and k
 ### Automated Conformance Test Run Environment by this kc-fapi-sig repository
 
 The current environment uses the following software version.
-- Keycloak 26.5.4
-- Conformance-suite version : release-v5.1.39
+- Keycloak 26.6.1
+- Conformance-suite version : release-v5.1.41
 
 #### FAPI 1.0 Advanced (Final)​
   - Client Authentication Method : MTLS, private_key_jwt​
@@ -431,6 +431,11 @@ We tagged the environment for every keycloak verion:
 |kc-26.5.2|26.5.2|release-v5.1.39|
 |kc-26.5.3|26.5.3|release-v5.1.39|
 |kc-26.5.4|26.5.4|release-v5.1.39|
+|kc-26.5.5|26.5.5|release-v5.1.39|
+|kc-26.5.6|26.5.6|release-v5.1.39|
+|kc-26.5.7|26.5.7|release-v5.1.41|
+|kc-26.6.0|26.6.0|release-v5.1.41|
+|kc-26.6.1|26.6.1|release-v5.1.41|
 
 |Keycloak version|FAPI 1.0 Advanced|FAPI-CIBA|Open Banking Brasil FAPI 1.0 (\*1,\*2),\*15|Open Finance Brasil FAPI 1.0 (\*3)|Australia Consumer Data Right (CDR) (\*8)|UK Open Banking|OpenID Connect OP (\*4)|OpenID Connect OP for Logout Profile|FAPI 2.0 Security Profile Implementer’s Draft (\*6,\*14)|FAPI 2.0 Message Signing Implementer’s Draft (\*6,\*14)|FAPI 2.0 Security Profile (\*9)|FAPI 2.0 Message Signing (\*9)|
 |-|-|-|-|-|-|-|-|-|-|-|-|-|
@@ -522,6 +527,11 @@ We tagged the environment for every keycloak verion:
 |26.5.2|x|x|x|x|x|x|x|x|x|x|x|x|
 |26.5.3|x|x|x|x|x|x|x|x|x|x|x|x|
 |26.5.4|x|x|x|x|x|x|x|x|x|x|x|x|
+|26.5.5|x|x|x|x|x|x|x|x|x|x|x|x|
+|26.5.6|x|x|x|x|x|x|x|x|x|x|x|x|
+|26.5.7|x|x|x|x|x|x|x|x|x|x|x|x|
+|26.6.0|x|x|x|x|x|x|x|x|x|x|x|x|
+|26.6.1|x|x|x|x|x|x|x|x|x|x|x|x|
 
 Note: Keycloak legacy (wildfly) is no longer supported since [keycloak 20](https://www.keycloak.org/docs/latest/release_notes/index.html#wildfly-distribution-removed).
 
@@ -591,8 +601,11 @@ Note: Keycloak legacy (wildfly) is no longer supported since [keycloak 20](https
 
 ### Hosting Conferences
 
+#### Keyconf 26 (Holiday Inn Prague, Prague, Czech Republic, October 8, 2026)
+- URL: https://keyconf.dev
+
 #### Keyconf 25 (Van der Valk Hotel Amsterdam Zuidas – RAI, Amsterdam, Netherlands, August 28, 2025)
-- URL: https://keyconf.dev/
+- URL: https://keyconf.dev/2025/
 
 #### Keyconf 24 (ARCOTEL Kaiserwasser Wien, Vienna, Austria, September 19, 2024)
 - URL: https://keyconf.dev/2024/
@@ -718,9 +731,9 @@ Not only OAuth SIG member but others can communicate with each other by the foll
 - Mail : Google Group [keycloak developer mailing list](https://groups.google.com/forum/#!topic/keycloak-dev/Ck_1i5LHFrE)
 - Chat : Zulip Chat stream ([#dev-sig-fapi](https://keycloak.zulipchat.com/#narrow/stream/248413-dev-sig-fapi))
 - Meeting : Web meeting on a regular basis
-  - When: Every Wednesday
-  - Time: 12:00 PM - 1:00 PM London Time
-  - Where: https://zoom.us/j/93447076633
+  - When: https://zoom-lfx.platform.linuxfoundation.org/meetings/keycloak?view=week
+  - Where: https://zoom-lfx.platform.linuxfoundation.org/meeting/96822989424?password=b61bd841-bb84-48e3-a88b-f1750d41d801
+  - Agenda and minute: https://hackmd.io/@keycloak-oauth-sig
 
 ## Automated Conformance Test Run Environment
 

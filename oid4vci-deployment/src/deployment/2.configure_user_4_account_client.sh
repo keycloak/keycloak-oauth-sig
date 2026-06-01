@@ -61,25 +61,31 @@ kcadm set-password -r "$KEYCLOAK_REALM" --username "$USERS_FRANCIS_NAME" --new-p
 success "Password ensured for Francis."
 
 # -----------------------------------------------------------------------------
-# Ensure 'credential-offer-create' realm role is assigned to Francis
+# Conditionally assign 'credential-offer-create' realm role to Francis
 # This realm role grants permission to create credential offers.
+# Only assigned when KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE is true.
 # -----------------------------------------------------------------------------
-log "Checking existence of realm role 'credential-offer-create'..."
+CREDENTIAL_OFFER_ROLE="credential-offer-create"
+if [[ "$KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE" == "true" ]]; then
+  log "Checking existence of realm role '$CREDENTIAL_OFFER_ROLE'..."
 
-if kcadm get roles/credential-offer-create -r "$KEYCLOAK_REALM" >/dev/null 2>&1; then
-  log "Assigning realm role 'credential-offer-create' to user Francis..."
-  FRANCIS_USER_ID=$(kcadm get users -r "$KEYCLOAK_REALM" -q username="$USERS_FRANCIS_NAME" --fields id | jq -r '.[0].id')
-  if [ -n "$FRANCIS_USER_ID" ] && [ "$FRANCIS_USER_ID" != "null" ]; then
-    kcadm add-roles -r "$KEYCLOAK_REALM" \
-      --uid "$FRANCIS_USER_ID" \
-      --rolename credential-offer-create || \
-      warn "Failed to assign 'credential-offer-create' role to user Francis (it may already be assigned)."
-    success "Realm role 'credential-offer-create' assigned to Francis."
+  if kcadm get roles/$CREDENTIAL_OFFER_ROLE -r "$KEYCLOAK_REALM" >/dev/null 2>&1; then
+    log "Assigning realm role '$CREDENTIAL_OFFER_ROLE' to user Francis..."
+    FRANCIS_USER_ID=$(kcadm get users -r "$KEYCLOAK_REALM" -q username="$USERS_FRANCIS_NAME" --fields id | jq -r '.[0].id')
+    if [ -n "$FRANCIS_USER_ID" ] && [ "$FRANCIS_USER_ID" != "null" ]; then
+      kcadm add-roles -r "$KEYCLOAK_REALM" \
+        --uid "$FRANCIS_USER_ID" \
+        --rolename $CREDENTIAL_OFFER_ROLE || \
+        warn "Failed to assign '$CREDENTIAL_OFFER_ROLE' role to user Francis (it may already be assigned)."
+      success "Realm role '$CREDENTIAL_OFFER_ROLE' assigned to Francis."
+    else
+      error "Could not find user Francis to assign realm role '$CREDENTIAL_OFFER_ROLE'."
+    fi
   else
-    error "Could not find user Francis to assign realm role 'credential-offer-create'."
+    error "Realm role '$CREDENTIAL_OFFER_ROLE' does not exist in realm '$KEYCLOAK_REALM'."
   fi
 else
-  error "Realm role 'credential-offer-create' does not exist in realm '$KEYCLOAK_REALM'."
+  log "Skipping '$CREDENTIAL_OFFER_ROLE' role assignment (disabled in configuration)."
 fi
 
 # -----------------------------------------------------------------------------

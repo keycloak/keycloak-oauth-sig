@@ -10,7 +10,7 @@
 
 #### Supported Docker Compose Version
 
-It has been confirmed that this automated FAPI conformance test run environment works with docker-compose version 2.27.
+It has been confirmed that this automated FAPI conformance test run environment works with docker-compose version 2.40.3.
 
 ### Run FAPI Conformance suite, Keycloak server and Test Runner
 

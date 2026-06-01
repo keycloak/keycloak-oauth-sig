@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine3.19 as builder
+FROM golang:1.22-alpine3.19 AS builder
 
 ENV GO111MODULE=on
 WORKDIR /go/src/github.com/soss-sig/keycloak-fapi

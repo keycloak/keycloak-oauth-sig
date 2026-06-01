@@ -39,7 +39,7 @@ Presentation Materials :
      https://github.com/keycloak/keycloak-oauth-sig/blob/master/FAPI-SIG/meetings/38th/presentations/FAPI-SIG_38th_MTG_agenda.pdf
 
 Recording :
- https://secure-web.cisco.com/1I8j04Nb6bnRij8HhyQXbTL3l5QdsVJ-MmChb7yg0IOGCpxmSmPyoXcya4IW7gS-B92JbK50yxqnN8rXeL8EEgt9WnwjyxhFEFQg7Td9tkCjvyydfF9om86bdwJMhxXjgraaaLFG6BeNQ51z339-DKXz_fHP1JEv0f112CCKe3ajquXsFIDQ3Ol57xvajfHtoERvG7MMkIiVsQWmubiFC7kwA7cWKJarLe6-JVYjJlwUL7qdvEkFPlTNuIf0ejiq9GnyLIAUmUUMnhW-ebvD9gVNuMzCkhkNYW7ELN67mzhNIsEpK94VNJH3qcy37ai8Ncx1-dQb8rljTi4oacgr_9A/https%3A%2F%2Fus06web.zoom.us%2Frec%2Fshare%2F-0D9d_wxSXvn9V5qdD1aNhREsLqFIaHuAnDyAAbvvF2AMsG-CGuwlV_sDcN0RfE._waw6dxImUSYPEWk
+ https://us06web.zoom.us/rec/share/-0D9d_wxSXvn9V5qdD1aNhREsLqFIaHuAnDyAAbvvF2AMsG-CGuwlV_sDcN0RfE._waw6dxImUSYPEWk
 
 Summary :
 

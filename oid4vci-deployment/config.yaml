@@ -33,13 +33,19 @@ keycloak:
     admin_password: "admin"
   # Keycloak realm
   realm: "oid4vc-vci"
+  # Enable pre-authorized code flow. In newer Keycloak versions, the pre-auth code flow
+  # must be explicitly enabled to be used for credential issuance. In older versions,
+  # it is enabled by default and this must be set to false.
+  enable_preauth_code: false
+  # Enable credential-offer-create role for users
+  enable_credential_offer_create: false
 
 # -----------------------------------------------------------------------------
 # Keycloak container image
 # -----------------------------------------------------------------------------
 keycloak_image:
   registry: "quay.io/keycloak/keycloak"
-  tag: "26.5.3"
+  tag: "26.6"
 
 # -----------------------------------------------------------------------------
 # Keystore configuration

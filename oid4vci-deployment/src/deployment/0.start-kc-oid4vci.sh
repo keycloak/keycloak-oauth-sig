@@ -58,7 +58,7 @@ fi
 # ---------------------------------------------------------------------------
 log "Injecting Keycloak providers..."
 
-if [ -d "$WORK_DIR/providers" ]; then
+if [ -d "$WORK_DIR/providers" ] && ls "$WORK_DIR/providers"/*.jar 1> /dev/null 2>&1; then
   echo "Injecting Keycloak providers..."
   mkdir -p "$KEYCLOAK_INSTALL_DIR/providers"
   cp "$WORK_DIR/providers/"*.jar "$KEYCLOAK_INSTALL_DIR/providers"
@@ -85,11 +85,11 @@ if [[ "$DETACH_MODE" == "true" ]]; then
   LOG_FILE="$LOG_DIR/keycloak.log"
   log "Detaching Keycloak; logs will be written to $LOG_FILE"
   KC_BOOTSTRAP_ADMIN_USERNAME="$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME" KC_BOOTSTRAP_ADMIN_PASSWORD="$KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD" \
-  nohup setsid bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=oid4vc-vci" \
+  nohup bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=$KEYCLOAK_FEATURES" \
     >"$LOG_FILE" 2>&1 &
   disown || true
 else
   KC_BOOTSTRAP_ADMIN_USERNAME="$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME" KC_BOOTSTRAP_ADMIN_PASSWORD="$KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD" \
-  exec bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=oid4vc-vci"
+  exec bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=$KEYCLOAK_FEATURES"
 
 fi

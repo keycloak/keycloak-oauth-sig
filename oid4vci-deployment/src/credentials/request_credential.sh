@@ -54,12 +54,32 @@ success "User Access Token retrieved."
 # ===============================
 log "Requesting credential offer for '$CREDENTIAL_TYPE'..."
 
-CREDENTIAL_OFFER_LINK=$(curl -k -s "$KEYCLOAK_ADMIN_ADDR/realms/$KEYCLOAK_REALM/protocol/oid4vc/credential-offer-uri?credential_configuration_id=$CREDENTIAL_TYPE&username=$USERS_FRANCIS_NAME" \
-  -H "Authorization: Bearer $USER_ACCESS_TOKEN" \
-  -H 'Accept: application/json' \
-  -H 'Content-Type: application/json' | jq -r '"\(.issuer)\(.nonce)"')
+get_credential_offer_link() {
+  local CREDENTIAL_OFFER_PATH="$1"
 
-if [ -z "$CREDENTIAL_OFFER_LINK" ] || [ "$CREDENTIAL_OFFER_LINK" == "null" ]; then
+  local OFFER=$(curl -k -s "$KEYCLOAK_ADMIN_ADDR/realms/$KEYCLOAK_REALM/protocol/oid4vc/$CREDENTIAL_OFFER_PATH" \
+    -H "Authorization: Bearer $USER_ACCESS_TOKEN" \
+    -H 'Accept: application/json' \
+    -H 'Content-Type: application/json')
+  
+  # Check if response is not empty and contains both issuer and nonce fields.
+  # if not, empty string is returned to signal failure.
+  if [ -z "$OFFER" ] || ! echo "$OFFER" | jq -e 'has("issuer") and has("nonce")' > /dev/null; then
+    return
+  fi
+  
+  # Format the link, adding "/" separator only if needed
+  echo "$OFFER" | jq -r 'if (.issuer | endswith("/")) then "\(.issuer)\(.nonce)" else "\(.issuer)/\(.nonce)" end'
+}
+
+CREDENTIAL_OFFER_LINK=$(get_credential_offer_link "create-credential-offer?credential_configuration_id=$CREDENTIAL_TYPE&target_user=$USERS_FRANCIS_NAME&pre_authorized=true")
+if [ -z "$CREDENTIAL_OFFER_LINK" ]; then
+  log "Failed to retrieve CREDENTIAL_OFFER_LINK. Retrying with deprecated route..."
+  # DEPRECATED: Some versions may still use the old route, so we attempt to retrieve the link using the deprecated route as a fallback
+  CREDENTIAL_OFFER_LINK=$(get_credential_offer_link "credential-offer-uri?credential_configuration_id=$CREDENTIAL_TYPE&username=$USERS_FRANCIS_NAME")
+fi
+
+if [ -z "$CREDENTIAL_OFFER_LINK" ]; then
   error "Failed to retrieve CREDENTIAL_OFFER_LINK"
   exit 1
 fi

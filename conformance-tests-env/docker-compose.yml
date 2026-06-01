@@ -21,7 +21,7 @@ services:
     depends_on:
      - keycloak
      - api_gateway_nginx
-     - httpd
+     - nginx
     networks:
       default:
         aliases:
@@ -106,15 +106,15 @@ services:
 
 # Reverse Proxy
 
-  httpd:
+  nginx:
     build:
-      context: ${OPENID_GIT_URL}#${OPENID_GIT_TAG}:httpd
+      context: ${OPENID_GIT_URL}#${OPENID_GIT_TAG}:nginx
     ports:
       - "8443:8443"
     volumes:
       # to pass FAPI CIBA tests automatically, use generated certificate instead of original certificate
-      - ./common/https/server.pem:/etc/ssl/certs/ssl-cert-snakeoil.pem
-      - ./common/https/server-key.pem:/etc/ssl/private/ssl-cert-snakeoil.key
+      - ./common/https/server.pem:/etc/ssl/certs/nginx-selfsigned.crt
+      - ./common/https/server-key.pem:/etc/ssl/private/nginx-selfsigned.key
     depends_on:
       - server
 
@@ -169,6 +169,7 @@ services:
 #     - DEBUG_PORT=*:8787
      - KEYCLOAK_ADMIN=${KEYCLOAK_USER}
      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_PASSWORD}
+     - KC_SPI_PUBLIC_KEY_STORAGE__INFINISPAN__MIN_TIME_BETWEEN_REQUESTS=1
     volumes:
       # Need to add server.pem to the image at build-time for cacerts import
 #     - ./common/https/server.pem:/etc/x509/https/tls.crt
@@ -183,7 +184,8 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:8080/auth/"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 12
+      start_period: 30s
     command:
       - "--verbose"
       - "start-dev"
@@ -208,11 +210,20 @@ services:
       - ./test-target/keycloak/keycloak/realms:/opt/keycloak/import:z
     entrypoint: /usr/bin/bash
     command: >
-      -c "sleep 60; echo Connecting to Keycloak...
-      && /opt/keycloak/bin/kcadm.sh config credentials --server http://keycloak:8080/auth --realm master --user $$KEYCLOAK_ADMIN --password $$KEYCLOAK_ADMIN_PASSWORD 
-      && echo Importing realm from $$KEYCLOAK_REALM_IMPORT_FILENAME to Keycloak...
-      && /opt/keycloak/bin/kcadm.sh create realms -f /opt/keycloak/import/$$KEYCLOAK_REALM_IMPORT_FILENAME"
-
+      -c "
+      until
+        echo Connecting to Keycloak... &&
+        /opt/keycloak/bin/kcadm.sh config credentials --server http://keycloak:8080/auth --realm master --user $$KEYCLOAK_ADMIN --password $$KEYCLOAK_ADMIN_PASSWORD &&
+        echo Importing realm from $$KEYCLOAK_REALM_IMPORT_FILENAME to Keycloak... &&
+        /opt/keycloak/bin/kcadm.sh create realms -f /opt/keycloak/import/$$KEYCLOAK_REALM_IMPORT_FILENAME
+      do
+        echo 'Realm import failed. Retrying in 10 seconds...';
+        sleep 10;
+      done;
+      echo 'Realm import complete.';
+      sleep infinity"
+    depends_on:
+      - keycloak
 #
 # Test Target Specific Entities
 #

@@ -19,7 +19,10 @@
       "vc.credential_build_config.sd_jwt.visible_claims": "id,iat,nbf,exp,jti,status,sub",
       "vc.credential_build_config.hash_algorithm": "sha-256",
       "vc.credential_build_config.token_jws_type": "dc+sd-jwt",
-      "vc.include_in_metadata": "true"
+      "vc.include_in_metadata": "true",
+      "vc.binding_required": "true",
+      "vc.binding_methods_supported": "jwk",
+      "vc.binding_required_proof_types": "jwt"
     },
     "protocolMappers": [
       {
@@ -90,14 +93,8 @@
         "protocolMapper": "oid4vc-subject-id-mapper",
         "config": {
           "claim.name": "sub",
-          "userAttribute": "sub"
+          "userAttribute": "id"
         }
-      },
-      {
-        "name": "status-list-claim-mapper",
-        "protocol": "oid4vc",
-        "protocolMapper": "oid4vc-status-list-claim-mapper",
-        "config": {}
       }
     ]
   },
@@ -121,7 +118,10 @@
       "vc.credential_build_config.sd_jwt.visible_claims": "id,iat,nbf,exp,jti,status",
       "vc.credential_build_config.hash_algorithm": "sha-256",
       "vc.credential_build_config.token_jws_type": "dc+sd-jwt",
-      "vc.include_in_metadata": "true"
+      "vc.include_in_metadata": "true",
+      "vc.binding_required": "true",
+      "vc.binding_methods_supported": "jwk",
+      "vc.binding_required_proof_types": "jwt"
     },
     "protocolMappers": [
       {
@@ -147,7 +147,10 @@
         "name": "id-mapper-kma",
         "protocol": "oid4vc",
         "protocolMapper": "oid4vc-subject-id-mapper",
-        "config": {}
+        "config": {
+          "claim.name": "sub",
+          "userAttribute": "id"
+        }
       },
       {
         "name": "person-mapper-kma",
@@ -331,7 +334,10 @@
       "vc.credential_build_config.sd_jwt.visible_claims": "id,iat,nbf,exp,jti,status",
       "vc.credential_build_config.hash_algorithm": "sha-256",
       "vc.credential_build_config.token_jws_type": "dc+sd-jwt",
-      "vc.include_in_metadata": "true"
+      "vc.include_in_metadata": "true",
+      "vc.binding_required": "true",
+      "vc.binding_methods_supported": "jwk",
+      "vc.binding_required_proof_types": "jwt"
     },
     "protocolMappers": [
       {
@@ -457,7 +463,10 @@
         "name": "id-mapper-bsk",
         "protocol": "oid4vc",
         "protocolMapper": "oid4vc-subject-id-mapper",
-        "config": {}
+        "config": {
+          "claim.name": "sub",
+          "userAttribute": "id"
+        }
       }
     ]
   }
