@@ -139,6 +139,13 @@ run_in_cli_container_if_needed() {
     local cmd="${1:-help}"
     case "$cmd" in
         config|test|import)
+            # When Keycloak was started with `setup`, it runs directly on the
+            # host. In that mode these commands need access to the local
+            # Keycloak process and install tree, so keep execution on the host.
+            if [[ -n "$(get_keycloak_pid || true)" ]]; then
+                return 0
+            fi
+
             local DOCKER_COMPOSE_CMD
             DOCKER_COMPOSE_CMD="$(detect_docker_compose)"
             # Ensure docker compose inside the cli container sees the same

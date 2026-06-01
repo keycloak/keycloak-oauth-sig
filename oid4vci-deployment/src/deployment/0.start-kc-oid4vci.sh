@@ -85,7 +85,7 @@ if [[ "$DETACH_MODE" == "true" ]]; then
   LOG_FILE="$LOG_DIR/keycloak.log"
   log "Detaching Keycloak; logs will be written to $LOG_FILE"
   KC_BOOTSTRAP_ADMIN_USERNAME="$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME" KC_BOOTSTRAP_ADMIN_PASSWORD="$KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD" \
-  nohup bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=oid4vc-vci" \
+  nohup setsid bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=oid4vc-vci" \
     >"$LOG_FILE" 2>&1 &
   disown || true
 else

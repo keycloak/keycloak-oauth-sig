@@ -360,16 +360,25 @@ inject_environment_variables() {
 # Keycloak Process Management
 # -----------------------------------------------------------------------------
 get_keycloak_pid() {
-    local pid
+    local pid=""
+
     if command -v pgrep &>/dev/null; then
-        pid=$(pgrep -f keycloak | head -n1 || true)
-    else
+        # Match the actual Keycloak server process without catching this CLI
+        # wrapper, whose command line also contains "keycloak".
+        pid=$(
+            pgrep -af 'org\.keycloak\.quarkus\.runtime\.KeycloakMain|io\.quarkus\.bootstrap\.runner\.QuarkusEntryPoint.*start(-dev)?|quarkus-run\.jar.*start(-dev)?|bin/kc\.sh' | \
+                awk '!/keycloak-ssi\.sh/ {print $1; exit}' || true
+        )
+    fi
+
+    if [[ -z "$pid" ]]; then
         if [[ "$OSTYPE" == "darwin"* ]]; then
-            pid=$(ps aux | grep -i '[q]uarkus' | awk 'NR==1{print $2}' || true)
+            pid=$(ps aux | awk '/[q]uarkus|quarkus-run\.jar|bin\/kc\.sh/ && $0 !~ /keycloak-ssi\.sh/ {print $2; exit}' || true)
         else
-            pid=$(ps aux | grep -i '[k]eycloak' | awk 'NR==1{print $2}' || true)
+            pid=$(ps aux | awk '/org\.keycloak\.quarkus\.runtime\.KeycloakMain|io\.quarkus\.bootstrap\.runner\.QuarkusEntryPoint.*start(-dev)?|quarkus-run\.jar.*start(-dev)?|bin\/kc\.sh/ && $0 !~ /keycloak-ssi\.sh/ {print $2; exit}' || true)
         fi
     fi
+
     echo "$pid"
 }
 

@@ -11,7 +11,7 @@ services:
       - db_data:/var/lib/postgresql
 
   app:
-    image: ${KEYCLOAK_IMAGE_REGISTRY:-quay.io/keycloak/keycloak}:${KEYCLOAK_IMAGE_TAG:-26.5.0}
+    image: ${KEYCLOAK_IMAGE_REGISTRY:-quay.io/keycloak/keycloak}:${KEYCLOAK_IMAGE_TAG:-26.6.1}
     environment:
       # Database configuration
       KC_DB: postgres
