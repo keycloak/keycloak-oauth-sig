@@ -44,7 +44,7 @@ jobs:
           CONFORMANCE_SUITE_FQDN: conformance-suite.keycloak-fapi.org
           AUTOMATE_TESTS: true
           TEST_PLAN: --${{ matrix.profile }}-all-ci
-          KEYCLOAK_BASE_IMAGE: quay.io/keycloak/keycloak:26.6.2
+          KEYCLOAK_BASE_IMAGE: quay.io/keycloak/keycloak:26.6.3
           KEYCLOAK_REALM: test
           KEYCLOAK_USER: admin
           KEYCLOAK_PASSWORD: admin
