@@ -78,7 +78,7 @@
                     "tasks": [
                         {
                             "task": "Prompted Login",
-                            "match": "https://as.keycloak-fapi.org/auth/realms/test/protocol/openid-connect/auth*prompt=login",
+                            "match": "https://as.keycloak-fapi.org/auth/realms/test/protocol/openid-connect/auth*prompt=login*",
                             "optional": true,
                             "commands": [
                                 [
