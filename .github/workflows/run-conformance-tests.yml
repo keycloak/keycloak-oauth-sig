@@ -38,13 +38,13 @@ jobs:
           exit $EXIT_CODE
         env:
           OPENID_GIT_URL: https://gitlab.com/openid/conformance-suite.git
-          OPENID_GIT_TAG: release-v5.1.41
+          OPENID_GIT_TAG: release-v5.1.43
           RESOURCE_FQDN: rs.keycloak-fapi.org
           CONSENT_FQDN: cs.keycloak-fapi.org
           CONFORMANCE_SUITE_FQDN: conformance-suite.keycloak-fapi.org
           AUTOMATE_TESTS: true
           TEST_PLAN: --${{ matrix.profile }}-all-ci
-          KEYCLOAK_BASE_IMAGE: quay.io/keycloak/keycloak:26.6.1
+          KEYCLOAK_BASE_IMAGE: quay.io/keycloak/keycloak:26.6.2
           KEYCLOAK_REALM: test
           KEYCLOAK_USER: admin
           KEYCLOAK_PASSWORD: admin
