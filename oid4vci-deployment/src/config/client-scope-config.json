@@ -95,6 +95,13 @@
           "claim.name": "sub",
           "userAttribute": "id"
         }
+      },
+      {
+        "name": "status-list-claim-mapper",
+        "protocol": "oid4vc",
+        "protocolMapper": "oid4vc-status-list-claim-mapper",
+        "consentRequired": false,
+        "config": {}
       }
     ]
   },
