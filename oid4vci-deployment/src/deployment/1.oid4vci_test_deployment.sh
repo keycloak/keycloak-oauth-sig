@@ -129,8 +129,30 @@ log "Creating client scopes..."
 if [[ -f "$WORK_DIR/src/config/client-scope-config.json" ]]; then
   CLIENT_SCOPES_CONFIG=$(jq --arg ISSUER_DID "$KEYCLOAK_ISSUER_DID" 'map(.attributes["vc.issuer_did"] = $ISSUER_DID)' "$WORK_DIR/src/config/client-scope-config.json")
   echo "$CLIENT_SCOPES_CONFIG" | jq -c '.[]' | while read -r scope; do
-    echo "$scope" | kcadm create client-scopes -r "$KEYCLOAK_REALM" -f - >/dev/null 2>&1 || \
-      warn "Client scope already exists; skipping."
+    SCOPE_NAME=$(echo "$scope" | jq -r '.name')
+
+    if [[ "$SCOPE_NAME" == "PidCredential" ]]; then
+      SCOPE_UUID=$(kcadm get client-scopes -r "$KEYCLOAK_REALM" --fields id,name \
+        | jq -r --arg name "$SCOPE_NAME" '.[]? | select(.name == $name) | .id' | head -n1)
+      if [[ -n "$SCOPE_UUID" && "$SCOPE_UUID" != "null" ]]; then
+        kcadm delete client-scopes/"$SCOPE_UUID" -r "$KEYCLOAK_REALM" >/dev/null 2>&1 || true
+        log "Client scope '$SCOPE_NAME' deleted for clean recreation."
+      fi
+    fi
+
+    if echo "$scope" | kcadm create client-scopes -r "$KEYCLOAK_REALM" -f - >/dev/null 2>&1; then
+      log "Client scope '$SCOPE_NAME' created."
+    else
+      SCOPE_UUID=$(kcadm get client-scopes -r "$KEYCLOAK_REALM" --fields id,name \
+        | jq -r --arg name "$SCOPE_NAME" '.[]? | select(.name == $name) | .id' | head -n1)
+
+      if [[ -n "$SCOPE_UUID" && "$SCOPE_UUID" != "null" ]]; then
+        echo "$scope" | kcadm update client-scopes/"$SCOPE_UUID" -r "$KEYCLOAK_REALM" -f - >/dev/null
+        log "Client scope '$SCOPE_NAME' already exists; updated."
+      else
+        warn "Client scope '$SCOPE_NAME' already exists but could not be resolved for update."
+      fi
+    fi
   done
 else
   warn "client-scope-config.json not found; skipping client scopes creation."
@@ -146,6 +168,23 @@ CLIENT_SCOPE_CONFIG_FILE="$WORK_DIR/src/config/client-scope-config.json"
 if [[ -f "$CLIENTS_CONFIG_FILE" && -f "$CLIENT_SCOPE_CONFIG_FILE" ]]; then
   # Dynamically get all scope names from client-scope-config.json
   OPTIONAL_SCOPES=$(jq '[.[].name]' "$CLIENT_SCOPE_CONFIG_FILE")
+
+  ensure_optional_client_scopes() {
+    local client_uuid="$1"
+
+    echo "$OPTIONAL_SCOPES" | jq -r '.[]' | while read -r scope_name; do
+      local scope_uuid
+      scope_uuid=$(kcadm get client-scopes -r "$KEYCLOAK_REALM" --fields id,name \
+        | jq -r --arg name "$scope_name" '.[]? | select(.name == $name) | .id' | head -n1)
+
+      if [[ -z "$scope_uuid" || "$scope_uuid" == "null" ]]; then
+        warn "Client scope '$scope_name' could not be resolved; skipping optional assignment."
+        continue
+      fi
+
+      kcadm update clients/"$client_uuid"/optional-client-scopes/"$scope_uuid" -r "$KEYCLOAK_REALM" -n >/dev/null 2>&1 || true
+    done
+  }
 
   jq -c '.[]' "$CLIENTS_CONFIG_FILE" | while read -r client; do
     CLIENT_ID=$(echo "$client" | jq -r '.clientId')
@@ -170,8 +209,22 @@ if [[ -f "$CLIENTS_CONFIG_FILE" && -f "$CLIENT_SCOPE_CONFIG_FILE" ]]; then
          .attributes["post.logout.redirect.uris"] = ($TEST_CLIENT_URL + "##" + $TEST_CLIENT_URL + "/*")')
     fi
 
-    echo "$MODIFIED_CLIENT" | kcadm create clients -r "$KEYCLOAK_REALM" -o -f - >/dev/null 2>&1 || \
-      warn "Client '$CLIENT_ID' already exists; skipping."
+    if echo "$MODIFIED_CLIENT" | kcadm create clients -r "$KEYCLOAK_REALM" -o -f - >/dev/null 2>&1; then
+      log "Client '$CLIENT_ID' created."
+    else
+      CLIENT_UUID=$(kcadm get clients -r "$KEYCLOAK_REALM" -q clientId="$CLIENT_ID" --fields id | jq -r '.[0].id')
+      if [[ -n "$CLIENT_UUID" && "$CLIENT_UUID" != "null" ]]; then
+        echo "$MODIFIED_CLIENT" | kcadm update clients/"$CLIENT_UUID" -r "$KEYCLOAK_REALM" -f - >/dev/null
+        log "Client '$CLIENT_ID' already exists; updated optional credential scopes."
+      else
+        warn "Client '$CLIENT_ID' already exists but could not be resolved for update."
+      fi
+    fi
+
+    CLIENT_UUID=$(kcadm get clients -r "$KEYCLOAK_REALM" -q clientId="$CLIENT_ID" --fields id | jq -r '.[0].id')
+    if [[ -n "$CLIENT_UUID" && "$CLIENT_UUID" != "null" ]]; then
+      ensure_optional_client_scopes "$CLIENT_UUID"
+    fi
   done
 else
   warn "clients-config.json or client-scope-config.json not found; skipping client creation."

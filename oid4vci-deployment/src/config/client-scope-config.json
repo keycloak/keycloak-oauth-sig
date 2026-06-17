@@ -476,5 +476,112 @@
         }
       }
     ]
+  },
+  {
+    "name": "PidCredential",
+    "protocol": "oid4vc",
+    "attributes": {
+      "include.in.token.scope": "true",
+      "vc.credential_configuration_id": "PidCredential",
+      "vc.credential_identifier": "PidCredential",
+      "vc.format": "dc+sd-jwt",
+      "vc.expiry_in_seconds": 31536000,
+      "vc.verifiable_credential_type": "https://demo.pid-issuer.bundesdruckerei.de/credentials/pid/1.0",
+      "vc.supported_credential_types": "https://demo.pid-issuer.bundesdruckerei.de/credentials/pid/1.0",
+      "vc.credential_contexts": "https://demo.pid-issuer.bundesdruckerei.de/credentials/pid/1.0",
+      "vc.cryptographic_binding_methods_supported": "jwk",
+      "vc.credential_signing_alg": "ES256",
+      "vc.display": "[{\"name\":\"PID Credential\",\"locale\":\"en-US\"},{\"name\":\"PID Nachweis\",\"locale\":\"de-DE\"}]",
+      "vc.issuer_did": "",
+      "vc.sd_jwt.number_of_decoys": "2",
+      "vc.credential_build_config.sd_jwt.visible_claims": "id,iat,nbf,exp,jti,status",
+      "vc.credential_build_config.hash_algorithm": "sha-256",
+      "vc.credential_build_config.token_jws_type": "dc+sd-jwt",
+      "vc.include_in_metadata": "true",
+      "vc.binding_required": "true",
+      "vc.binding_methods_supported": "jwk",
+      "vc.binding_required_proof_types": "jwt"
+    },
+    "protocolMappers": [
+      {
+        "name": "pid-given-name-mapper",
+        "protocol": "oid4vc",
+        "protocolMapper": "oid4vc-user-attribute-mapper",
+        "config": {
+          "claim.name": "given_name",
+          "userAttribute": "firstName",
+          "vc.mandatory": "true",
+          "vc.display": "[{\"name\":\"Given Name\",\"locale\":\"en-US\"},{\"name\":\"Vorname\",\"locale\":\"de-DE\"}]"
+        }
+      },
+      {
+        "name": "pid-family-name-mapper",
+        "protocol": "oid4vc",
+        "protocolMapper": "oid4vc-user-attribute-mapper",
+        "config": {
+          "claim.name": "family_name",
+          "userAttribute": "lastName",
+          "vc.mandatory": "true",
+          "vc.display": "[{\"name\":\"Family Name\",\"locale\":\"en-US\"},{\"name\":\"Nachname\",\"locale\":\"de-DE\"}]"
+        }
+      },
+      {
+        "name": "pid-issuing-country-mapper",
+        "protocol": "oid4vc",
+        "protocolMapper": "oid4vc-static-claim-mapper",
+        "config": {
+          "claim.name": "issuing_country",
+          "staticValue": "DE",
+          "vc.mandatory": "true",
+          "vc.display": "[{\"name\":\"Issuing Country\",\"locale\":\"en-US\"},{\"name\":\"Ausstellender Staat\",\"locale\":\"de-DE\"}]"
+        }
+      },
+      {
+        "name": "pid-issuing-authority-mapper",
+        "protocol": "oid4vc",
+        "protocolMapper": "oid4vc-static-claim-mapper",
+        "config": {
+          "claim.name": "issuing_authority",
+          "staticValue": "DE",
+          "vc.mandatory": "true",
+          "vc.display": "[{\"name\":\"Issuing Authority\",\"locale\":\"en-US\"},{\"name\":\"Ausstellende Behorde\",\"locale\":\"de-DE\"}]"
+        }
+      },
+      {
+        "name": "pid-subject-mapper",
+        "protocol": "oid4vc",
+        "protocolMapper": "oid4vc-subject-id-mapper",
+        "config": {
+          "claim.name": "sub",
+          "userAttribute": "id"
+        }
+      },
+      {
+        "name": "pid-iat-mapper",
+        "protocol": "oid4vc",
+        "protocolMapper": "oid4vc-issued-at-time-claim-mapper",
+        "config": {
+          "claim.name": "iat",
+          "truncateToTimeUnit": "HOURS",
+          "valueSource": "COMPUTE"
+        }
+      },
+      {
+        "name": "pid-nbf-mapper",
+        "protocol": "oid4vc",
+        "protocolMapper": "oid4vc-issued-at-time-claim-mapper",
+        "config": {
+          "claim.name": "nbf",
+          "valueSource": "COMPUTE"
+        }
+      },
+      {
+        "name": "pid-status-list-claim-mapper",
+        "protocol": "oid4vc",
+        "protocolMapper": "oid4vc-status-list-claim-mapper",
+        "consentRequired": false,
+        "config": {}
+      }
+    ]
   }
 ]
