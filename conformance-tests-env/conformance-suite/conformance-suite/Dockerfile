@@ -1,4 +1,4 @@
-FROM maven:3.8.3-openjdk-17-slim AS builder
+FROM maven:3.9-eclipse-temurin-21 AS builder
 ARG OPENID_GIT_URL
 ARG OPENID_GIT_TAG
 
@@ -7,7 +7,7 @@ RUN git clone -b ${OPENID_GIT_TAG} ${OPENID_GIT_URL} ./conformance-suite
 ADD . ./conformance-suite/
 RUN cd conformance-suite && mv -f run-tests.sh ./.gitlab-ci && mvn package -DskipTests
 
-FROM eclipse-temurin:17
+FROM eclipse-temurin:21-jdk
 
 # the server app requires redir to run
 RUN apt-get update && apt-get install -y redir python3 python3-pip curl \
