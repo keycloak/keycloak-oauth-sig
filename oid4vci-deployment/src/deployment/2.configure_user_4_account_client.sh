@@ -66,16 +66,16 @@ success "Password ensured for Francis."
 # Only assigned when KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE is true.
 # -----------------------------------------------------------------------------
 CREDENTIAL_OFFER_ROLE="credential-offer-create"
+FRANCIS_USER_ID=$(kcadm get users -r "$KEYCLOAK_REALM" -q username="$USERS_FRANCIS_NAME" --fields id | jq -r '.[0].id')
 if [[ "$KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE" == "true" ]]; then
   log "Checking existence of realm role '$CREDENTIAL_OFFER_ROLE'..."
 
   if kcadm get roles/$CREDENTIAL_OFFER_ROLE -r "$KEYCLOAK_REALM" >/dev/null 2>&1; then
     log "Assigning realm role '$CREDENTIAL_OFFER_ROLE' to user Francis..."
-    FRANCIS_USER_ID=$(kcadm get users -r "$KEYCLOAK_REALM" -q username="$USERS_FRANCIS_NAME" --fields id | jq -r '.[0].id')
     if [ -n "$FRANCIS_USER_ID" ] && [ "$FRANCIS_USER_ID" != "null" ]; then
       kcadm add-roles -r "$KEYCLOAK_REALM" \
         --uid "$FRANCIS_USER_ID" \
-        --rolename $CREDENTIAL_OFFER_ROLE || \
+        --rolename "$CREDENTIAL_OFFER_ROLE" || \
         warn "Failed to assign '$CREDENTIAL_OFFER_ROLE' role to user Francis (it may already be assigned)."
       success "Realm role '$CREDENTIAL_OFFER_ROLE' assigned to Francis."
     else
@@ -86,6 +86,27 @@ if [[ "$KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE" == "true" ]]; then
   fi
 else
   log "Skipping '$CREDENTIAL_OFFER_ROLE' role assignment (disabled in configuration)."
+fi
+
+# -----------------------------------------------------------------------------
+# Grant demo verifiable credentials to Francis (Keycloak 26.7+)
+# On 26.7+, create-credential-offer and issuance require an explicit per-user
+# VC grant matching the credential client scope. Safe to re-run: existing
+# grants are skipped with a warning. On older Keycloak the endpoint may be
+# absent; failures are non-fatal so 26.6.x setups keep working.
+# -----------------------------------------------------------------------------
+if [ -n "${FRANCIS_USER_ID:-}" ] && [ "$FRANCIS_USER_ID" != "null" ]; then
+  log "Granting demo verifiable credentials to Francis..."
+  for CREDENTIAL_SCOPE in IdentityCredential SteuerberaterCredential KMACredential; do
+    if kcadm create "users/$FRANCIS_USER_ID/vc/credentials" -r "$KEYCLOAK_REALM" \
+        -s "credentialScopeName=$CREDENTIAL_SCOPE" >/dev/null 2>&1; then
+      success "Granted '$CREDENTIAL_SCOPE' to Francis."
+    else
+      warn "Could not grant '$CREDENTIAL_SCOPE' to Francis (may already exist, or unsupported on this Keycloak version)."
+    fi
+  done
+else
+  warn "Skipping verifiable credential grants; could not resolve Francis user id."
 fi
 
 # -----------------------------------------------------------------------------

@@ -183,7 +183,9 @@ log "Validating OID4VCI configuration..."
 response=$(curl -ks "$KEYCLOAK_ADMIN_ADDR/.well-known/openid-credential-issuer/realms/$KEYCLOAK_REALM")
 [[ -z "$response" ]] && error "No response from Keycloak OIDC credential issuer endpoint."
 
-# Dynamically validate all credentials from the configuration file
+# Assert each demo credential from client-scope-config.json is present.
+# Keycloak 26.7+ may also advertise built-in configs (e.g. oid4vc_natural_person_*);
+# do not require an exact configuration count.
 jq -r '.[].name' "$CLIENT_SCOPE_CONFIG_FILE" | while read -r credential; do
   jq -e --arg c "$credential" '."credential_configurations_supported"[$c]' <<< "$response" >/dev/null || \
     error "Configuration missing: '$credential' not found in OID4VCI configuration."

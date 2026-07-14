@@ -165,10 +165,16 @@ export_yaml_as_env() {
     [[ -n "${ISSUER_ENDPOINTS_FRONTEND:-}" ]] && export ISSUER_FRONTEND_URL="${ISSUER_ENDPOINTS_FRONTEND}"
     [[ -n "${CLIENTS_TEST_CLIENT:-}" ]] && export TEST_CLIENT_URL="${CLIENTS_TEST_CLIENT}"
     
-    # Collect features to start Keycloak with
-    KEYCLOAK_FEATURES="${KEYCLOAK_FEATURES:-oid4vc-vci}"
+    # Collect features to start Keycloak with.
+    # Rebuild from the base feature on every load so repeated configuration
+    # loads (e.g. compose then CLI) do not append duplicates.
+    KEYCLOAK_FEATURES="oid4vc-vci"
     [[ "${KEYCLOAK_ENABLE_PREAUTH_CODE:-}" == "true" ]] && KEYCLOAK_FEATURES="$KEYCLOAK_FEATURES,oid4vc-vci-preauth-code"
+    # create-credential-offer is gated behind oid4vc-vci-rest-credential-offer
+    # in Keycloak 26.7+; the credential-offer-create role alone is not enough.
+    [[ "${KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE:-}" == "true" ]] && KEYCLOAK_FEATURES="$KEYCLOAK_FEATURES,oid4vc-vci-rest-credential-offer"
     export KEYCLOAK_FEATURES
+    echo "KEYCLOAK_FEATURES=$KEYCLOAK_FEATURES"
 
     # Adjust KEYSTORE_PATH based on where Keycloak is running
     if [[ -n "${KEYSTORE_PATH:-}" ]]; then

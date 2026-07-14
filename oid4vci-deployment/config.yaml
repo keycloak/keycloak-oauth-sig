@@ -37,7 +37,10 @@ keycloak:
   # must be explicitly enabled to be used for credential issuance. In older versions,
   # it is enabled by default and this must be set to false.
   enable_preauth_code: false
-  # Enable credential-offer-create role for users
+  # Enable credential-offer creation. When true:
+  # - starts Keycloak with feature oid4vc-vci-rest-credential-offer (required on
+  #   Keycloak 26.7+ for the create-credential-offer REST endpoint)
+  # - assigns the credential-offer-create realm role to demo users
   enable_credential_offer_create: false
 
 # -----------------------------------------------------------------------------
