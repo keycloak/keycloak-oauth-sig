@@ -396,8 +396,11 @@ get_keycloak_pid() {
 
 is_keycloak_reachable() {
     local addr="${KEYCLOAK_ADMIN_ADDR:-}"
+    local http_code
     [[ -n "$addr" ]] || return 1
-    curl -k -s --connect-timeout 2 --max-time 5 "${addr}/realms/master" >/dev/null 2>&1
+    http_code="$(curl -k -s -o /dev/null -w "%{http_code}" --connect-timeout 2 --max-time 5 \
+        "${addr}/realms/master" 2>/dev/null || true)"
+    [[ "$http_code" == "200" ]]
 }
 
 ensure_keycloak_reachable() {

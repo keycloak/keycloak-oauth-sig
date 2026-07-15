@@ -160,8 +160,13 @@ run_in_cli_container_if_needed() {
             compose_args+=("$@")
             (
                 cd "$WORK_DIR" || error "Cannot cd to WORK_DIR: $WORK_DIR"
-                COMPOSE_PROJECT_NAME="$project_name" HOST_WORK_DIR="$WORK_DIR" \
-                    eval "$DOCKER_COMPOSE_CMD" "${compose_args[@]}"
+                export COMPOSE_PROJECT_NAME="$project_name"
+                export HOST_WORK_DIR="$WORK_DIR"
+                if [[ "$DOCKER_COMPOSE_CMD" == "docker compose" ]]; then
+                    docker compose "${compose_args[@]}"
+                else
+                    docker-compose "${compose_args[@]}"
+                fi
             )
             exit $?
             ;;
