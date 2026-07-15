@@ -66,7 +66,7 @@ success "Password ensured for Francis."
 # Only assigned when KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE is true.
 # -----------------------------------------------------------------------------
 CREDENTIAL_OFFER_ROLE="credential-offer-create"
-FRANCIS_USER_ID=$(kcadm get users -r "$KEYCLOAK_REALM" -q username="$USERS_FRANCIS_NAME" --fields id | jq -r '.[0].id')
+FRANCIS_USER_ID="$(kcadm get users -r "$KEYCLOAK_REALM" -q username="$USERS_FRANCIS_NAME" --fields id 2>/dev/null | jq -r '.[0].id // empty' 2>/dev/null)" || FRANCIS_USER_ID=""
 if [[ "$KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE" == "true" ]]; then
   log "Checking existence of realm role '$CREDENTIAL_OFFER_ROLE'..."
 

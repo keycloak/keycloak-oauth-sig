@@ -397,7 +397,7 @@ get_keycloak_pid() {
 is_keycloak_reachable() {
     local addr="${KEYCLOAK_ADMIN_ADDR:-}"
     [[ -n "$addr" ]] || return 1
-    curl -k -s --connect-timeout 2 "${addr}/realms/master" >/dev/null 2>&1
+    curl -k -s --connect-timeout 2 --max-time 5 "${addr}/realms/master" >/dev/null 2>&1
 }
 
 ensure_keycloak_reachable() {
@@ -420,19 +420,17 @@ stop_keycloak() {
     if [[ -n "$keycloak_pid" ]]; then
         log "Keycloak instance found (PID: $keycloak_pid). Shutting it down..."
         if ! kill "$keycloak_pid" 2>/dev/null; then
-            warn "Could not stop Keycloak PID $keycloak_pid (permission denied or process gone). Continuing..."
-        else
-            sleep 2
-            if kill -0 "$keycloak_pid" 2>/dev/null; then
-                kill -9 "$keycloak_pid" 2>/dev/null || true
-                sleep 1
-            fi
-            if kill -0 "$keycloak_pid" 2>/dev/null; then
-                warn "Keycloak PID $keycloak_pid is still running after kill. Continuing..."
-            else
-                log "Keycloak stopped."
-            fi
+            error "Could not stop Keycloak PID $keycloak_pid (permission denied or process gone). Stop it manually before continuing."
         fi
+        sleep 2
+        if kill -0 "$keycloak_pid" 2>/dev/null; then
+            kill -9 "$keycloak_pid" 2>/dev/null || true
+            sleep 1
+        fi
+        if kill -0 "$keycloak_pid" 2>/dev/null; then
+            error "Keycloak PID $keycloak_pid is still running after kill. Stop it manually before continuing."
+        fi
+        log "Keycloak stopped."
     else
         log "No running Keycloak instance found."
     fi
