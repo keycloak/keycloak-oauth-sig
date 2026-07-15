@@ -55,7 +55,7 @@ services:
       KEYCLOAK_SSI_IN_CONTAINER: "1"
       COMPOSE_PROJECT_NAME: "oid4vci-deployment"
       # Host project root when Keycloak runs on host and CLI in container
-      HOST_WORK_DIR: ${HOST_WORK_DIR:-${PWD}}
+      HOST_WORK_DIR: ${HOST_WORK_DIR:-}
     volumes:
       - .:/workspace
       - ./target:/workspace/target

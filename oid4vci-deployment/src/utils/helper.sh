@@ -539,13 +539,18 @@ _resolve_kcadm() {
 
 kcadm() {
     local kcadm_bin
+    local docker_compose_cmd
+
     if kcadm_bin="$(_resolve_kcadm)"; then
         "$kcadm_bin" "$@"
         return
     fi
 
-    if docker compose ps --status running --services 2>/dev/null | grep -qx 'app'; then
-        docker compose exec -T app /opt/keycloak/bin/kcadm.sh "$@"
+    docker_compose_cmd="$(detect_docker_compose 2>/dev/null || true)"
+    if [[ -n "$docker_compose_cmd" ]] && \
+       eval "$docker_compose_cmd ps --status running --services 2>/dev/null" | grep -qx 'app'; then
+        # shellcheck disable=SC2086
+        eval "$docker_compose_cmd exec -T app /opt/keycloak/bin/kcadm.sh $(printf '%q ' "$@")"
         return
     fi
 
