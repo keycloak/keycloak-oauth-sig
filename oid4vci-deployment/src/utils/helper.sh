@@ -165,9 +165,10 @@ export_yaml_as_env() {
     [[ -n "${ISSUER_ENDPOINTS_FRONTEND:-}" ]] && export ISSUER_FRONTEND_URL="${ISSUER_ENDPOINTS_FRONTEND}"
     [[ -n "${CLIENTS_TEST_CLIENT:-}" ]] && export TEST_CLIENT_URL="${CLIENTS_TEST_CLIENT}"
     
-    # Collect features to start Keycloak with
-    KEYCLOAK_FEATURES="${KEYCLOAK_FEATURES:-oid4vc-vci}"
+    # Rebuild each load so compose + CLI do not append duplicate features.
+    KEYCLOAK_FEATURES="oid4vc-vci"
     [[ "${KEYCLOAK_ENABLE_PREAUTH_CODE:-}" == "true" ]] && KEYCLOAK_FEATURES="$KEYCLOAK_FEATURES,oid4vc-vci-preauth-code"
+    [[ "${KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE:-}" == "true" ]] && KEYCLOAK_FEATURES="$KEYCLOAK_FEATURES,oid4vc-vci-rest-credential-offer"
     export KEYCLOAK_FEATURES
 
     # Adjust KEYSTORE_PATH based on where Keycloak is running
@@ -204,7 +205,7 @@ export_yaml_as_env() {
             if [[ -n "$host_project_root" ]]; then
                 export KEYSTORE_PATH="$host_project_root/target/kc_keystore.pkcs12"
             else
-                warn "Cannot determine host path for KEYSTORE_PATH. Set HOST_WORK_DIR in docker-compose.yml."
+                error "CLI is in a container (KEYCLOAK_SSI_IN_CONTAINER=1) but HOST_WORK_DIR is unset and could not be detected. Re-run via 'keycloak-ssi config|test|import' (not sourced scripts), or set HOST_WORK_DIR to the host project root."
             fi
         fi
     fi
@@ -368,17 +369,48 @@ inject_environment_variables() {
 # Keycloak Process Management
 # -----------------------------------------------------------------------------
 get_keycloak_pid() {
-    local pid
+    local pid=""
+    local candidate
+    local cmdline
+    local candidates=""
+
     if command -v pgrep &>/dev/null; then
-        pid=$(pgrep -f keycloak | head -n1 || true)
+        candidates="$(pgrep -f '(^|/)kc\.sh( |$)|quarkus-run\.jar|org\.keycloak' 2>/dev/null || true)"
     else
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            pid=$(ps aux | grep -i '[q]uarkus' | awk 'NR==1{print $2}' || true)
-        else
-            pid=$(ps aux | grep -i '[k]eycloak' | awk 'NR==1{print $2}' || true)
-        fi
+        candidates="$(ps aux | grep -E '[k]c\.sh|[q]uarkus-run\.jar|[o]rg\.keycloak' | awk '{print $2}' || true)"
     fi
+
+    while read -r candidate; do
+        [[ -z "$candidate" ]] && continue
+        cmdline="$(ps -p "$candidate" -o args= 2>/dev/null || true)"
+        [[ -z "$cmdline" ]] && continue
+        case "$cmdline" in
+            *cursorsandbox*|*keycloak-ssi.sh*|*helper.sh*) continue ;;
+        esac
+        pid="$candidate"
+        break
+    done <<< "$candidates"
+
     echo "$pid"
+}
+
+is_keycloak_reachable() {
+    local addr="${KEYCLOAK_ADMIN_ADDR:-}"
+    [[ -n "$addr" ]] || return 1
+    curl -k -s --connect-timeout 2 "${addr}/realms/master" >/dev/null 2>&1
+}
+
+ensure_keycloak_reachable() {
+    if is_keycloak_reachable; then
+        log "Keycloak is reachable at ${KEYCLOAK_ADMIN_ADDR}."
+        return 0
+    fi
+
+    if [[ -z "${KEYCLOAK_SSI_IN_CONTAINER:-}" ]]; then
+        error "Keycloak is not reachable at ${KEYCLOAK_ADMIN_ADDR:-<unset>}. Start it with 'keycloak-ssi setup' or 'keycloak-ssi compose up -d'. For config/test against a host-started Keycloak, run 'keycloak-ssi config' / 'keycloak-ssi test' so the CLI container sets KEYCLOAK_SSI_IN_CONTAINER=1 (do not source the scripts under zsh/bash without that env)."
+    fi
+
+    error "Keycloak is not reachable at ${KEYCLOAK_ADMIN_ADDR:-<unset>} from the CLI container. Start it with 'keycloak-ssi setup' or 'keycloak-ssi compose up -d' first."
 }
 
 stop_keycloak() {
@@ -387,19 +419,20 @@ stop_keycloak() {
 
     if [[ -n "$keycloak_pid" ]]; then
         log "Keycloak instance found (PID: $keycloak_pid). Shutting it down..."
-        if ! kill "$keycloak_pid"; then
-            return 1
+        if ! kill "$keycloak_pid" 2>/dev/null; then
+            warn "Could not stop Keycloak PID $keycloak_pid (permission denied or process gone). Continuing..."
+        else
+            sleep 2
+            if kill -0 "$keycloak_pid" 2>/dev/null; then
+                kill -9 "$keycloak_pid" 2>/dev/null || true
+                sleep 1
+            fi
+            if kill -0 "$keycloak_pid" 2>/dev/null; then
+                warn "Keycloak PID $keycloak_pid is still running after kill. Continuing..."
+            else
+                log "Keycloak stopped."
+            fi
         fi
-        # Wait for process to terminate
-        sleep 2
-        if kill -0 "$keycloak_pid" 2>/dev/null; then
-            kill -9 "$keycloak_pid" 2>/dev/null || true
-            sleep 1
-        fi
-        if kill -0 "$keycloak_pid" 2>/dev/null; then
-            return 1
-        fi
-        log "Keycloak stopped."
     else
         log "No running Keycloak instance found."
     fi
@@ -488,18 +521,37 @@ ensure_keycloak_crypto_materials() {
 }
 
 # -----------------------------------------------------------------------------
-# kcadm Helper
-# - Prefer local Keycloak install (after setup-kc-oid4vci.sh)
-# - Fallback to running kcadm inside the Docker Compose app container
+# kcadm Helper — local install, HOST_WORK_DIR, or running compose "app"
 # -----------------------------------------------------------------------------
+_resolve_kcadm() {
+    local candidates=(
+        "${KEYCLOAK_INSTALL_DIR:-}/bin/kcadm.sh"
+        "${HOST_WORK_DIR:-}/target/tools/keycloak-${KEYCLOAK_VERSION:-}/bin/kcadm.sh"
+        "${WORK_DIR:-}/target/tools/keycloak-${KEYCLOAK_VERSION:-}/bin/kcadm.sh"
+    )
+    local candidate
+    for candidate in "${candidates[@]}"; do
+        if [[ -n "$candidate" && -x "$candidate" ]]; then
+            echo "$candidate"
+            return 0
+        fi
+    done
+    return 1
+}
+
 kcadm() {
-    if [[ -x "${KEYCLOAK_INSTALL_DIR:-}/bin/kcadm.sh" ]]; then
-        "${KEYCLOAK_INSTALL_DIR}/bin/kcadm.sh" "$@"
-    else
-        # Fallback to containerized Keycloak; assumes compose service is named "app"
-        # and Keycloak is installed under /opt/keycloak in the container image.
-        docker compose exec -T app /opt/keycloak/bin/kcadm.sh "$@"
+    local kcadm_bin
+    if kcadm_bin="$(_resolve_kcadm)"; then
+        "$kcadm_bin" "$@"
+        return
     fi
+
+    if docker compose ps --status running --services 2>/dev/null | grep -qx 'app'; then
+        docker compose exec -T app /opt/keycloak/bin/kcadm.sh "$@"
+        return
+    fi
+
+    error "kcadm.sh not found under KEYCLOAK_INSTALL_DIR / HOST_WORK_DIR / WORK_DIR, and compose service 'app' is not running. Use the same project root for setup and config (keycloak-ssi install / keycloak-ssi setup → keycloak-ssi config)."
 }
 
 # -----------------------------------------------------------------------------
@@ -526,8 +578,14 @@ ensure_keycloak_install_dir_resolved() {
 #   - Container:     uses /opt/keycloak/target/cacerts (mounted from host target/)
 # -----------------------------------------------------------------------------
 kc_truststore_path() {
-    if [[ -x "${KEYCLOAK_INSTALL_DIR:-}/bin/kcadm.sh" ]]; then
-        echo "${SSL_TRUST_STORE}"
+    if _resolve_kcadm >/dev/null 2>&1; then
+        if [[ -n "${SSL_TRUST_STORE:-}" && -f "${SSL_TRUST_STORE}" ]]; then
+            echo "${SSL_TRUST_STORE}"
+        elif [[ -n "${HOST_WORK_DIR:-}" && -f "${HOST_WORK_DIR}/target/cacerts" ]]; then
+            echo "${HOST_WORK_DIR}/target/cacerts"
+        else
+            echo "${WORK_DIR:-}/target/cacerts"
+        fi
     else
         echo "/opt/keycloak/target/cacerts"
     fi
@@ -577,6 +635,6 @@ init_script() {
 # Export functions for use in other scripts
 # -----------------------------------------------------------------------------
 export -f log warn error success
-export -f setup_environment get_keycloak_pid stop_keycloak
+export -f setup_environment get_keycloak_pid stop_keycloak is_keycloak_reachable ensure_keycloak_reachable
 export -f urlencode detect_docker_compose init_script ensure_directory_exists check_dependencies export_yaml_as_env
-export -f ensure_keycloak_crypto_materials get_latest_keycloak_version kcadm kc_truststore_path ensure_keycloak_install_dir_resolved
+export -f ensure_keycloak_crypto_materials get_latest_keycloak_version _resolve_kcadm kcadm kc_truststore_path ensure_keycloak_install_dir_resolved

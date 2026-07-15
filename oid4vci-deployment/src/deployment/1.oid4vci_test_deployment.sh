@@ -22,11 +22,7 @@ ensure_keycloak_install_dir_resolved
 # -----------------------------------------------------------------------------
 # Ensure Keycloak is running
 # -----------------------------------------------------------------------------
-keycloak_pid="$(get_keycloak_pid || true)"
-if [[ -z "${keycloak_pid:-}" ]]; then
-  error "Keycloak is not running. Start Keycloak using '0.start-kc-oid4vci.sh' first."
-fi
-log "Keycloak is running (PID: $keycloak_pid)."
+ensure_keycloak_reachable
 
 # -----------------------------------------------------------------------------
 # Authenticate admin
@@ -183,7 +179,7 @@ log "Validating OID4VCI configuration..."
 response=$(curl -ks "$KEYCLOAK_ADMIN_ADDR/.well-known/openid-credential-issuer/realms/$KEYCLOAK_REALM")
 [[ -z "$response" ]] && error "No response from Keycloak OIDC credential issuer endpoint."
 
-# Dynamically validate all credentials from the configuration file
+# Presence check only — 26.7+ may also advertise built-in configs.
 jq -r '.[].name' "$CLIENT_SCOPE_CONFIG_FILE" | while read -r credential; do
   jq -e --arg c "$credential" '."credential_configurations_supported"[$c]' <<< "$response" >/dev/null || \
     error "Configuration missing: '$credential' not found in OID4VCI configuration."

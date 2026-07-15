@@ -158,8 +158,11 @@ run_in_cli_container_if_needed() {
             local compose_args=("--env-file" "$env_file" "run" "--rm" "cli")
             # Append all original arguments
             compose_args+=("$@")
-            # Execute with proper environment (use eval like cmd_compose does)
-            COMPOSE_PROJECT_NAME="$project_name" eval "$DOCKER_COMPOSE_CMD" "${compose_args[@]}"
+            (
+                cd "$WORK_DIR" || error "Cannot cd to WORK_DIR: $WORK_DIR"
+                COMPOSE_PROJECT_NAME="$project_name" HOST_WORK_DIR="$WORK_DIR" \
+                    eval "$DOCKER_COMPOSE_CMD" "${compose_args[@]}"
+            )
             exit $?
             ;;
         *)
@@ -205,12 +208,9 @@ cmd_setup() {
 
 cmd_config() {
     log "Configuring realm, key providers, clients, and users..."
-    
-    # Check if Keycloak is running
-    if ! curl -k -s "$KEYCLOAK_ADMIN_ADDR/realms/master" >/dev/null 2>&1; then
-        error "Keycloak is not running. Run 'keycloak-ssi setup' first."
-    fi
-    
+
+    ensure_keycloak_reachable
+
     # Run configuration scripts
     log "Running OID4VCI configuration..."
     "$WORK_DIR/src/deployment/1.oid4vci_test_deployment.sh"
@@ -230,10 +230,7 @@ cmd_test() {
         error "Usage: keycloak-ssi test <preauth|authcode> <CredentialType>"
     fi
     
-    # Check if Keycloak is running
-    if ! curl -k -s "$KEYCLOAK_ADMIN_ADDR/realms/master" >/dev/null 2>&1; then
-        error "❌ Keycloak is not running. Run 'keycloak-ssi setup' first."
-    fi
+    ensure_keycloak_reachable
 
     case "$flow" in
         "preauth")

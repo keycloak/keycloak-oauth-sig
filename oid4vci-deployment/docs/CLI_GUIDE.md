@@ -24,6 +24,7 @@ It automates complex tasks such as realm setup, credential flow testing, and env
 
 Before using the CLI tool, ensure the following dependencies are installed on your system:
 
+- **bash** — all scripts use `#!/usr/bin/env bash` and bash features such as `export -f`. Do not `source` them from zsh.
 - **OpenSSL** — for SSL/TLS certificate generation and cryptographic operations
 - **Keytool** — Java key and certificate management utility (included with JDK)
 - **jq** — lightweight and flexible command-line JSON processor

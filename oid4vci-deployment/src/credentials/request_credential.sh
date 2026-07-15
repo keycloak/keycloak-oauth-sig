@@ -54,34 +54,55 @@ success "User Access Token retrieved."
 # ===============================
 log "Requesting credential offer for '$CREDENTIAL_TYPE'..."
 
-get_credential_offer_link() {
-  local CREDENTIAL_OFFER_PATH="$1"
+log_offer_failure() {
+  local BODY="$1"
+  local LABEL="$2"
+  local ERR DESC
+  ERR=$(echo "$BODY" | jq -r '.error // empty' 2>/dev/null || true)
+  DESC=$(echo "$BODY" | jq -r '.error_description // empty' 2>/dev/null || true)
+  if [ -n "$ERR" ] || [ -n "$DESC" ]; then
+    warn "$LABEL: error=${ERR:-n/a} error_description=${DESC:-n/a}"
+  elif [ -n "$BODY" ]; then
+    warn "$LABEL: unexpected response: $BODY"
+  else
+    warn "$LABEL: empty response"
+  fi
+}
 
-  local OFFER=$(curl -k -s "$KEYCLOAK_ADMIN_ADDR/realms/$KEYCLOAK_REALM/protocol/oid4vc/$CREDENTIAL_OFFER_PATH" \
+# Must run in current shell so CREDENTIAL_OFFER_LINK / LAST_OFFER_BODY persist.
+LAST_OFFER_BODY=""
+CREDENTIAL_OFFER_LINK=""
+fetch_credential_offer_link() {
+  local CREDENTIAL_OFFER_PATH="$1"
+  local HTTP_CODE
+  local RESPONSE
+
+  CREDENTIAL_OFFER_LINK=""
+  RESPONSE=$(curl -k -s -w "\n%{http_code}" \
+    "$KEYCLOAK_ADMIN_ADDR/realms/$KEYCLOAK_REALM/protocol/oid4vc/$CREDENTIAL_OFFER_PATH" \
     -H "Authorization: Bearer $USER_ACCESS_TOKEN" \
     -H 'Accept: application/json' \
     -H 'Content-Type: application/json')
-  
-  # Check if response is not empty and contains both issuer and nonce fields.
-  # if not, empty string is returned to signal failure.
-  if [ -z "$OFFER" ] || ! echo "$OFFER" | jq -e 'has("issuer") and has("nonce")' > /dev/null; then
-    return
+  HTTP_CODE=$(printf '%s' "$RESPONSE" | tail -n1)
+  LAST_OFFER_BODY=$(printf '%s' "$RESPONSE" | sed '$d')
+
+  if [ "$HTTP_CODE" != "200" ] || [ -z "$LAST_OFFER_BODY" ] || \
+     ! echo "$LAST_OFFER_BODY" | jq -e 'has("issuer") and has("nonce")' > /dev/null 2>&1; then
+    return 1
   fi
-  
-  # Format the link, adding "/" separator only if needed
-  echo "$OFFER" | jq -r 'if (.issuer | endswith("/")) then "\(.issuer)\(.nonce)" else "\(.issuer)/\(.nonce)" end'
+
+  CREDENTIAL_OFFER_LINK=$(echo "$LAST_OFFER_BODY" | jq -r \
+    'if (.issuer | endswith("/")) then "\(.issuer)\(.nonce)" else "\(.issuer)/\(.nonce)" end')
+  return 0
 }
 
-CREDENTIAL_OFFER_LINK=$(get_credential_offer_link "create-credential-offer?credential_configuration_id=$CREDENTIAL_TYPE&target_user=$USERS_FRANCIS_NAME&pre_authorized=true")
-if [ -z "$CREDENTIAL_OFFER_LINK" ]; then
-  log "Failed to retrieve CREDENTIAL_OFFER_LINK. Retrying with deprecated route..."
-  # DEPRECATED: Some versions may still use the old route, so we attempt to retrieve the link using the deprecated route as a fallback
-  CREDENTIAL_OFFER_LINK=$(get_credential_offer_link "credential-offer-uri?credential_configuration_id=$CREDENTIAL_TYPE&username=$USERS_FRANCIS_NAME")
-fi
-
-if [ -z "$CREDENTIAL_OFFER_LINK" ]; then
-  error "Failed to retrieve CREDENTIAL_OFFER_LINK"
-  exit 1
+if ! fetch_credential_offer_link "create-credential-offer?credential_configuration_id=$CREDENTIAL_TYPE&target_user=$USERS_FRANCIS_NAME&pre_authorized=true"; then
+  log_offer_failure "$LAST_OFFER_BODY" "create-credential-offer failed"
+  log "Retrying with legacy credential-offer-uri (older Keycloak only)..."
+  if ! fetch_credential_offer_link "credential-offer-uri?credential_configuration_id=$CREDENTIAL_TYPE&username=$USERS_FRANCIS_NAME"; then
+    log_offer_failure "$LAST_OFFER_BODY" "Failed to retrieve CREDENTIAL_OFFER_LINK"
+    error "Failed to retrieve CREDENTIAL_OFFER_LINK"
+  fi
 fi
 
 success "Credential Offer Link: $CREDENTIAL_OFFER_LINK"
