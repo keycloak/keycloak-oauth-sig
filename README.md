@@ -149,7 +149,7 @@ FAPI related accomplishments by FAPI-SIG and OAuth SIG, other contributors and k
 ### Automated Conformance Test Run Environment by this kc-fapi-sig repository
 
 The current environment uses the following software version.
-- Keycloak 26.6.4
+- Keycloak 26.7.0
 - Conformance-suite version : release-v5.1.45
 
 #### FAPI 1.0 Advanced (Final)​
@@ -438,7 +438,8 @@ We tagged the environment for every keycloak verion:
 |kc-26.6.1|26.6.1|release-v5.1.41|
 |kc-26.6.2|26.6.2|release-v5.1.43|
 |kc-26.6.3|26.6.3|release-v5.1.43|
-|kc-26.6.4|26.6.4|release-v5.1.4|5
+|kc-26.6.4|26.6.4|release-v5.1.45|
+|kc-26.7.0|26.7.0|release-v5.1.45|
 
 |Keycloak version|FAPI 1.0 Advanced|FAPI-CIBA|Open Banking Brasil FAPI 1.0 (\*1,\*2),\*15|Open Finance Brasil FAPI 1.0 (\*3)|Australia Consumer Data Right (CDR) (\*8)|UK Open Banking|OpenID Connect OP (\*4)|OpenID Connect OP for Logout Profile|FAPI 2.0 Security Profile Implementer’s Draft (\*6,\*14)|FAPI 2.0 Message Signing Implementer’s Draft (\*6,\*14)|FAPI 2.0 Security Profile (\*9)|FAPI 2.0 Message Signing (\*9)|
 |-|-|-|-|-|-|-|-|-|-|-|-|-|
