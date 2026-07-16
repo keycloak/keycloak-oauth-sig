@@ -166,14 +166,29 @@ export_yaml_as_env() {
     [[ -n "${CLIENTS_TEST_CLIENT:-}" ]] && export TEST_CLIENT_URL="${CLIENTS_TEST_CLIENT}"
     
     # Collect features to start Keycloak with.
-    # Rebuild from the base feature on every load so repeated configuration
-    # loads (e.g. compose then CLI) do not append duplicates.
-    KEYCLOAK_FEATURES="oid4vc-vci"
-    [[ "${KEYCLOAK_ENABLE_PREAUTH_CODE:-}" == "true" ]] && KEYCLOAK_FEATURES="$KEYCLOAK_FEATURES,oid4vc-vci-preauth-code"
+    # Preserve any user- or env-supplied features and only ensure OID4VCI-related
+    # flags are present (no duplicates). Defaults to oid4vc-vci when unset.
+    ensure_keycloak_feature_present() {
+        local features="$1"
+        local feature="$2"
+        if [[ -z "$features" ]]; then
+            printf '%s' "$feature"
+        elif [[ ",${features}," == *",${feature},"* ]]; then
+            printf '%s' "$features"
+        else
+            printf '%s,%s' "$features" "$feature"
+        fi
+    }
+
+    KEYCLOAK_FEATURES=$(ensure_keycloak_feature_present "${KEYCLOAK_FEATURES:-}" "oid4vc-vci")
+    [[ "${KEYCLOAK_ENABLE_PREAUTH_CODE:-}" == "true" ]] && \
+        KEYCLOAK_FEATURES=$(ensure_keycloak_feature_present "$KEYCLOAK_FEATURES" "oid4vc-vci-preauth-code")
     # create-credential-offer is gated behind oid4vc-vci-rest-credential-offer
     # in Keycloak 26.7+; the credential-offer-create role alone is not enough.
-    [[ "${KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE:-}" == "true" ]] && KEYCLOAK_FEATURES="$KEYCLOAK_FEATURES,oid4vc-vci-rest-credential-offer"
+    [[ "${KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE:-}" == "true" ]] && \
+        KEYCLOAK_FEATURES=$(ensure_keycloak_feature_present "$KEYCLOAK_FEATURES" "oid4vc-vci-rest-credential-offer")
     export KEYCLOAK_FEATURES
+    # Intentional stdout: keycloak-ssi redirects this function to a compose .env file.
     echo "KEYCLOAK_FEATURES=$KEYCLOAK_FEATURES"
 
     # Adjust KEYSTORE_PATH based on where Keycloak is running

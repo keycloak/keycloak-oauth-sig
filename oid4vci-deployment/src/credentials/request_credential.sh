@@ -103,10 +103,13 @@ fetch_credential_offer_link() {
   return 0
 }
 
-if ! fetch_credential_offer_link "create-credential-offer?credential_configuration_id=$CREDENTIAL_TYPE&target_user=$USERS_FRANCIS_NAME&pre_authorized=true"; then
+ENCODED_CREDENTIAL_TYPE=$(urlencode "$CREDENTIAL_TYPE")
+ENCODED_TARGET_USER=$(urlencode "$USERS_FRANCIS_NAME")
+
+if ! fetch_credential_offer_link "create-credential-offer?credential_configuration_id=${ENCODED_CREDENTIAL_TYPE}&target_user=${ENCODED_TARGET_USER}&pre_authorized=true"; then
   log_offer_failure "$LAST_OFFER_BODY" "create-credential-offer failed"
   log "Retrying with legacy credential-offer-uri (older Keycloak only)..."
-  if ! fetch_credential_offer_link "credential-offer-uri?credential_configuration_id=$CREDENTIAL_TYPE&username=$USERS_FRANCIS_NAME"; then
+  if ! fetch_credential_offer_link "credential-offer-uri?credential_configuration_id=${ENCODED_CREDENTIAL_TYPE}&username=${ENCODED_TARGET_USER}"; then
     log_offer_failure "$LAST_OFFER_BODY" "Failed to retrieve CREDENTIAL_OFFER_LINK"
     error "Failed to retrieve CREDENTIAL_OFFER_LINK"
   fi
