@@ -550,11 +550,16 @@ kcadm() {
     fi
 
     docker_compose_cmd="$(detect_docker_compose 2>/dev/null || true)"
-    if [[ -n "$docker_compose_cmd" ]] && \
-       eval "$docker_compose_cmd ps --status running --services 2>/dev/null" | grep -qx 'app'; then
-        # shellcheck disable=SC2086
-        eval "$docker_compose_cmd exec -T app /opt/keycloak/bin/kcadm.sh $(printf '%q ' "$@")"
-        return
+    if [[ -n "$docker_compose_cmd" ]]; then
+        # detect_docker_compose returns either "docker compose" or
+        # "docker-compose"; split it into an array so we can execute it
+        # directly and forward "$@" without eval re-quoting issues.
+        local -a compose_cmd
+        read -r -a compose_cmd <<< "$docker_compose_cmd"
+        if "${compose_cmd[@]}" ps --status running --services 2>/dev/null | grep -qx 'app'; then
+            "${compose_cmd[@]}" exec -T app /opt/keycloak/bin/kcadm.sh "$@"
+            return
+        fi
     fi
 
     error "kcadm.sh not found under KEYCLOAK_INSTALL_DIR / HOST_WORK_DIR / WORK_DIR, and compose service 'app' is not running. Use the same project root for setup and config (keycloak-ssi install / keycloak-ssi setup → keycloak-ssi config)."

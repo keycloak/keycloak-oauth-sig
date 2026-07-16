@@ -78,11 +78,17 @@ fetch_credential_offer_link() {
   local RESPONSE
 
   CREDENTIAL_OFFER_LINK=""
-  RESPONSE=$(curl -k -s -w "\n%{http_code}" \
+  LAST_OFFER_BODY=""
+  # Guard curl so connection/DNS/TLS failures return instead of aborting the
+  # script under `set -e`, allowing the legacy fallback + diagnostics to run.
+  if ! RESPONSE=$(curl -k -s -w "\n%{http_code}" \
     "$KEYCLOAK_ADMIN_ADDR/realms/$KEYCLOAK_REALM/protocol/oid4vc/$CREDENTIAL_OFFER_PATH" \
     -H "Authorization: Bearer $USER_ACCESS_TOKEN" \
     -H 'Accept: application/json' \
-    -H 'Content-Type: application/json')
+    -H 'Content-Type: application/json'); then
+    LAST_OFFER_BODY="curl could not reach $KEYCLOAK_ADMIN_ADDR (network/DNS/TLS failure)"
+    return 1
+  fi
   HTTP_CODE=$(printf '%s' "$RESPONSE" | tail -n1)
   LAST_OFFER_BODY=$(printf '%s' "$RESPONSE" | sed '$d')
 
