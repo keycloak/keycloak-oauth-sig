@@ -146,8 +146,9 @@ run_in_cli_container_if_needed() {
             local project_name
             project_name="$(basename "$WORK_DIR")"
             # Generate an env file for docker compose from config.yaml to avoid
-            # relying on host environment variables for interpolation.
-            local env_file=".env"
+            # relying on host environment variables for interpolation. Anchor it
+            # to WORK_DIR (not the caller's CWD) since compose runs from there.
+            local env_file="$WORK_DIR/.env"
             local config_files=("$WORK_DIR/config.yaml")
             local override_file="$WORK_DIR/config.override.yaml"
             [[ -f "$override_file" ]] && config_files+=("$override_file")
@@ -158,6 +159,7 @@ run_in_cli_container_if_needed() {
             local compose_args=("--env-file" "$env_file" "run" "--rm" "cli")
             # Append all original arguments
             compose_args+=("$@")
+            local compose_status=0
             (
                 cd "$WORK_DIR" || error "Cannot cd to WORK_DIR: $WORK_DIR"
                 export COMPOSE_PROJECT_NAME="$project_name"
@@ -167,8 +169,9 @@ run_in_cli_container_if_needed() {
                 else
                     docker-compose "${compose_args[@]}"
                 fi
-            )
-            exit $?
+            ) || compose_status=$?
+            rm -f "$env_file"
+            exit "$compose_status"
             ;;
         *)
             # Other commands (setup, compose, stop, install, uninstall, help)
