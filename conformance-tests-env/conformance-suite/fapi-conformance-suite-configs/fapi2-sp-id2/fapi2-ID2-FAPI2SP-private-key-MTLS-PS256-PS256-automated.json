@@ -186,7 +186,7 @@
                                     "xpath",
                                     "//*",
                                     10,
-                                    ".*PAR request did not include necessary parameters*",
+                                    ".*PAR request did not include query parameter*",
                                     "update-image-placeholder"
                                 ]
                             ]

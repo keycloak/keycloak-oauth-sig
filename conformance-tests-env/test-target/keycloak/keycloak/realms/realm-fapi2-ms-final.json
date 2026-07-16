@@ -3,6 +3,7 @@
     "enabled": true,
     "sslRequired": "external",
     "registrationAllowed": false,
+    "accessCodeLifespan": 45,
     "requiredCredentials": [ "password" ],
     "users": [
         {
