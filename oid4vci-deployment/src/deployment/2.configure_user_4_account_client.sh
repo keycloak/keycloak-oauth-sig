@@ -62,11 +62,14 @@ fi
 # Set password for the demo user
 # -----------------------------------------------------------------------------
 log "Setting password for user '$USERS_FRANCIS_NAME'..."
-kcadm set-password -r "$KEYCLOAK_REALM" --username "$USERS_FRANCIS_NAME" --new-password "$USERS_FRANCIS_PASSWORD" || true
-success "Password ensured for '$USERS_FRANCIS_NAME'."
+if kcadm set-password -r "$KEYCLOAK_REALM" --username "$USERS_FRANCIS_NAME" --new-password "$USERS_FRANCIS_PASSWORD"; then
+  success "Password ensured for '$USERS_FRANCIS_NAME'."
+else
+  warn "Failed to set password for '$USERS_FRANCIS_NAME' (user may already have a password, or Keycloak rejected the update)."
+fi
 
 # -----------------------------------------------------------------------------
-# Conditionally assign 'credential-offer-create' realm role to Francis
+# Conditionally assign 'credential-offer-create' realm role to the demo user
 # This realm role grants permission to create credential offers.
 # Only assigned when KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE is true.
 # -----------------------------------------------------------------------------
@@ -79,15 +82,15 @@ if [[ "$KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE" == "true" ]]; then
   log "Checking existence of realm role '$CREDENTIAL_OFFER_ROLE'..."
 
   if kcadm get roles/$CREDENTIAL_OFFER_ROLE -r "$KEYCLOAK_REALM" >/dev/null 2>&1; then
-    log "Assigning realm role '$CREDENTIAL_OFFER_ROLE' to user Francis..."
+    log "Assigning realm role '$CREDENTIAL_OFFER_ROLE' to user '$USERS_FRANCIS_NAME'..."
     if [ -n "$FRANCIS_USER_ID" ] && [ "$FRANCIS_USER_ID" != "null" ]; then
       kcadm add-roles -r "$KEYCLOAK_REALM" \
         --uid "$FRANCIS_USER_ID" \
         --rolename "$CREDENTIAL_OFFER_ROLE" || \
-        warn "Failed to assign '$CREDENTIAL_OFFER_ROLE' role to user Francis (it may already be assigned)."
-      success "Realm role '$CREDENTIAL_OFFER_ROLE' assigned to Francis."
+        warn "Failed to assign '$CREDENTIAL_OFFER_ROLE' role to user '$USERS_FRANCIS_NAME' (it may already be assigned)."
+      success "Realm role '$CREDENTIAL_OFFER_ROLE' assigned to '$USERS_FRANCIS_NAME'."
     else
-      error "Could not find user Francis to assign realm role '$CREDENTIAL_OFFER_ROLE'."
+      error "Could not find user '$USERS_FRANCIS_NAME' to assign realm role '$CREDENTIAL_OFFER_ROLE'."
     fi
   else
     error "Realm role '$CREDENTIAL_OFFER_ROLE' does not exist in realm '$KEYCLOAK_REALM'."
@@ -97,24 +100,24 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# Grant demo verifiable credentials to Francis (Keycloak 26.7+)
+# Grant demo verifiable credentials to the demo user (Keycloak 26.7+)
 # On 26.7+, create-credential-offer and issuance require an explicit per-user
 # VC grant matching the credential client scope. Safe to re-run: existing
 # grants are skipped with a warning. On older Keycloak the endpoint may be
 # absent; failures are non-fatal so 26.6.x setups keep working.
 # -----------------------------------------------------------------------------
 if [ -n "${FRANCIS_USER_ID:-}" ] && [ "$FRANCIS_USER_ID" != "null" ]; then
-  log "Granting demo verifiable credentials to Francis..."
+  log "Granting demo verifiable credentials to '$USERS_FRANCIS_NAME'..."
   for CREDENTIAL_SCOPE in IdentityCredential SteuerberaterCredential KMACredential; do
     if kcadm create "users/$FRANCIS_USER_ID/vc/credentials" -r "$KEYCLOAK_REALM" \
         -s "credentialScopeName=$CREDENTIAL_SCOPE" >/dev/null 2>&1; then
-      success "Granted '$CREDENTIAL_SCOPE' to Francis."
+      success "Granted '$CREDENTIAL_SCOPE' to '$USERS_FRANCIS_NAME'."
     else
-      warn "Could not grant '$CREDENTIAL_SCOPE' to Francis (may already exist, or unsupported on this Keycloak version)."
+      warn "Could not grant '$CREDENTIAL_SCOPE' to '$USERS_FRANCIS_NAME' (may already exist, or unsupported on this Keycloak version)."
     fi
   done
 else
-  warn "Skipping verifiable credential grants; could not resolve Francis user id."
+  warn "Skipping verifiable credential grants; could not resolve user id for '$USERS_FRANCIS_NAME'."
 fi
 
 # -----------------------------------------------------------------------------
