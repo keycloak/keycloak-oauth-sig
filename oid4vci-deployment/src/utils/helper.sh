@@ -168,18 +168,6 @@ export_yaml_as_env() {
     # Collect features to start Keycloak with.
     # Preserve any user- or env-supplied features and only ensure OID4VCI-related
     # flags are present (no duplicates). Defaults to oid4vc-vci when unset.
-    ensure_keycloak_feature_present() {
-        local features="$1"
-        local feature="$2"
-        if [[ -z "$features" ]]; then
-            printf '%s' "$feature"
-        elif [[ ",${features}," == *",${feature},"* ]]; then
-            printf '%s' "$features"
-        else
-            printf '%s,%s' "$features" "$feature"
-        fi
-    }
-
     KEYCLOAK_FEATURES=$(ensure_keycloak_feature_present "${KEYCLOAK_FEATURES:-}" "oid4vc-vci")
     [[ "${KEYCLOAK_ENABLE_PREAUTH_CODE:-}" == "true" ]] && \
         KEYCLOAK_FEATURES=$(ensure_keycloak_feature_present "$KEYCLOAK_FEATURES" "oid4vc-vci-preauth-code")
@@ -447,6 +435,19 @@ urlencode() {
     jq -nr --arg str "$1" '$str|@uri'
 }
 
+# Append a Keycloak feature to a CSV list if not already present.
+ensure_keycloak_feature_present() {
+    local features="$1"
+    local feature="$2"
+    if [[ -z "$features" ]]; then
+        printf '%s' "$feature"
+    elif [[ ",${features}," == *",${feature},"* ]]; then
+        printf '%s' "$features"
+    else
+        printf '%s,%s' "$features" "$feature"
+    fi
+}
+
 # -----------------------------------------------------------------------------
 # Docker Compose Detection
 # -----------------------------------------------------------------------------
@@ -599,5 +600,5 @@ init_script() {
 # -----------------------------------------------------------------------------
 export -f log warn error success
 export -f setup_environment get_keycloak_pid stop_keycloak
-export -f urlencode detect_docker_compose init_script ensure_directory_exists check_dependencies export_yaml_as_env
+export -f urlencode ensure_keycloak_feature_present detect_docker_compose init_script ensure_directory_exists check_dependencies export_yaml_as_env
 export -f ensure_keycloak_crypto_materials get_latest_keycloak_version kcadm kc_truststore_path ensure_keycloak_install_dir_resolved

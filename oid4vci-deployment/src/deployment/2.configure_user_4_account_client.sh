@@ -43,22 +43,27 @@ kcadm update clients/$ACC_CLIENT_ID -r "$KEYCLOAK_REALM" -s directAccessGrantsEn
 success "Direct grant enabled."
 
 # -----------------------------------------------------------------------------
-# Create a user named Francis
+# Create the demo user (default: Francis from users.francis.name)
 # -----------------------------------------------------------------------------
-log "Creating user Francis if not exists..."
-if ! kcadm get users -r "$KEYCLOAK_REALM" -q username=francis | jq -e '.[0].id' >/dev/null 2>&1; then
-  kcadm create users -r "$KEYCLOAK_REALM" -s username=francis -s firstName=Francis -s lastName=Pouatcha -s email=fpo@mail.de -s enabled=true
-  success "User Francis created."
+log "Creating user '$USERS_FRANCIS_NAME' if not exists..."
+if ! kcadm get users -r "$KEYCLOAK_REALM" -q username="$USERS_FRANCIS_NAME" | jq -e '.[0].id' >/dev/null 2>&1; then
+  kcadm create users -r "$KEYCLOAK_REALM" \
+    -s "username=$USERS_FRANCIS_NAME" \
+    -s firstName=Francis \
+    -s lastName=Pouatcha \
+    -s email=fpo@mail.de \
+    -s enabled=true
+  success "User '$USERS_FRANCIS_NAME' created."
 else
-  warn "User Francis already exists."
+  warn "User '$USERS_FRANCIS_NAME' already exists."
 fi
 
 # -----------------------------------------------------------------------------
-# Set password for Francis
+# Set password for the demo user
 # -----------------------------------------------------------------------------
-log "Setting password for user Francis..."
+log "Setting password for user '$USERS_FRANCIS_NAME'..."
 kcadm set-password -r "$KEYCLOAK_REALM" --username "$USERS_FRANCIS_NAME" --new-password "$USERS_FRANCIS_PASSWORD" || true
-success "Password ensured for Francis."
+success "Password ensured for '$USERS_FRANCIS_NAME'."
 
 # -----------------------------------------------------------------------------
 # Conditionally assign 'credential-offer-create' realm role to Francis
