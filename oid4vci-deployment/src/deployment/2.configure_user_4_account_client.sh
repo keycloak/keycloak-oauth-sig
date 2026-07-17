@@ -108,7 +108,17 @@ fi
 # -----------------------------------------------------------------------------
 if [ -n "${FRANCIS_USER_ID:-}" ] && [ "$FRANCIS_USER_ID" != "null" ]; then
   log "Granting demo verifiable credentials to '$USERS_FRANCIS_NAME'..."
-  for CREDENTIAL_SCOPE in IdentityCredential SteuerberaterCredential KMACredential; do
+  CLIENT_SCOPE_CONFIG_FILE="$WORK_DIR/src/config/client-scope-config.json"
+  CREDENTIAL_SCOPES=()
+  if [ -f "$CLIENT_SCOPE_CONFIG_FILE" ]; then
+    mapfile -t CREDENTIAL_SCOPES < <(jq -r '.[].name' "$CLIENT_SCOPE_CONFIG_FILE" 2>/dev/null || true)
+  fi
+  if [ "${#CREDENTIAL_SCOPES[@]}" -eq 0 ]; then
+    warn "Could not read credential scopes from '$CLIENT_SCOPE_CONFIG_FILE'; using default demo scopes."
+    CREDENTIAL_SCOPES=(IdentityCredential SteuerberaterCredential KMACredential)
+  fi
+
+  for CREDENTIAL_SCOPE in "${CREDENTIAL_SCOPES[@]}"; do
     if kcadm create "users/$FRANCIS_USER_ID/vc/credentials" -r "$KEYCLOAK_REALM" \
         -s "credentialScopeName=$CREDENTIAL_SCOPE" >/dev/null 2>&1; then
       success "Granted '$CREDENTIAL_SCOPE' to '$USERS_FRANCIS_NAME'."
