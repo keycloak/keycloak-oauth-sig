@@ -172,8 +172,6 @@ export_yaml_as_env() {
     [[ "${KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE:-}" == "true" ]] && \
         KEYCLOAK_FEATURES="$KEYCLOAK_FEATURES,oid4vc-vci-rest-credential-offer"
     export KEYCLOAK_FEATURES
-    # Derived value for docker compose (.env is built from this function's stdout).
-    echo "KEYCLOAK_FEATURES=$KEYCLOAK_FEATURES"
 
     # Adjust KEYSTORE_PATH based on where Keycloak is running
     if [[ -n "${KEYSTORE_PATH:-}" ]]; then
