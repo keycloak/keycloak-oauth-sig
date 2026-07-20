@@ -1,9 +1,8 @@
 # -----------------------------------------------------------------------------
 # Keycloak SSI Configuration Overrides
 # -----------------------------------------------------------------------------
-# This file allows you to override specific configuration values from config.yaml.
-# Only include the values you want to override — this file is merged with config.yaml
-# (later keys win). Copy to config.override.yaml and uncomment what you need.
+# This file allows you to override specific configuration values from config.yaml
+# Only include the values you want to override - this file is merged with config.yaml
 #
 
 # Example: Override realm name
@@ -14,20 +13,3 @@
 # database:
 #   password: "${PROD_DB_PASSWORD}"
 #   username: "${PROD_DB_USER}"
-
-# -----------------------------------------------------------------------------
-# Keycloak 26.7+ local demo
-# -----------------------------------------------------------------------------
-# On Keycloak 26.6.x, pre-authorized code and the create-credential-offer REST
-# endpoint were available with the base oid4vc-vci feature alone.
-# On Keycloak 26.7.0+, they require explicit feature flags:
-#   - oid4vc-vci-preauth-code       (via enable_preauth_code)
-#   - oid4vc-vci-rest-credential-offer (via enable_credential_offer_create)
-# Copy the block below into config.override.yaml when targeting 26.7+.
-#
-# keycloak:
-#   enable_preauth_code: true
-#   enable_credential_offer_create: true
-#
-# keycloak_image:
-#   tag: "26.7.0"

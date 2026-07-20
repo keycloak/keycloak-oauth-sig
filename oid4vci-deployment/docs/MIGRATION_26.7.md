@@ -1,25 +1,25 @@
 ## Migrating `oid4vci-deployment` to Keycloak 26.7.0
 
-Keycloak **26.7.0** keeps OID4VCI experimental but splits several previously always-on behaviors into dedicated feature flags and admin APIs. This checklist brings the local harness from **26.6.3** up so pre-authorized and offer-based issuance works again.
+Keycloak **26.7.0** keeps OID4VCI experimental but moves pre-authorized code and the `create-credential-offer` REST endpoint behind dedicated feature flags. The local harness already uses the programmatic `create-credential-offer` protocol endpoint; no credential-request script changes are required for 26.7.
 
 ### Checklist
 
-1. **Enable the REST credential-offer feature**  
-   Set `keycloak.enable_credential_offer_create: true` so `KEYCLOAK_FEATURES` includes `oid4vc-vci-rest-credential-offer`. Without it, `create-credential-offer` returns that REST credential offer is not enabled.
+1. **Point at Keycloak 26.7.0**  
+   Set the image tag (or tarball version) to `26.7.0` in your override file.
 
 2. **Enable pre-authorized code**  
-   Set `keycloak.enable_preauth_code: true` so `KEYCLOAK_FEATURES` includes `oid4vc-vci-preauth-code`. Pre-auth grants were moved off the base `oid4vc-vci` feature in 26.7.
+   Set `keycloak.enable_preauth_code: true` so `KEYCLOAK_FEATURES` includes `oid4vc-vci-preauth-code`.
 
-3. **Grant per-user verifiable credentials**  
-   On 26.7+, offers and issuance require an explicit user VC grant (`users/{id}/vc/credentials`) for each credential scope. `keycloak-ssi config` grants Identity, Steuerberater, and KMA for the demo user.
+3. **Enable REST credential-offer creation**  
+   Set `keycloak.enable_credential_offer_create: true` so `KEYCLOAK_FEATURES` includes `oid4vc-vci-rest-credential-offer`. Without it, `create-credential-offer` is disabled on 26.7+.
 
-4. **Prefer `create-credential-offer`**  
-   Use `GET .../protocol/oid4vc/create-credential-offer` as the primary path. Retrieve the offer from `.../credential-offer/{nonce}` using the `{ issuer, nonce }` response. Legacy `credential-offer-uri` returns HTTP 404 on 26.7 and is only a fallback for older Keycloak.
+4. **Grant verifiable credentials to the demo user**  
+   On 26.7+, issuance requires an explicit per-user VC grant for each credential scope (IdentityCredential, SteuerberaterCredential, KMACredential). Grant these in the Admin Console for the demo user, or via the Admin API if you automate setup elsewhere. The `keycloak-ssi config` script does **not** perform this step.
 
-5. **Expect built-in `oid4vc_natural_person_*` metadata**  
-   Issuer metadata may include Keycloak-built-in configurations (`oid4vc_natural_person_jwt`, `oid4vc_natural_person_sd`) in addition to the demo scopes. Demos and validation assert that **required** configuration IDs exist; they do **not** require an exact configuration count of three. See [Built-in natural person credentials](#built-in-natural-person-credentials).
+5. **Recreate Keycloak after flag changes**  
+   Restart or recreate the Keycloak container so `KC_FEATURES` picks up the new flags.
 
-### Sample `config.override.yaml` for 26.7 demos
+### Sample `config.override.yaml`
 
 ```yaml
 keycloak:
@@ -29,8 +29,6 @@ keycloak:
 keycloak_image:
   tag: "26.7.0"
 ```
-
-Copy from `config.override.example.yaml` and adjust as needed. After changing feature flags, recreate the Keycloak container so `KC_FEATURES` is applied.
 
 ### Verification
 
@@ -44,24 +42,12 @@ keycloak-ssi test preauth SteuerberaterCredential
 keycloak-ssi test preauth KMACredential
 ```
 
-Confirm container features include both gated flags, for example:
+Confirm container features include the gated flags:
 
 ```bash
 docker compose exec app printenv KC_FEATURES
 # expect: oid4vc-vci,oid4vc-vci-preauth-code,oid4vc-vci-rest-credential-offer
 ```
-
-### Built-in natural person credentials
-
-On 26.7.0, `credential_configurations_supported` can list Keycloak’s built-in natural-person configurations alongside this repo’s demo credentials.
-
-**Chosen approach:** keep demos and `config` validation on IdentityCredential, SteuerberaterCredential, and KMACredential. Assert each required ID is present in metadata; ignore extra built-ins. Do not disable built-ins unless a future Keycloak option makes that straightforward for local demos.
-
-Inventory of metadata checks in this tree:
-
-| Location | Behavior |
-| -------- | -------- |
-| `src/deployment/1.oid4vci_test_deployment.sh` | Asserts each name from `client-scope-config.json` exists under `credential_configurations_supported` (presence, not count). |
 
 ### Upstream references
 
