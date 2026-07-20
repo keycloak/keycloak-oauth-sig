@@ -37,8 +37,7 @@ keycloak:
   # must be explicitly enabled to be used for credential issuance. In older versions,
   # it is enabled by default and this must be set to false.
   enable_preauth_code: false
-  # Enable credential-offer-create role for users. When true, also starts Keycloak
-  # with feature oid4vc-vci-rest-credential-offer (required on Keycloak 26.7+).
+  # Enable credential-offer-create role for users
   enable_credential_offer_create: false
 
 # -----------------------------------------------------------------------------
@@ -46,7 +45,7 @@ keycloak:
 # -----------------------------------------------------------------------------
 keycloak_image:
   registry: "quay.io/keycloak/keycloak"
-  tag: "26.6"
+  tag: "26.7.0"
 
 # -----------------------------------------------------------------------------
 # Keystore configuration

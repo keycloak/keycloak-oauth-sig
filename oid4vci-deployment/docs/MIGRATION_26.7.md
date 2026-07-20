@@ -4,8 +4,8 @@ Keycloak **26.7.0** keeps OID4VCI experimental but moves pre-authorized code and
 
 ### Checklist
 
-1. **Point at Keycloak 26.7.0**  
-   Set the image tag (or tarball version) to `26.7.0` in your override file.
+1. **Use Keycloak 26.7.0**  
+   The default Docker Compose image tag in `config.yaml` is `26.7.0`. For tarball/`setup`, set `keycloak.version` to `26.7.0` (or rely on `latest` once that resolves to 26.7.x).
 
 2. **Enable pre-authorized code**  
    Set `keycloak.enable_preauth_code: true` so `KEYCLOAK_FEATURES` includes `oid4vc-vci-preauth-code`.
@@ -25,9 +25,6 @@ Keycloak **26.7.0** keeps OID4VCI experimental but moves pre-authorized code and
 keycloak:
   enable_preauth_code: true
   enable_credential_offer_create: true
-
-keycloak_image:
-  tag: "26.7.0"
 ```
 
 ### Verification
