@@ -168,6 +168,9 @@ export_yaml_as_env() {
     # Collect features to start Keycloak with
     KEYCLOAK_FEATURES="${KEYCLOAK_FEATURES:-oid4vc-vci}"
     [[ "${KEYCLOAK_ENABLE_PREAUTH_CODE:-}" == "true" ]] && KEYCLOAK_FEATURES="$KEYCLOAK_FEATURES,oid4vc-vci-preauth-code"
+    # Keycloak 26.7+ gates create-credential-offer behind oid4vc-vci-rest-credential-offer.
+    [[ "${KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE:-}" == "true" ]] && \
+        KEYCLOAK_FEATURES="$KEYCLOAK_FEATURES,oid4vc-vci-rest-credential-offer"
     export KEYCLOAK_FEATURES
 
     # Adjust KEYSTORE_PATH based on where Keycloak is running
