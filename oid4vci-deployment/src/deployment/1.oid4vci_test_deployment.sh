@@ -42,7 +42,9 @@ kcadm config credentials --server "$KEYCLOAK_ADMIN_ADDR" --realm master \
 log "Creating realm '$KEYCLOAK_REALM' (if not exists)..."
 kcadm create realms -s realm="$KEYCLOAK_REALM" -s enabled=true >/dev/null 2>&1 || warn "Realm already exists; continuing."
 
-# Keycloak 26+ requires java-keystore under data/{realm}/
+# Keycloak 26+ restricts java-keystore files to data/{realm}/ (relative paths resolve there).
+# Introduced: https://github.com/keycloak/keycloak/commit/9697e1aa5d1ec58d759e4119fb02b876b3392845
+# Source (26.7.0): https://github.com/keycloak/keycloak/blob/26.7.0/services/src/main/java/org/keycloak/keys/JavaKeystoreKeyProviderFactory.java#L142-L149
 mkdir -p "$KEYCLOAK_INSTALL_DIR/data/$KEYCLOAK_REALM"
 cp "${PROJECT_TARGET_DIR}/kc_keystore.pkcs12" "$KEYCLOAK_INSTALL_DIR/data/$KEYCLOAK_REALM/kc_keystore.pkcs12"
 KEYSTORE_PATH="kc_keystore.pkcs12"
