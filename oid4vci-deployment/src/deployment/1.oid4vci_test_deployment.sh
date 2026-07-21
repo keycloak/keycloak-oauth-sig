@@ -42,6 +42,11 @@ kcadm config credentials --server "$KEYCLOAK_ADMIN_ADDR" --realm master \
 log "Creating realm '$KEYCLOAK_REALM' (if not exists)..."
 kcadm create realms -s realm="$KEYCLOAK_REALM" -s enabled=true >/dev/null 2>&1 || warn "Realm already exists; continuing."
 
+# Keycloak 26+ requires java-keystore under data/{realm}/
+mkdir -p "$KEYCLOAK_INSTALL_DIR/data/$KEYCLOAK_REALM"
+cp "${PROJECT_TARGET_DIR}/kc_keystore.pkcs12" "$KEYCLOAK_INSTALL_DIR/data/$KEYCLOAK_REALM/kc_keystore.pkcs12"
+KEYSTORE_PATH="kc_keystore.pkcs12"
+
 # -----------------------------------------------------------------------------
 # Configure key providers
 # -----------------------------------------------------------------------------
@@ -76,7 +81,8 @@ register_key_provider() {
   local json_content="$2"
 
   local exists
-  exists=$(kcadm get components -r "$KEYCLOAK_REALM" --fields name \
+  # Request id+name: --fields name alone omits .id and made the check always miss.
+  exists=$(kcadm get components -r "$KEYCLOAK_REALM" --fields id,name \
             | jq -r --arg n "$name" '.[]? | select(.name == $n) | .id' | head -n1)
 
   if [[ -n "$exists" ]]; then
@@ -84,9 +90,11 @@ register_key_provider() {
     return 0
   fi
 
-  if ! echo "$json_content" | kcadm create components -r "$KEYCLOAK_REALM" -o -f - >/dev/null 2>&1; then
-    warn "Failed to register key provider '$name'; it already exists."
+  local err
+  if ! err=$(echo "$json_content" | kcadm create components -r "$KEYCLOAK_REALM" -o -f - 2>&1); then
+    error "Failed to register key provider '$name': $err"
   fi
+  success "Registered key provider '$name'."
 }
 
 # ECDSA

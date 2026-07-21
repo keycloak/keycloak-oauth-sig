@@ -368,16 +368,14 @@ inject_environment_variables() {
 # Keycloak Process Management
 # -----------------------------------------------------------------------------
 get_keycloak_pid() {
-    local pid
-    if command -v pgrep &>/dev/null; then
-        pid=$(pgrep -f keycloak | head -n1 || true)
-    else
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            pid=$(ps aux | grep -i '[q]uarkus' | awk 'NR==1{print $2}' || true)
-        else
-            pid=$(ps aux | grep -i '[k]eycloak' | awk 'NR==1{print $2}' || true)
+    local pid="" p exe
+    for p in $(pgrep -f 'io.quarkus.bootstrap.runner.QuarkusEntryPoint' 2>/dev/null || true); do
+        exe="$(readlink "/proc/$p/exe" 2>/dev/null || true)"
+        if [[ "$exe" == *"/java"* ]]; then
+            pid="$p"
+            break
         fi
-    fi
+    done
     echo "$pid"
 }
 
