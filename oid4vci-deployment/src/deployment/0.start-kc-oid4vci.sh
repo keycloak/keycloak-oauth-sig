@@ -79,17 +79,19 @@ log "Starting Keycloak with OID4VCI features..."
 
 cd "$KEYCLOAK_INSTALL_DIR" || error "Cannot cd to $KEYCLOAK_INSTALL_DIR"
 
+LOG_DIR="$WORK_DIR/target"
+ensure_directory_exists "$LOG_DIR"
+
 if [[ "$DETACH_MODE" == "true" ]]; then
-  LOG_DIR="$WORK_DIR/target"
-  ensure_directory_exists "$LOG_DIR"
   LOG_FILE="$LOG_DIR/keycloak.log"
   log "Detaching Keycloak; logs will be written to $LOG_FILE"
   KC_BOOTSTRAP_ADMIN_USERNAME="$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME" KC_BOOTSTRAP_ADMIN_PASSWORD="$KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD" \
   nohup bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=$KEYCLOAK_FEATURES" \
     >"$LOG_FILE" 2>&1 &
+  echo "$!" >> "$LOG_DIR/keycloak.pid"
   disown || true
 else
+  echo "$$" >> "$LOG_DIR/keycloak.pid"
   KC_BOOTSTRAP_ADMIN_USERNAME="$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME" KC_BOOTSTRAP_ADMIN_PASSWORD="$KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD" \
   exec bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=$KEYCLOAK_FEATURES"
-
 fi
