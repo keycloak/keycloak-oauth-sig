@@ -502,7 +502,10 @@ main() {
 
 # Function to handle script exit and clean up
 cleanup() {
-    stop_keycloak
+    # Prevent re-entry if Ctrl+C is pressed again while stopping.
+    trap - SIGINT SIGTERM
+    stop_keycloak || true
+    exit 130
 }
 
 # Trap SIGINT (Ctrl+C) and SIGTERM signals

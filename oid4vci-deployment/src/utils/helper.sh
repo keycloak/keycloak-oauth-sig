@@ -370,25 +370,46 @@ inject_environment_variables() {
 # -----------------------------------------------------------------------------
 # Keycloak Process Management
 # -----------------------------------------------------------------------------
+# Echo live Keycloak PID(s), one per line. Prefers target/keycloak.pid; otherwise
+# only matches processes tied to KEYCLOAK_INSTALL_DIR.
 get_keycloak_pid() {
-    local pid
-    if command -v pgrep &>/dev/null; then
-        pid=$(pgrep -f keycloak | head -n1 || true)
-    else
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            pid=$(ps aux | grep -i '[q]uarkus' | awk 'NR==1{print $2}' || true)
+    local pid=""
+    local install_dir="${KEYCLOAK_INSTALL_DIR:-}"
+    local pid_file="${WORK_DIR:-}/target/keycloak.pid"
+    local found=false
+
+    if [[ -f "$pid_file" ]]; then
+        local saved_pid
+        while IFS= read -r saved_pid || [[ -n "$saved_pid" ]]; do
+            [[ -z "$saved_pid" ]] && continue
+            if kill -0 "$saved_pid" 2>/dev/null; then
+                echo "$saved_pid"
+                found=true
+            fi
+        done < "$pid_file"
+        if [[ "$found" == "true" ]]; then
+            return 0
+        fi
+        rm -f "$pid_file" 2>/dev/null || true
+    fi
+
+    if [[ -n "$install_dir" ]]; then
+        if command -v pgrep &>/dev/null; then
+            pid=$(pgrep -f "${install_dir}/bin/kc\.sh|java.*${install_dir}" | head -n1 || true)
         else
-            pid=$(ps aux | grep -i '[k]eycloak' | awk 'NR==1{print $2}' || true)
+            pid=$(ps aux | grep -F "$install_dir" | grep -E '[k]c\.sh (start|start-dev)|java.*([K]eycloakMain|[Q]uarkusEntryPoint)' | awk 'NR==1{print $2}' || true)
         fi
     fi
-    echo "$pid"
+    [[ -n "$pid" ]] && echo "$pid"
 }
 
 stop_keycloak() {
     local keycloak_pid
-    keycloak_pid="$(get_keycloak_pid || true)"
+    local stopped=false
 
-    if [[ -n "$keycloak_pid" ]]; then
+    while IFS= read -r keycloak_pid || [[ -n "$keycloak_pid" ]]; do
+        [[ -z "$keycloak_pid" ]] && continue
+        stopped=true
         log "Keycloak instance found (PID: $keycloak_pid). Shutting it down..."
         if ! kill "$keycloak_pid"; then
             return 1
@@ -402,10 +423,16 @@ stop_keycloak() {
         if kill -0 "$keycloak_pid" 2>/dev/null; then
             return 1
         fi
+    done < <(get_keycloak_pid || true)
+
+    if [[ "$stopped" == "true" ]]; then
         log "Keycloak stopped."
     else
         log "No running Keycloak instance found."
     fi
+
+    # Clean up PID file
+    rm -f "${WORK_DIR:-}/target/keycloak.pid" 2>/dev/null || true
 
     # -------------------------------------------------------------------------
     # Stop and remove database container + volume using Docker Compose
