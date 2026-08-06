@@ -14,19 +14,15 @@ source "$WORK_DIR/src/utils/helper.sh"
 init_script
 
 # -----------------------------------------------------------------------------
-# Ensure KEYCLOAK_INSTALL_DIR is resolved if KEYCLOAK_VERSION is "latest"
-# This is needed so the kcadm helper can find the local Keycloak install
-# -----------------------------------------------------------------------------
-ensure_keycloak_install_dir_resolved
-
-# -----------------------------------------------------------------------------
 # Ensure Keycloak is running
 # -----------------------------------------------------------------------------
+# PID detection fails from the CLI container (different PID namespace). Fall back to HTTP.
 keycloak_pid="$(get_keycloak_pid || true)"
-if [[ -z "${keycloak_pid:-}" ]]; then
-  error "Keycloak is not running. Start Keycloak using '0.start-kc-oid4vci.sh' first."
+if [[ -z "${keycloak_pid:-}" ]] \
+    && ! curl -k -s -o /dev/null -w '' "$KEYCLOAK_ADMIN_ADDR/realms/master" 2>/dev/null; then
+  error "Keycloak is not running. Start Keycloak using 'keycloak-ssi setup -d' or 'keycloak-ssi compose up -d' first."
 fi
-log "Keycloak is running (PID: $keycloak_pid)."
+log "Keycloak is running."
 
 # -----------------------------------------------------------------------------
 # Authenticate admin
@@ -76,16 +72,17 @@ register_key_provider() {
   local json_content="$2"
 
   local exists
-  exists=$(kcadm get components -r "$KEYCLOAK_REALM" --fields name \
+  exists=$(kcadm get components -r "$KEYCLOAK_REALM" --fields id,name \
             | jq -r --arg n "$name" '.[]? | select(.name == $n) | .id' | head -n1)
 
-  if [[ -n "$exists" ]]; then
-    warn "Key provider '$name' already exists (ID: $exists); skipping."
+  if [[ -n "$exists" && "$exists" != "null" ]]; then
+    warn "Key provider '$name' already exists; skipping."
     return 0
   fi
 
-  if ! echo "$json_content" | kcadm create components -r "$KEYCLOAK_REALM" -o -f - >/dev/null 2>&1; then
-    warn "Failed to register key provider '$name'; it already exists."
+  local create_out
+  if ! create_out=$(echo "$json_content" | kcadm create components -r "$KEYCLOAK_REALM" -o -f - 2>&1); then
+    error "Failed to register key provider '$name': $create_out"
   fi
 }
 

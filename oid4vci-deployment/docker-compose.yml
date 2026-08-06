@@ -11,7 +11,7 @@ services:
       - db_data:/var/lib/postgresql
 
   app:
-    image: ${KEYCLOAK_IMAGE_REGISTRY:-quay.io/keycloak/keycloak}:${KEYCLOAK_IMAGE_TAG:-26.5.0}
+    image: ${KEYCLOAK_IMAGE_REGISTRY:-quay.io/keycloak/keycloak}:${KEYCLOAK_IMAGE_TAG:-26.7.0}
     environment:
       # Database configuration
       KC_DB: postgres
@@ -32,6 +32,8 @@ services:
 
     volumes:
       - ./target:/opt/keycloak/target
+      # Realm keystores under ${kc.home.dir}/data/<realm>/ (Keycloak 26.6.4+)
+      - ./target/keycloak-data:/opt/keycloak/data
 
     command:
       - start
@@ -54,8 +56,8 @@ services:
       WORK_DIR: /workspace
       KEYCLOAK_SSI_IN_CONTAINER: "1"
       COMPOSE_PROJECT_NAME: "oid4vci-deployment"
-      # Host project root path (used when Keycloak runs on host but CLI runs in container)
-      HOST_WORK_DIR: ${PWD}
+      # Host project root (CLI remaps /workspace → host path for Keycloak)
+      HOST_WORK_DIR: ${HOST_WORK_DIR:-${PWD}}
     volumes:
       - .:/workspace
       - ./target:/workspace/target

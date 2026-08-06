@@ -33,12 +33,16 @@ keycloak:
     admin_password: "admin"
   # Keycloak realm
   realm: "oid4vc-vci"
-  # Enable pre-authorized code flow. In newer Keycloak versions, the pre-auth code flow
-  # must be explicitly enabled to be used for credential issuance. In older versions,
-  # it is enabled by default and this must be set to false.
+  # Enable pre-authorized code flow. In newer Keycloak versions (26.7+), the pre-auth code
+  # flow must be explicitly enabled. On older versions it is on by default — keep false there
+  # or setup fails with an unrecognized feature.
   enable_preauth_code: false
-  # Enable credential-offer-create role for users
+  # Assign credential-offer-create realm role (needed for mock FE QR / create-credential-offer).
+  # Applies on all supported Keycloak versions (role only; does not toggle KC features).
   enable_credential_offer_create: false
+  # Enable oid4vc-vci-rest-credential-offer (Keycloak 26.7+ create-credential-offer endpoint).
+  # Ignored on older versions where the feature flag does not exist.
+  enable_rest_credential_offer: false
 
 # -----------------------------------------------------------------------------
 # Keycloak container image
@@ -51,10 +55,9 @@ keycloak_image:
 # Keystore configuration
 # -----------------------------------------------------------------------------
 keystore:
-  # Keycloak keystore file path
-  # Default /opt/keycloak/target/kc_keystore.pkcs12 (Docker container path)
-  # 👉 Change this to "${PROJECT_TARGET_DIR}/kc_keystore.pkcs12" when running Keycloak on the host machine.
-  path: "/opt/keycloak/target/kc_keystore.pkcs12"
+  # Realm keystore under ${kc.home.dir}/data/<realm>/ (required for Keycloak 26.6.4+; valid on older versions).
+  # Single path for host and Docker: KEYCLOAK_INSTALL_DIR is the Keycloak home (host install or image install).
+  path: "${KEYCLOAK_INSTALL_DIR}/data/${KEYCLOAK_REALM}/kc_keystore.pkcs12"
   # Keystore type
   type: "PKCS12"
   # Keystore password

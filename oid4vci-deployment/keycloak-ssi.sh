@@ -153,12 +153,11 @@ run_in_cli_container_if_needed() {
             [[ -f "$override_file" ]] && config_files+=("$override_file")
             rm -f "$env_file"
             export_yaml_as_env "${config_files[@]}" > "$env_file"
-            # Forward all original arguments into the cli service, using the env file.
-            # Build command array to properly forward all arguments.
-            local compose_args=("--env-file" "$env_file" "run" "--rm" "cli")
-            # Append all original arguments
+            # HOST_WORK_DIR must be the host project root so KEYSTORE_PATH can be remapped
+            # from /workspace/... to the path Keycloak on the host actually sees.
+            # Pass -e explicitly: VAR=value eval '...' does not reliably forward env to docker compose.
+            local compose_args=("--env-file" "$env_file" "run" "--rm" "-e" "HOST_WORK_DIR=$WORK_DIR" "cli")
             compose_args+=("$@")
-            # Execute with proper environment (use eval like cmd_compose does)
             COMPOSE_PROJECT_NAME="$project_name" eval "$DOCKER_COMPOSE_CMD" "${compose_args[@]}"
             exit $?
             ;;
