@@ -25,5 +25,4 @@ export KC_BOOTSTRAP_ADMIN_PASSWORD="${KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD}"
 
 cd "$KEYCLOAK_INSTALL_DIR"
 
-# Features come from config.yaml (KEYCLOAK_FEATURES), including 26.7+ flags when enabled.
-eval "exec bin/kc.sh $START_COMMAND ${DATABASE_OPTS:-} --features=${KEYCLOAK_FEATURES}"
+eval "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=oid4vc-vci"
