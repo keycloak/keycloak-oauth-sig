@@ -16,13 +16,11 @@ init_script
 # -----------------------------------------------------------------------------
 # Ensure Keycloak is running
 # -----------------------------------------------------------------------------
-# PID detection fails from the CLI container (different PID namespace). Fall back to HTTP.
 keycloak_pid="$(get_keycloak_pid || true)"
-if [[ -z "${keycloak_pid:-}" ]] \
-    && ! curl -k -s -o /dev/null -w '' "$KEYCLOAK_ADMIN_ADDR/realms/master" 2>/dev/null; then
-  error "Keycloak is not running. Start Keycloak using 'keycloak-ssi setup -d' or 'keycloak-ssi compose up -d' first."
+if [[ -z "${keycloak_pid:-}" ]]; then
+  error "Keycloak is not running. Start Keycloak using '0.start-kc-oid4vci.sh' first."
 fi
-log "Keycloak is running."
+log "Keycloak is running (PID: $keycloak_pid)."
 
 # -----------------------------------------------------------------------------
 # Authenticate admin

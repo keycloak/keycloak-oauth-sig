@@ -168,9 +168,7 @@ export_yaml_as_env() {
     [[ -n "${ISSUER_ENDPOINTS_FRONTEND:-}" ]] && export ISSUER_FRONTEND_URL="${ISSUER_ENDPOINTS_FRONTEND}"
     [[ -n "${CLIENTS_TEST_CLIENT:-}" ]] && export TEST_CLIENT_URL="${CLIENTS_TEST_CLIENT}"
     
-    # Collect features to start Keycloak with.
-    # On Keycloak < 26.7 keep enable_preauth_code / enable_rest_credential_offer false
-    # (those feature names do not exist and will abort startup).
+    # Collect features to start Keycloak with
     KEYCLOAK_FEATURES="${KEYCLOAK_FEATURES:-oid4vc-vci}"
 
     [[ "${KEYCLOAK_ENABLE_PREAUTH_CODE:-}" == "true" ]] && \
@@ -179,11 +177,9 @@ export_yaml_as_env() {
         KEYCLOAK_FEATURES="$KEYCLOAK_FEATURES,oid4vc-vci-rest-credential-offer"
     export KEYCLOAK_FEATURES
 
-    # Resolve "latest" then keep keystore.path under the concrete install dir (from config).
+    # Resolve "latest" then keep keystore.path under the concrete install dir.
     ensure_keycloak_install_dir_resolved
 
-    # Remap only Keycloak home for registration — config owns the data/<realm>/ layout.
-    # No user switching between host/docker paths: config.yaml stays SSOT.
     if [[ -n "${KEYSTORE_PATH:-}" && -n "${KEYCLOAK_INSTALL_DIR:-}" ]]; then
         local docker_compose_cmd
         docker_compose_cmd="$(detect_docker_compose 2>/dev/null || echo "")"
@@ -198,10 +194,10 @@ export_yaml_as_env() {
         fi
 
         if [[ "$keycloak_in_docker" == "true" ]]; then
-            # Official compose image: kc.home.dir=/opt/keycloak (./target/keycloak-data → /opt/keycloak/data)
+            # Keycloak in docker: use container path
             export KEYSTORE_PATH="/opt/keycloak/data/${data_rel}"
         elif [[ -n "${KEYCLOAK_SSI_IN_CONTAINER:-}" ]]; then
-            # CLI container + Keycloak on host: map /workspace → host project root
+            # CLI in container, Keycloak on host: convert container path to host path
             local host_project_root="${HOST_WORK_DIR:-}"
             if [[ -z "$host_project_root" ]] && command -v docker &>/dev/null && [[ -S /var/run/docker.sock ]]; then
                 local container_name
@@ -217,7 +213,6 @@ export_yaml_as_env() {
                 warn "Cannot determine host path for KEYSTORE_PATH. Set HOST_WORK_DIR when running the CLI."
             fi
         fi
-        # else: host setup/config — KEYSTORE_PATH already under KEYCLOAK_INSTALL_DIR/data/<realm>/
     fi
 }
 
@@ -494,7 +489,7 @@ ensure_directory_exists() {
 ensure_keycloak_crypto_materials() {
     # Ensure PROJECT_TARGET_DIR is set (fallback to WORK_DIR/target if not configured)
     PROJECT_TARGET_DIR="${PROJECT_TARGET_DIR:-${WORK_DIR:-/tmp}/target}"
-    # Resolves "latest" and rebinds keystore.path under KEYCLOAK_INSTALL_DIR from config.
+    # Resolves "latest" and rebinds keystore.path under KEYCLOAK_INSTALL_DIR.
     ensure_keycloak_install_dir_resolved
 
     if [[ -z "${KEYCLOAK_INSTALL_DIR:-}" ]]; then

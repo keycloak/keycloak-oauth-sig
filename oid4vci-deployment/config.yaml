@@ -34,14 +34,11 @@ keycloak:
   # Keycloak realm
   realm: "oid4vc-vci"
   # Enable pre-authorized code flow. In newer Keycloak versions (26.7+), the pre-auth code
-  # flow must be explicitly enabled. On older versions it is on by default — keep false there
-  # or setup fails with an unrecognized feature.
+  # flow must be explicitly enabled. On older versions it is on by default 
   enable_preauth_code: false
-  # Assign credential-offer-create realm role (needed for mock FE QR / create-credential-offer).
-  # Applies on all supported Keycloak versions (role only; does not toggle KC features).
+  # Assign credential-offer-create realm role.
   enable_credential_offer_create: false
-  # Enable oid4vc-vci-rest-credential-offer (Keycloak 26.7+ create-credential-offer endpoint).
-  # Ignored on older versions where the feature flag does not exist.
+  # Enable oid4vc-vci-rest-credential-offer (Keycloak 26.6.4+ create-credential-offer endpoint).
   enable_rest_credential_offer: false
 
 # -----------------------------------------------------------------------------

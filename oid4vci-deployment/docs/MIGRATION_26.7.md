@@ -14,7 +14,7 @@ Keycloak **26.7.0** keeps OID4VCI experimental but moves pre-authorized code and
    Set `keycloak.enable_rest_credential_offer: true` so `KEYCLOAK_FEATURES` includes `oid4vc-vci-rest-credential-offer`. Without it, the `create-credential-offer` endpoint is disabled on 26.7+.
 
 4. **Grant the `credential-offer-create` role (optional)**  
-   Set `keycloak.enable_credential_offer_create: true` to assign the `credential-offer-create` realm role to the demo user. This is independent of the REST feature flag above (role ≠ feature).
+   Set `keycloak.enable_credential_offer_create: true` to assign the `credential-offer-create` realm role to the demo user.
 
 5. **Grant verifiable credentials to the demo user**  
    On 26.7+, issuance requires an explicit per-user VC grant for each credential scope (IdentityCredential, SteuerberaterCredential, KMACredential). Grant these in the Admin Console for the demo user, or via the Admin API if you automate setup elsewhere. The `keycloak-ssi config` script does **not** perform this step.
