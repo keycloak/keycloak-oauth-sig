@@ -410,7 +410,7 @@ stop_keycloak() {
         stopped=true
         log "Keycloak instance found (PID: $keycloak_pid). Shutting it down..."
         if ! kill "$keycloak_pid"; then
-            return 1
+            break
         fi
         # Wait for process to terminate
         sleep 2
