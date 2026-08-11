@@ -1,0 +1,48 @@
+[
+  {
+    "id": "default",
+    "displayCta": {
+      "en": "Sign in with a wallet"
+    },
+    "credentials": [
+      {
+        "id": "identity",
+        "role": "primary",
+        "credentialTypes": [
+          "https://credentials.example.com/identity_credential"
+        ],
+        "claims": [
+          "sub",
+          "username"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "nested-presentation-during-issuance",
+    "displayCta": {
+      "en": "Presentation during issuance"
+    },
+    "credentials": [
+      {
+        "id": "identity",
+        "role": "primary",
+        "identitySource": "session",
+        "credentialTypes": [
+          "https://credentials.example.com/identity_credential"
+        ],
+        "claims": [
+          "sub",
+          "username"
+        ],
+        "binding": [
+          {
+            "type": "claim_equals_user_attribute",
+            "credentialClaim": "username",
+            "userAttribute": "username"
+          }
+        ]
+      }
+    ]
+  }
+]

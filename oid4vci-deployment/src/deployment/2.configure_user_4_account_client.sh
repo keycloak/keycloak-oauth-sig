@@ -47,7 +47,9 @@ success "Direct grant enabled."
 # -----------------------------------------------------------------------------
 log "Creating user Francis if not exists..."
 if ! kcadm get users -r "$KEYCLOAK_REALM" -q username=francis | jq -e '.[0].id' >/dev/null 2>&1; then
-  kcadm create users -r "$KEYCLOAK_REALM" -s username=francis -s firstName=Francis -s lastName=Pouatcha -s email=fpo@mail.de -s enabled=true
+  USER_FRANCIS_ID=$(kcadm create users -r "$KEYCLOAK_REALM" -s username=francis -s firstName=Francis -s lastName=Pouatcha -s email=fpo@mail.de -s enabled=true -i)
+  kcadm create "users/$USER_FRANCIS_ID/vc/credentials" -r "$KEYCLOAK_REALM" -s credentialScopeName=IdentityCredential
+  kcadm create "users/$USER_FRANCIS_ID/vc/credentials" -r "$KEYCLOAK_REALM" -s credentialScopeName=GatedIdentityCredential
   success "User Francis created."
 else
   warn "User Francis already exists."
