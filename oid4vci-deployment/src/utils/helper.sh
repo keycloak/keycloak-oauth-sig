@@ -177,41 +177,50 @@ export_yaml_as_env() {
         KEYCLOAK_FEATURES="$KEYCLOAK_FEATURES,oid4vc-vci-rest-credential-offer"
     export KEYCLOAK_FEATURES
 
-    # Resolve "latest" then keep keystore.path under the concrete install dir.
-    ensure_keycloak_install_dir_resolved
+    # Remap only — do not resolve "latest" here (that hits GitHub and would break
+    # compose down/stop offline). Resolve happens in init_script / crypto materials.
+    remap_keystore_path_for_runtime
+}
 
-    if [[ -n "${KEYSTORE_PATH:-}" && -n "${KEYCLOAK_INSTALL_DIR:-}" ]]; then
-        local docker_compose_cmd
-        docker_compose_cmd="$(detect_docker_compose 2>/dev/null || echo "")"
-        local keycloak_in_docker=false
-        local data_rel="${KEYSTORE_PATH#*/data/}"
+# -----------------------------------------------------------------------------
+# Remap KEYSTORE_PATH for where Keycloak runs (compose app vs CLI→host vs host).
+# Does not resolve KEYCLOAK_VERSION=latest / call the GitHub API.
+# -----------------------------------------------------------------------------
+remap_keystore_path_for_runtime() {
+    if [[ -z "${KEYSTORE_PATH:-}" || -z "${KEYCLOAK_INSTALL_DIR:-}" ]]; then
+        return 0
+    fi
 
-        if [[ -n "$docker_compose_cmd" ]]; then
-            if eval "$docker_compose_cmd" ps app --format json 2>/dev/null | grep -q '"State":"running"' 2>/dev/null || \
-                eval "$docker_compose_cmd" ps app 2>/dev/null | grep -q "app.*Up" 2>/dev/null; then
-                keycloak_in_docker=true
+    local docker_compose_cmd
+    docker_compose_cmd="$(detect_docker_compose 2>/dev/null || echo "")"
+    local keycloak_in_docker=false
+    local data_rel="${KEYSTORE_PATH#*/data/}"
+
+    if [[ -n "$docker_compose_cmd" ]]; then
+        if eval "$docker_compose_cmd" ps app --format json 2>/dev/null | grep -q '"State":"running"' 2>/dev/null || \
+            eval "$docker_compose_cmd" ps app 2>/dev/null | grep -q "app.*Up" 2>/dev/null; then
+            keycloak_in_docker=true
+        fi
+    fi
+
+    if [[ "$keycloak_in_docker" == "true" ]]; then
+        # Keycloak in docker: use container path
+        export KEYSTORE_PATH="/opt/keycloak/data/${data_rel}"
+    elif [[ -n "${KEYCLOAK_SSI_IN_CONTAINER:-}" ]]; then
+        # CLI in container, Keycloak on host: convert container path to host path
+        local host_project_root="${HOST_WORK_DIR:-}"
+        if [[ -z "$host_project_root" ]] && command -v docker &>/dev/null && [[ -S /var/run/docker.sock ]]; then
+            local container_name
+            container_name="$(hostname 2>/dev/null || echo "")"
+            if [[ -n "$container_name" ]]; then
+                host_project_root=$(docker inspect "$container_name" 2>/dev/null | \
+                    jq -r '.[0].Mounts[] | select(.Destination == "/workspace") | .Source' 2>/dev/null | head -1 || echo "")
             fi
         fi
-
-        if [[ "$keycloak_in_docker" == "true" ]]; then
-            # Keycloak in docker: use container path
-            export KEYSTORE_PATH="/opt/keycloak/data/${data_rel}"
-        elif [[ -n "${KEYCLOAK_SSI_IN_CONTAINER:-}" ]]; then
-            # CLI in container, Keycloak on host: convert container path to host path
-            local host_project_root="${HOST_WORK_DIR:-}"
-            if [[ -z "$host_project_root" ]] && command -v docker &>/dev/null && [[ -S /var/run/docker.sock ]]; then
-                local container_name
-                container_name="$(hostname 2>/dev/null || echo "")"
-                if [[ -n "$container_name" ]]; then
-                    host_project_root=$(docker inspect "$container_name" 2>/dev/null | \
-                        jq -r '.[0].Mounts[] | select(.Destination == "/workspace") | .Source' 2>/dev/null | head -1 || echo "")
-                fi
-            fi
-            if [[ -n "$host_project_root" && -n "${WORK_DIR:-}" && "$KEYSTORE_PATH" == "$WORK_DIR"* ]]; then
-                export KEYSTORE_PATH="${host_project_root}${KEYSTORE_PATH#"$WORK_DIR"}"
-            elif [[ -z "$host_project_root" ]]; then
-                warn "Cannot determine host path for KEYSTORE_PATH. Set HOST_WORK_DIR when running the CLI."
-            fi
+        if [[ -n "$host_project_root" && -n "${WORK_DIR:-}" && "$KEYSTORE_PATH" == "$WORK_DIR"* ]]; then
+            export KEYSTORE_PATH="${host_project_root}${KEYSTORE_PATH#"$WORK_DIR"}"
+        elif [[ -z "$host_project_root" ]]; then
+            warn "Cannot determine host path for KEYSTORE_PATH. Set HOST_WORK_DIR when running the CLI."
         fi
     fi
 }
@@ -629,6 +638,8 @@ init_script() {
     setup_environment
     # Resolve KEYCLOAK_VERSION \"latest\" to a concrete version and set KEYCLOAK_INSTALL_DIR/KEYCLOAK_TARBALL_PATH
     ensure_keycloak_install_dir_resolved
+    # Re-apply runtime remap after resolve so CLI→host config/import keep a host-visible path
+    remap_keystore_path_for_runtime
 
     # Log script start
     local script_name
@@ -646,4 +657,5 @@ init_script() {
 export -f log warn error success
 export -f setup_environment get_keycloak_pid stop_keycloak
 export -f urlencode detect_docker_compose init_script ensure_directory_exists check_dependencies export_yaml_as_env
+export -f remap_keystore_path_for_runtime
 export -f ensure_keycloak_crypto_materials get_latest_keycloak_version kcadm kc_truststore_path ensure_keycloak_install_dir_resolved
