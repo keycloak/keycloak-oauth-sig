@@ -39,6 +39,8 @@ keycloak:
   enable_preauth_code: false
   # Enable credential-offer-create role for users
   enable_credential_offer_create: false
+  # Enable oid4vc-vci-rest-credential-offer (Keycloak 26.6.4+ create-credential-offer endpoint).
+  enable_rest_credential_offer: false
 
 # -----------------------------------------------------------------------------
 # Keycloak container image
@@ -51,10 +53,9 @@ keycloak_image:
 # Keystore configuration
 # -----------------------------------------------------------------------------
 keystore:
-  # Keycloak keystore file path
-  # Default /opt/keycloak/target/kc_keystore.pkcs12 (Docker container path)
-  # 👉 Change this to "${PROJECT_TARGET_DIR}/kc_keystore.pkcs12" when running Keycloak on the host machine.
-  path: "/opt/keycloak/target/kc_keystore.pkcs12"
+  # Realm keystore under ${kc.home.dir}/data/<realm>/ (required for Keycloak 26.6.4+; valid on older versions).
+  # Single path for host and Docker: KEYCLOAK_INSTALL_DIR is the Keycloak home (host install or image install).
+  path: "${KEYCLOAK_INSTALL_DIR}/data/${KEYCLOAK_REALM}/kc_keystore.pkcs12"
   # Keystore type
   type: "PKCS12"
   # Keystore password
