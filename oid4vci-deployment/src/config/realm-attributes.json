@@ -1,5 +1,6 @@
 {
   "enabled": true,
+  "loginTheme": "keycloak.v2+oid4vp",
   "verifiableCredentialsEnabled": true,
   "attributes": {
     "preAuthorizedCodeLifespanS": "120",

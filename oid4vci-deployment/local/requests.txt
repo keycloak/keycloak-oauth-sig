@@ -1,3 +1,7 @@
 https://happy-grizzly-smoothly.ngrok-free.app/realms/oid4vc-vci/protocol/openid-connect/auth?client_id=oid4vc-demo-public&redirect_uri=https%3A%2F%2Foauthdebugger.com%2Fdebug&scope=GatedIdentityCredential&response_type=code&response_mode=query
 
 https://happy-grizzly-smoothly.ngrok-free.app/realms/oid4vc-vci/protocol/openid-connect/auth?client_id=oid4vc-demo-public&redirect_uri=https%3A%2F%2Foauthdebugger.com%2Fdebug&response_type=code&response_mode=query&authorization_details=%5B%7B%22type%22%3A%22openid_credential%22%2C%22locations%22%3A%5B%22https%3A%2F%2Fhappy-grizzly-smoothly.ngrok-free.app%2Frealms%2Foid4vc-vci%22%5D%2C%22credential_configuration_id%22%3A%22GatedIdentityCredential%22%7D%5D
+
+---
+
+openid-credential-offer://?credential_offer=%7B%22credential_issuer%22%3A%22https%3A%2F%2Fhappy-grizzly-smoothly.ngrok-free.app%2Frealms%2Foid4vc-vci%22%2C%22credential_configuration_ids%22%3A%5B%22GatedIdentityCredential%22%5D%2C%22grants%22%3A%7B%22authorization_code%22%3A%7B%7D%7D%7D

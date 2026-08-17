@@ -9,7 +9,7 @@
         "id": "identity",
         "role": "primary",
         "credentialTypes": [
-          "https://credentials.example.com/identity_credential"
+          "IdentityCredential"
         ],
         "claims": [
           "sub",
@@ -29,7 +29,7 @@
         "role": "primary",
         "identitySource": "session",
         "credentialTypes": [
-          "https://credentials.example.com/identity_credential"
+          "IdentityCredential"
         ],
         "claims": [
           "sub",
