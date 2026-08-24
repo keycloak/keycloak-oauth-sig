@@ -176,6 +176,9 @@ export_yaml_as_env() {
             "keycloak.enable_credential_offer_create")
                 export KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE="$resolved_value"
                 ;;
+            "keycloak.enable_rest_credential_offer")
+                export KEYCLOAK_ENABLE_REST_CREDENTIAL_OFFER="$resolved_value"
+                ;;
         esac
     done <<< "$raw_props_output"
     set -u # Restore 'nounset'
@@ -190,6 +193,7 @@ export_yaml_as_env() {
     # Collect features to start Keycloak with
     KEYCLOAK_FEATURES="${KEYCLOAK_FEATURES:-oid4vc-vci}"
     [[ "${KEYCLOAK_ENABLE_PREAUTH_CODE:-}" == "true" ]] && KEYCLOAK_FEATURES="$KEYCLOAK_FEATURES,oid4vc-vci-preauth-code"
+    [[ "${KEYCLOAK_ENABLE_REST_CREDENTIAL_OFFER:-}" == "true" ]] && KEYCLOAK_FEATURES="$KEYCLOAK_FEATURES,oid4vc-vci-rest-credential-offer"
     export KEYCLOAK_FEATURES
 
     # Adjust KEYSTORE_PATH based on where Keycloak is running

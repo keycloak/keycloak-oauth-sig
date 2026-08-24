@@ -39,6 +39,9 @@ keycloak:
   enable_preauth_code: true
   # Enable credential-offer-create role for users
   enable_credential_offer_create: false
+  # Enable the Keycloak 26.7+ REST endpoint used to create credential offers.
+  # This is independent of the credential-offer-create role above.
+  enable_rest_credential_offer: true
 
 # -----------------------------------------------------------------------------
 # OID4VP plugin startup configuration
