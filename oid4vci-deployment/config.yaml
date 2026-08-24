@@ -148,6 +148,8 @@ database:
   password: "postgres"
   # Preserve DB container/network/volumes on stop/setup restart (faster local iteration)
   preserve_on_stop: true
+  # Keycloak schema migration strategy for preserved DBs: update, manual, or validate.
+  migration_strategy: "update"
   # Optional manual DB options (takes precedence if set)
   # opts: "--db postgres --db-url jdbc:postgresql://localhost:5432/keycloak --db-username postgres --db-password postgres"
 

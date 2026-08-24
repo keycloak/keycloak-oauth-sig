@@ -86,8 +86,13 @@ if [[ -z "${KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME:-}" || -z "${KEYCLOAK_BOOTSTRAP_AD
   error "Bootstrap admin credentials are not set. Check keycloak.bootstrap.* in config."
 fi
 
+MIGRATION_OPTS=""
+if [[ -n "${DATABASE_MIGRATION_STRATEGY:-}" ]]; then
+  MIGRATION_OPTS="--spi-connections-jpa-quarkus-migration-strategy=$DATABASE_MIGRATION_STRATEGY"
+fi
+
 log "Ensuring bootstrap admin user exists..."
-bootstrap_output="$(bash -c "bin/kc.sh bootstrap-admin user --username \"$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME\" --password:env KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD $DATABASE_OPTS" 2>&1)" || bootstrap_status=$?
+bootstrap_output="$(bash -c "bin/kc.sh bootstrap-admin user --username \"$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME\" --password:env KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD $DATABASE_OPTS $MIGRATION_OPTS" 2>&1)" || bootstrap_status=$?
 bootstrap_status="${bootstrap_status:-0}"
 if [[ "$bootstrap_status" -ne 0 ]]; then
   if echo "$bootstrap_output" | grep -Eq "user with username exists|duplicate key value"; then
@@ -104,11 +109,11 @@ if [[ "$DETACH_MODE" == "true" ]]; then
   LOG_FILE="$LOG_DIR/keycloak.log"
   log "Detaching Keycloak; logs will be written to $LOG_FILE"
   KC_BOOTSTRAP_ADMIN_USERNAME="$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME" KC_BOOTSTRAP_ADMIN_PASSWORD="$KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD" \
-  nohup bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=$KEYCLOAK_FEATURES" \
+  nohup bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS $MIGRATION_OPTS --features=$KEYCLOAK_FEATURES" \
     >"$LOG_FILE" 2>&1 &
   disown || true
 else
   KC_BOOTSTRAP_ADMIN_USERNAME="$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME" KC_BOOTSTRAP_ADMIN_PASSWORD="$KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD" \
-  exec bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=$KEYCLOAK_FEATURES"
+  exec bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS $MIGRATION_OPTS --features=$KEYCLOAK_FEATURES"
 
 fi
