@@ -9,6 +9,11 @@
 # keycloak:
 #   realm: "production-realm"
 
+# Example: Override the realms managed by the OID4VP plugin at startup
+# oid4vp_auth:
+#   managed_realms: "oid4vc-vci,oid4vc-v-playground,oid4vc-payslip"
+#   verbose_errors: false
+
 # Example: Override database settings
 # database:
 #   password: "${PROD_DB_PASSWORD}"

@@ -17,8 +17,8 @@ keycloak:
   # Set to "latest" to automatically fetch the latest *patch* release within the current minor version
   #   - Example: if the base is 26.5, this will track 26.5.x (26.5.1, 26.5.2, ...)
   # Set to "999.0.0-SNAPSHOT" to build from the custom branch specified in target_branch
-  # Set to a specific version (e.g., "26.5.0") to use that exact release
-  version: "latest"
+  # Set to a specific version (e.g., "26.7.2") to use that exact release
+  version: "26.7.2"
   # Directory name for cloned Keycloak repo
   oid4vci_dir: "keycloak_${KEYCLOAK_TARGET_BRANCH}"
   # Keycloak tarball path
@@ -39,6 +39,15 @@ keycloak:
   enable_preauth_code: true
   # Enable credential-offer-create role for users
   enable_credential_offer_create: false
+
+# -----------------------------------------------------------------------------
+# OID4VP plugin startup configuration
+# -----------------------------------------------------------------------------
+oid4vp_auth:
+  # Realms for which the plugin creates and migrates the `oid4vp auth` flow.
+  managed_realms: "oid4vc-vci,oid4vc-v-playground,oid4vc-payslip"
+  # Keep detailed verification errors disabled outside explicit debugging sessions.
+  verbose_errors: false
 
 # -----------------------------------------------------------------------------
 # Keycloak container image
@@ -145,7 +154,7 @@ database:
 # -----------------------------------------------------------------------------
 # Keycloak start command
 # -----------------------------------------------------------------------------
-start_command: "start --hostname-strict=false --log-level=info --https-port=${KEYCLOAK_HTTPS_PORT} --https-certificate-file=${SSL_SERVER_CERT} --https-certificate-key-file=${SSL_SERVER_KEY}"
+start_command: "start --hostname-strict=false --log-level=info --https-port=${KEYCLOAK_HTTPS_PORT} --https-certificate-file=${SSL_SERVER_CERT} --https-certificate-key-file=${SSL_SERVER_KEY} --spi-realm-restapi-extension-oid4vp-auth-managed-realms=${OID4VP_AUTH_MANAGED_REALMS} --spi-realm-restapi-extension-oid4vp-auth-verbose-errors=${OID4VP_AUTH_VERBOSE_ERRORS}"
 
 # -----------------------------------------------------------------------------
 # Keycloak config CLI

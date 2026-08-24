@@ -70,6 +70,8 @@ Key settings to review:
 Our config contains many settings to configure Keycloak. The more relevant are:
 
 - `keycloak.version` / `keycloak.target_branch`: decide between upstream tarball and custom branch (set version to `999.0.0-SNAPSHOT` to trigger branch build).
+- `oid4vp_auth.managed_realms`: comma-separated realm names for which the OID4VP plugin creates and migrates the `oid4vp auth` flow during Keycloak startup.
+- `oid4vp_auth.verbose_errors`: controls detailed OID4VP verification errors and defaults to `false` for safe operation.
 - `keycloak.https_port`, `keycloak.hostname`: align with your local HTTPS requirements.
 - `database.*`: container DB parameters such as port, username, password.
 - `users.*`: Users that will be added to keycloak.
