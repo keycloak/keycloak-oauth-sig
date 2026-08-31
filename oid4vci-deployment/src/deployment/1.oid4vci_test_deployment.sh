@@ -129,12 +129,19 @@ ENABLED_CREDENTIALS=$(enabled_credentials_json)
 [[ "$(jq 'length' <<< "$ENABLED_CREDENTIALS")" -gt 0 ]] || \
   error "credentials.enabled must contain at least one credential name."
 
+MANAGED_CREDENTIALS=$(jq '[.[].name]' "$CLIENT_SCOPE_CONFIG_FILE")
+
 UNKNOWN_CREDENTIALS=$(jq -n \
   --argjson enabled "$ENABLED_CREDENTIALS" \
-  --slurpfile configured "$CLIENT_SCOPE_CONFIG_FILE" \
-  '$enabled - ($configured[0] | map(.name))')
+  --argjson managed "$MANAGED_CREDENTIALS" \
+  '$enabled - $managed')
 [[ "$(jq 'length' <<< "$UNKNOWN_CREDENTIALS")" -eq 0 ]] || \
   error "Unknown credentials in credentials.enabled: $(jq -r 'join(", ")' <<< "$UNKNOWN_CREDENTIALS")"
+
+DISABLED_CREDENTIALS=$(jq -n \
+  --argjson enabled "$ENABLED_CREDENTIALS" \
+  --argjson managed "$MANAGED_CREDENTIALS" \
+  '$managed - $enabled')
 
 CLIENT_SCOPES_CONFIG=$(jq \
   --argjson enabled "$ENABLED_CREDENTIALS" \
@@ -144,6 +151,9 @@ CLIENT_SCOPES_CONFIG=$(jq \
   "$CLIENT_SCOPE_CONFIG_FILE")
 
 log "Enabled credentials: $(jq -r 'join(", ")' <<< "$ENABLED_CREDENTIALS")"
+if [[ "$(jq 'length' <<< "$DISABLED_CREDENTIALS")" -gt 0 ]]; then
+  log "Disabled credentials: $(jq -r 'join(", ")' <<< "$DISABLED_CREDENTIALS")"
+fi
 
 # -----------------------------------------------------------------------------
 # Create client scopes
@@ -163,39 +173,85 @@ fi
 # -----------------------------------------------------------------------------
 log "Creating clients..."
 CLIENTS_CONFIG_FILE="$WORK_DIR/src/config/clients-config.json"
+[[ -f "$CLIENTS_CONFIG_FILE" ]] || error "clients-config.json not found."
 
-if [[ -f "$CLIENTS_CONFIG_FILE" && -f "$CLIENT_SCOPE_CONFIG_FILE" ]]; then
-  OPTIONAL_SCOPES=$(jq '[.[].name]' <<< "$CLIENT_SCOPES_CONFIG")
+OPTIONAL_SCOPES=$(jq '[.[].name]' <<< "$CLIENT_SCOPES_CONFIG")
 
-  jq -c '.[]' "$CLIENTS_CONFIG_FILE" | while read -r client; do
-    CLIENT_ID=$(echo "$client" | jq -r '.clientId')
-    
-    # Add the dynamic optional scopes to the client configuration
-    MODIFIED_CLIENT=$(echo "$client" | jq --argjson scopes "$OPTIONAL_SCOPES" '.optionalClientScopes = $scopes')
+jq -c '.[]' "$CLIENTS_CONFIG_FILE" | while read -r client; do
+  CLIENT_ID=$(echo "$client" | jq -r '.clientId')
 
-    if [[ "$CLIENT_ID" == "openid4vc-rest-api" ]]; then
-      MODIFIED_CLIENT=$(echo "$MODIFIED_CLIENT" | jq \
-        --arg CLIENT_SECRET "$CLIENTS_SECRET" \
-        --arg ISSUER_BACKEND_URL "$ISSUER_BACKEND_URL" \
-        --arg ISSUER_FRONTEND_URL "$ISSUER_FRONTEND_URL" \
-        '.secret = $CLIENT_SECRET |
-         .redirectUris += [$ISSUER_BACKEND_URL + "/*", "https://localhost:8443/callback"] |
-         .webOrigins += [$ISSUER_BACKEND_URL, "https://localhost:8443"] |
-         .attributes["post.logout.redirect.uris"] = ("##" + $ISSUER_FRONTEND_URL + "##" + $ISSUER_FRONTEND_URL + "/*")')
-    elif [[ "$CLIENT_ID" == "oid4vc-demo-public" ]]; then
-      MODIFIED_CLIENT=$(echo "$MODIFIED_CLIENT" | jq \
-        --arg TEST_CLIENT_URL "$TEST_CLIENT_URL" \
-        '.redirectUris = [$TEST_CLIENT_URL + "/*"] |
-         .webOrigins = [$TEST_CLIENT_URL] |
-         .attributes["post.logout.redirect.uris"] = ($TEST_CLIENT_URL + "##" + $TEST_CLIENT_URL + "/*")')
+  # Add the dynamic optional scopes to the client configuration
+  MODIFIED_CLIENT=$(echo "$client" | jq --argjson scopes "$OPTIONAL_SCOPES" '.optionalClientScopes = $scopes')
+
+  if [[ "$CLIENT_ID" == "openid4vc-rest-api" ]]; then
+    MODIFIED_CLIENT=$(echo "$MODIFIED_CLIENT" | jq \
+      --arg CLIENT_SECRET "$CLIENTS_SECRET" \
+      --arg ISSUER_BACKEND_URL "$ISSUER_BACKEND_URL" \
+      --arg ISSUER_FRONTEND_URL "$ISSUER_FRONTEND_URL" \
+      '.secret = $CLIENT_SECRET |
+       .redirectUris += [$ISSUER_BACKEND_URL + "/*", "https://localhost:8443/callback"] |
+       .webOrigins += [$ISSUER_BACKEND_URL, "https://localhost:8443"] |
+       .attributes["post.logout.redirect.uris"] = ("##" + $ISSUER_FRONTEND_URL + "##" + $ISSUER_FRONTEND_URL + "/*")')
+  elif [[ "$CLIENT_ID" == "oid4vc-demo-public" ]]; then
+    MODIFIED_CLIENT=$(echo "$MODIFIED_CLIENT" | jq \
+      --arg TEST_CLIENT_URL "$TEST_CLIENT_URL" \
+      '.redirectUris = [$TEST_CLIENT_URL + "/*"] |
+       .webOrigins = [$TEST_CLIENT_URL] |
+       .attributes["post.logout.redirect.uris"] = ($TEST_CLIENT_URL + "##" + $TEST_CLIENT_URL + "/*")')
+  fi
+
+  if ! echo "$MODIFIED_CLIENT" | kcadm create clients -r "$KEYCLOAK_REALM" -o -f - >/dev/null 2>&1; then
+    CLIENT_UUID=$(kcadm get clients -r "$KEYCLOAK_REALM" -q clientId="$CLIENT_ID" --fields id | jq -r '.[0].id // empty')
+    [[ -n "$CLIENT_UUID" ]] || error "Failed to create or find client '$CLIENT_ID'."
+    warn "Client '$CLIENT_ID' already exists; reconciling its credential scopes."
+  fi
+done
+
+# -----------------------------------------------------------------------------
+# Reconcile managed optional client scopes
+# -----------------------------------------------------------------------------
+# Client creation is intentionally idempotent. Keep existing clients in sync when
+# credentials.enabled changes instead of relying on optionalClientScopes from the
+# create payload, which is ignored when a client already exists.
+log "Reconciling credential scopes assigned to clients..."
+REALM_CLIENT_SCOPES=$(kcadm get client-scopes -r "$KEYCLOAK_REALM" --fields id,name)
+
+jq -r '.[].clientId' "$CLIENTS_CONFIG_FILE" | while read -r client_id; do
+  client_uuid=$(kcadm get clients -r "$KEYCLOAK_REALM" -q clientId="$client_id" --fields id | jq -r '.[0].id // empty')
+  [[ -n "$client_uuid" ]] || error "Client '$client_id' not found during scope reconciliation."
+
+  optional_scope_ids=$(kcadm get "clients/$client_uuid/optional-client-scopes" -r "$KEYCLOAK_REALM" --fields id \
+    | jq '[.[].id]')
+
+  jq -r '.[]' <<< "$MANAGED_CREDENTIALS" | while read -r credential; do
+    scope_id=$(jq -r --arg name "$credential" '.[] | select(.name == $name) | .id' <<< "$REALM_CLIENT_SCOPES" | head -n1)
+    [[ -n "$scope_id" ]] || continue
+
+    if jq -e --arg credential "$credential" 'index($credential) != null' <<< "$ENABLED_CREDENTIALS" >/dev/null; then
+      if ! jq -e --arg id "$scope_id" 'index($id) != null' <<< "$optional_scope_ids" >/dev/null; then
+        log "Assigning credential '$credential' to client '$client_id'."
+        kcadm update "clients/$client_uuid/optional-client-scopes/$scope_id" -r "$KEYCLOAK_REALM" >/dev/null || \
+          error "Failed to assign credential '$credential' to client '$client_id'."
+      fi
+    elif jq -e --arg id "$scope_id" 'index($id) != null' <<< "$optional_scope_ids" >/dev/null; then
+      log "Unassigning disabled credential '$credential' from client '$client_id'."
+      kcadm delete "clients/$client_uuid/optional-client-scopes/$scope_id" -r "$KEYCLOAK_REALM" >/dev/null || \
+        error "Failed to unassign credential '$credential' from client '$client_id'."
     fi
-
-    echo "$MODIFIED_CLIENT" | kcadm create clients -r "$KEYCLOAK_REALM" -o -f - >/dev/null 2>&1 || \
-      warn "Client '$CLIENT_ID' already exists; skipping."
   done
-else
-  warn "clients-config.json or client-scope-config.json not found; skipping client creation."
-fi
+done
+
+# Remove disabled scopes after unassigning them so they are no longer advertised
+# in issuer metadata and can be cleanly recreated if enabled again later.
+log "Removing disabled credential scopes..."
+jq -r '.[]' <<< "$DISABLED_CREDENTIALS" | while read -r credential; do
+  scope_id=$(jq -r --arg name "$credential" '.[] | select(.name == $name) | .id' <<< "$REALM_CLIENT_SCOPES" | head -n1)
+  if [[ -n "$scope_id" ]]; then
+    log "Removing disabled credential scope '$credential'."
+    kcadm delete "client-scopes/$scope_id" -r "$KEYCLOAK_REALM" >/dev/null || \
+      error "Failed to remove disabled credential scope '$credential'."
+  fi
+done
 
 # Validate OID4VCI configuration
 # -----------------------------------------------------------------------------
@@ -207,6 +263,11 @@ response=$(curl -ks "$KEYCLOAK_ADMIN_ADDR/.well-known/openid-credential-issuer/r
 jq -r '.[].name' <<< "$CLIENT_SCOPES_CONFIG" | while read -r credential; do
   jq -e --arg c "$credential" '."credential_configurations_supported"[$c]' <<< "$response" >/dev/null || \
     error "Configuration missing: '$credential' not found in OID4VCI configuration."
+done
+
+jq -r '.[]' <<< "$DISABLED_CREDENTIALS" | while read -r credential; do
+  jq -e --arg c "$credential" '."credential_configurations_supported"[$c] == null' <<< "$response" >/dev/null || \
+    error "Configuration stale: disabled credential '$credential' is still advertised."
 done
 
 success "Keycloak server is running and OID4VCI credentials are configured successfully."

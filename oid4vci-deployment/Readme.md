@@ -85,6 +85,8 @@ Our config contains many settings to configure Keycloak. The more relevant are:
 
 The sample is excluded from `credentials.enabled` by default because mDoc support is not in Keycloak 26.7.x. Use a Keycloak main/nightly build that contains the experimental `oid4vc-mdoc` feature. Enabling the sample automatically adds that feature to `KEYCLOAK_FEATURES`.
 
+Re-running `keycloak-ssi config` reconciles the managed credential scopes and their assignments on existing clients. Disabled scopes are removed so they are no longer advertised, and all enabled credentials are automatically granted to the demo user `francis`.
+
 This is an issuance/interoperability sample, not a complete ISO/IEC 18013-5 mDL profile. A production mDL must also supply the remaining mandatory data elements with their required CBOR types, including tagged dates, portrait bytes, and structured driving privileges, and must use a production document-signer certificate and trust chain.
 
 ### Run and test with Keycloak nightly
@@ -111,26 +113,7 @@ Recreate and configure the deployment so the changed feature list is applied at 
 ./keycloak-ssi.sh config
 ```
 
-Keycloak 26.7+ requires an explicit per-user grant. Grant the `MobileDrivingLicence` credential to `francis` in the Admin Console, or use the Admin REST API:
-
-```bash
-ADMIN_TOKEN=$(curl -sk \
-  -d client_id=admin-cli \
-  -d username=admin \
-  -d password=admin \
-  -d grant_type=password \
-  https://localhost:8443/realms/master/protocol/openid-connect/token | jq -r .access_token)
-
-USER_ID=$(curl -sk \
-  -H "Authorization: Bearer $ADMIN_TOKEN" \
-  'https://localhost:8443/admin/realms/oid4vc-vci/users?username=francis&exact=true' | jq -r '.[0].id')
-
-curl -ski -X POST \
-  -H "Authorization: Bearer $ADMIN_TOKEN" \
-  -H 'Content-Type: application/json' \
-  -d '{"credentialScopeName":"MobileDrivingLicence"}' \
-  "https://localhost:8443/admin/realms/oid4vc-vci/users/$USER_ID/vc/credentials"
-```
+Keycloak 26.7+ requires an explicit per-user grant. The `config` command grants every credential selected in `credentials.enabled`, including `MobileDrivingLicence`, to the demo user `francis` automatically.
 
 Verify discovery and issue the credential:
 

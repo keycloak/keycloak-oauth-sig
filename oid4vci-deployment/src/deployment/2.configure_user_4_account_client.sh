@@ -61,6 +61,32 @@ kcadm set-password -r "$KEYCLOAK_REALM" --username "$USERS_FRANCIS_NAME" --new-p
 success "Password ensured for Francis."
 
 # -----------------------------------------------------------------------------
+# Grant enabled credentials to Francis
+# -----------------------------------------------------------------------------
+# Keycloak requires an explicit per-user grant before a credential can be
+# issued. Keep the demo user synchronized with credentials.enabled so newly
+# enabled samples can be tested immediately after running `keycloak-ssi config`.
+log "Granting enabled credentials to user Francis..."
+FRANCIS_USER_ID=$(kcadm get users -r "$KEYCLOAK_REALM" -q username="$USERS_FRANCIS_NAME" --fields id | jq -r '.[0].id // empty')
+[[ -n "$FRANCIS_USER_ID" ]] || error "Could not find user Francis to grant credentials."
+
+ENABLED_CREDENTIALS=$(enabled_credentials_json)
+GRANTED_CREDENTIALS=$(kcadm get "users/$FRANCIS_USER_ID/vc/credentials" -r "$KEYCLOAK_REALM")
+
+jq -r '.[]' <<< "$ENABLED_CREDENTIALS" | while read -r credential; do
+  if jq -e --arg credential "$credential" \
+    'any(.[]; .credentialScopeName == $credential)' <<< "$GRANTED_CREDENTIALS" >/dev/null; then
+    log "Credential '$credential' is already granted to Francis."
+    continue
+  fi
+
+  jq -n --arg credential "$credential" '{credentialScopeName: $credential}' | \
+    kcadm create "users/$FRANCIS_USER_ID/vc/credentials" -r "$KEYCLOAK_REALM" -f - >/dev/null || \
+    error "Failed to grant credential '$credential' to Francis."
+  success "Credential '$credential' granted to Francis."
+done
+
+# -----------------------------------------------------------------------------
 # Conditionally assign 'credential-offer-create' realm role to Francis
 # This realm role grants permission to create credential offers.
 # Only assigned when KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE is true.
