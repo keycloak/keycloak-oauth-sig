@@ -86,12 +86,12 @@ if [[ "$DETACH_MODE" == "true" ]]; then
   LOG_FILE="$LOG_DIR/keycloak.log"
   log "Detaching Keycloak; logs will be written to $LOG_FILE"
   KC_BOOTSTRAP_ADMIN_USERNAME="$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME" KC_BOOTSTRAP_ADMIN_PASSWORD="$KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD" \
-  nohup bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=$KEYCLOAK_FEATURES" \
+  JAVA_OPTS_KC_HEAP="-Xms1g -Xmx2g" nohup bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=$KEYCLOAK_FEATURES" \
     >"$LOG_FILE" 2>&1 &
   echo "$!" >> "$LOG_DIR/keycloak.pid"
   disown || true
 else
   echo "$$" >> "$LOG_DIR/keycloak.pid"
   KC_BOOTSTRAP_ADMIN_USERNAME="$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME" KC_BOOTSTRAP_ADMIN_PASSWORD="$KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD" \
-  exec bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=$KEYCLOAK_FEATURES"
+  JAVA_OPTS_KC_HEAP="-Xms1g -Xmx2g" exec bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=$KEYCLOAK_FEATURES"
 fi

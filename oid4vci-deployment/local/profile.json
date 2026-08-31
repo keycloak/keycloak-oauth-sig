@@ -19,7 +19,7 @@
     ]
   },
   {
-    "id": "nested-presentation-during-issuance",
+    "id": "nested-presentation-during-issuance-simple",
     "displayCta": {
       "en": "Presentation during issuance"
     },
@@ -40,6 +40,47 @@
             "type": "claim_equals_user_attribute",
             "credentialClaim": "username",
             "userAttribute": "username"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "nested-presentation-during-issuance",
+    "displayCta": {
+      "en": "Presentation during issuance"
+    },
+    "credentials": [
+      {
+        "id": "pid",
+        "role": "primary",
+        "format": "mso_mdoc",
+        "identitySource": "session",
+        "credentialTypes": [
+          "eu.europa.ec.eudi.pid.1"
+        ],
+        "claims": [
+          "eu.europa.ec.eudi.pid.1/given_name",
+          "eu.europa.ec.eudi.pid.1/family_name"
+        ],
+        "trust": [
+          {
+            "type": "eudi_pid_trust_list",
+            "trustListUrl": "https://bmi.usercontent.opencode.de/eudi-wallet/test-trust-lists/pid-provider.jwt",
+            "trustListSigningCertificate": "MIICDDCCAbGgAwIBAgIUNY57W5ZMQd54F96UP0jRWWnnHCkwCgYIKoZIzj0EAwIwWzELMAkGA1UEBhMCREUxDzANBgNVBAgMBkJlcmxpbjEPMA0GA1UEBwwGQmVybGluMRQwEgYDVQQKDAtUcnVzdCBMaXN0czEUMBIGA1UEAwwLTG9URSBTaWduZXIwHhcNMjYwMzIzMTA1NzE0WhcNMzYwMzIwMTA1NzE0WjBbMQswCQYDVQQGEwJERTEPMA0GA1UECAwGQmVybGluMQ8wDQYDVQQHDAZCZXJsaW4xFDASBgNVBAoMC1RydXN0IExpc3RzMRQwEgYDVQQDDAtMb1RFIFNpZ25lcjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJI2t4NHAHvyUmWjFWWq1wRC7wWhoYsdKb//uMpdiAVeBTFlOaaC0DAppVcY94oWO2gRx4Pb5Ae6izprfTFhkSmjUzBRMB0GA1UdDgQWBBRB+dSpSYViEtAu6hNxoHPSbfcZyDAfBgNVHSMEGDAWgBRB+dSpSYViEtAu6hNxoHPSbfcZyDAPBgNVHRMBAf8EBTADAQH/MAoGCCqGSM49BAMCA0kAMEYCIQDNdv3YAVQqJvxkNHyar2TAfAgJkc83Nwni+jFyvjAjFwIhAOxJw3mCf1Mqq1lO41et3iViCUjdCbpdABXIi3JqzTN8",
+            "serviceType": "http://uri.etsi.org/19602/SvcType/PID/Issuance"
+          }
+        ],
+        "binding": [
+          {
+            "type": "claim_equals_user_attribute",
+            "credentialClaim": "eu.europa.ec.eudi.pid.1/given_name",
+            "userAttribute": "firstName"
+          },
+          {
+            "type": "claim_equals_user_attribute",
+            "credentialClaim": "eu.europa.ec.eudi.pid.1/family_name",
+            "userAttribute": "lastName"
           }
         ]
       }
