@@ -120,17 +120,42 @@ else
 fi
 
 # -----------------------------------------------------------------------------
+# Select enabled credential client scopes
+# -----------------------------------------------------------------------------
+CLIENT_SCOPE_CONFIG_FILE="$WORK_DIR/src/config/client-scope-config.json"
+[[ -f "$CLIENT_SCOPE_CONFIG_FILE" ]] || error "client-scope-config.json not found."
+
+ENABLED_CREDENTIALS=$(enabled_credentials_json)
+[[ "$(jq 'length' <<< "$ENABLED_CREDENTIALS")" -gt 0 ]] || \
+  error "credentials.enabled must contain at least one credential name."
+
+UNKNOWN_CREDENTIALS=$(jq -n \
+  --argjson enabled "$ENABLED_CREDENTIALS" \
+  --slurpfile configured "$CLIENT_SCOPE_CONFIG_FILE" \
+  '$enabled - ($configured[0] | map(.name))')
+[[ "$(jq 'length' <<< "$UNKNOWN_CREDENTIALS")" -eq 0 ]] || \
+  error "Unknown credentials in credentials.enabled: $(jq -r 'join(", ")' <<< "$UNKNOWN_CREDENTIALS")"
+
+CLIENT_SCOPES_CONFIG=$(jq \
+  --argjson enabled "$ENABLED_CREDENTIALS" \
+  --arg ISSUER_DID "$KEYCLOAK_ISSUER_DID" \
+  'map(select(.name as $name | $enabled | index($name)))
+   | map(.attributes["vc.issuer_did"] = $ISSUER_DID)' \
+  "$CLIENT_SCOPE_CONFIG_FILE")
+
+log "Enabled credentials: $(jq -r 'join(", ")' <<< "$ENABLED_CREDENTIALS")"
+
+# -----------------------------------------------------------------------------
 # Create client scopes
 # -----------------------------------------------------------------------------
 log "Creating client scopes..."
-if [[ -f "$WORK_DIR/src/config/client-scope-config.json" ]]; then
-  CLIENT_SCOPES_CONFIG=$(jq --arg ISSUER_DID "$KEYCLOAK_ISSUER_DID" 'map(.attributes["vc.issuer_did"] = $ISSUER_DID)' "$WORK_DIR/src/config/client-scope-config.json")
+if [[ -n "$CLIENT_SCOPES_CONFIG" ]]; then
   echo "$CLIENT_SCOPES_CONFIG" | jq -c '.[]' | while read -r scope; do
     echo "$scope" | kcadm create client-scopes -r "$KEYCLOAK_REALM" -f - >/dev/null 2>&1 || \
       warn "Client scope already exists; skipping."
   done
 else
-  warn "client-scope-config.json not found; skipping client scopes creation."
+  error "Could not resolve enabled credential client scopes."
 fi
 
 # -----------------------------------------------------------------------------
@@ -138,11 +163,9 @@ fi
 # -----------------------------------------------------------------------------
 log "Creating clients..."
 CLIENTS_CONFIG_FILE="$WORK_DIR/src/config/clients-config.json"
-CLIENT_SCOPE_CONFIG_FILE="$WORK_DIR/src/config/client-scope-config.json"
 
 if [[ -f "$CLIENTS_CONFIG_FILE" && -f "$CLIENT_SCOPE_CONFIG_FILE" ]]; then
-  # Dynamically get all scope names from client-scope-config.json
-  OPTIONAL_SCOPES=$(jq '[.[].name]' "$CLIENT_SCOPE_CONFIG_FILE")
+  OPTIONAL_SCOPES=$(jq '[.[].name]' <<< "$CLIENT_SCOPES_CONFIG")
 
   jq -c '.[]' "$CLIENTS_CONFIG_FILE" | while read -r client; do
     CLIENT_ID=$(echo "$client" | jq -r '.clientId')
@@ -180,8 +203,8 @@ log "Validating OID4VCI configuration..."
 response=$(curl -ks "$KEYCLOAK_ADMIN_ADDR/.well-known/openid-credential-issuer/realms/$KEYCLOAK_REALM")
 [[ -z "$response" ]] && error "No response from Keycloak OIDC credential issuer endpoint."
 
-# Dynamically validate all credentials from the configuration file
-jq -r '.[].name' "$CLIENT_SCOPE_CONFIG_FILE" | while read -r credential; do
+# Validate only credentials selected in credentials.enabled.
+jq -r '.[].name' <<< "$CLIENT_SCOPES_CONFIG" | while read -r credential; do
   jq -e --arg c "$credential" '."credential_configurations_supported"[$c]' <<< "$response" >/dev/null || \
     error "Configuration missing: '$credential' not found in OID4VCI configuration."
 done

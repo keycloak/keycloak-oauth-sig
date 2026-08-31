@@ -13,3 +13,7 @@
 # database:
 #   password: "${PROD_DB_PASSWORD}"
 #   username: "${PROD_DB_USER}"
+
+# Example: Enable the experimental mDoc sample on a Keycloak main/nightly build
+# credentials:
+#   enabled: "IdentityCredential,SteuerberaterCredential,KMACredential,MobileDrivingLicence"

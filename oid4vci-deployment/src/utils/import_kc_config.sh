@@ -36,16 +36,37 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Create temporary JSON file with conditional realmRoles
+# Create temporary JSON with conditional roles and enabled credentials
 # ---------------------------------------------------------------------------
 TEMP_CONFIG_FILE="$WORK_DIR/temp-keycloak-config.json"
 if [[ "$KEYCLOAK_ENABLE_CREDENTIAL_OFFER_CREATE" == "true" ]]; then
-    log "Creating temporary config with credential-offer-create role..."
-    jq '.users[0].realmRoles = ["credential-offer-create"]' "$CLI_REALM_FILE" > "$TEMP_CONFIG_FILE"
+    REALM_ROLES='["credential-offer-create"]'
 else
-    log "Creating temporary config without credential-offer-create role..."
-    jq '.users[0].realmRoles = []' "$CLI_REALM_FILE" > "$TEMP_CONFIG_FILE"
+    REALM_ROLES='[]'
 fi
+
+ENABLED_CREDENTIALS=$(enabled_credentials_json)
+[[ "$(jq 'length' <<< "$ENABLED_CREDENTIALS")" -gt 0 ]] || \
+    error "credentials.enabled must contain at least one credential name."
+
+UNKNOWN_CREDENTIALS=$(jq -n \
+    --argjson enabled "$ENABLED_CREDENTIALS" \
+    --slurpfile realm "$CLI_REALM_FILE" \
+    '$enabled - ($realm[0].clientScopes | map(.name))')
+[[ "$(jq 'length' <<< "$UNKNOWN_CREDENTIALS")" -eq 0 ]] || \
+    error "Unknown credentials in credentials.enabled: $(jq -r 'join(", ")' <<< "$UNKNOWN_CREDENTIALS")"
+
+log "Creating temporary config for credentials: $(jq -r 'join(", ")' <<< "$ENABLED_CREDENTIALS")"
+jq \
+    --argjson realm_roles "$REALM_ROLES" \
+    --argjson enabled "$ENABLED_CREDENTIALS" '
+    .users[0].realmRoles = $realm_roles
+    | .clientScopes |= map(select(.name as $name | $enabled | index($name)))
+    | .clients |= map(
+        .optionalClientScopes = ((.optionalClientScopes // [])
+            | map(select(. as $name | $enabled | index($name))))
+      )
+    ' "$CLI_REALM_FILE" > "$TEMP_CONFIG_FILE"
 
 # ---------------------------------------------------------------------------
 # Run CLI JAR to import realm configuration
