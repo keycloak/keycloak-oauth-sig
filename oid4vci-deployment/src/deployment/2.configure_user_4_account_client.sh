@@ -60,11 +60,16 @@ FRANCIS_USER_ID=$(kcadm get users -r "$KEYCLOAK_REALM" -q username="$USERS_FRANC
 
 # -----------------------------------------------------------------------------
 # Grant verifiable credentials (Keycloak 26.7+ only)
-# Skips SNAPSHOT builds since feature availability is unknown.
+# Query the running server, not config — KEYCLOAK_VERSION (tarball) and
+# KEYCLOAK_IMAGE_TAG (docker) are independent and may diverge.
 # -----------------------------------------------------------------------------
 KC_MAJOR_MINOR=""
-if [[ -n "${KEYCLOAK_VERSION:-}" ]] && [[ "$KEYCLOAK_VERSION" != *"SNAPSHOT"* ]]; then
-  if [[ "$KEYCLOAK_VERSION" =~ ^([0-9]+)\.([0-9]+) ]]; then
+KC_VERSION_RAW=""
+
+KC_VERSION_RAW=$(kcadm get serverinfo 2>/dev/null | jq -r '.systemInfo.version // empty' 2>/dev/null) || KC_VERSION_RAW=""
+
+if [[ -n "$KC_VERSION_RAW" ]] && [[ "$KC_VERSION_RAW" != *"SNAPSHOT"* ]]; then
+  if [[ "$KC_VERSION_RAW" =~ ^([0-9]+)\.([0-9]+) ]]; then
     KC_MAJOR_MINOR="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}"
   fi
 fi
@@ -79,7 +84,7 @@ kc_version_gte() {
 }
 
 if [[ -n "$KC_MAJOR_MINOR" ]] && kc_version_gte "26.7" "$KC_MAJOR_MINOR"; then
-  log "Keycloak $KEYCLOAK_VERSION (>= 26.7). Granting verifiable credentials..."
+  log "Keycloak $KC_VERSION_RAW (>= 26.7). Granting verifiable credentials..."
 
   CONFIG_FILE="$WORK_DIR/config.yaml"
   OVERRIDE_FILE="$WORK_DIR/config.override.yaml"
@@ -95,6 +100,7 @@ if [[ -n "$KC_MAJOR_MINOR" ]] && kc_version_gte "26.7" "$KC_MAJOR_MINOR"; then
       yq eval-all '
         . as $item ireduce ({}; . * $item)
         | .users.francis.credential_scopes // []
+        | map(envsubst)
         | .[]
       ' "${YQ_ARGS[@]}" 2>/dev/null
     )
@@ -104,10 +110,10 @@ if [[ -n "$KC_MAJOR_MINOR" ]] && kc_version_gte "26.7" "$KC_MAJOR_MINOR"; then
     ADMIN_TOKEN=$(\
       curl -k -s --fail-with-body -X POST \
         "$KEYCLOAK_ADMIN_ADDR/realms/master/protocol/openid-connect/token" \
-        -d "client_id=admin-cli" \
-        -d "username=$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME" \
-        -d "password=$KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD" \
-        -d "grant_type=password" |
+        --data-urlencode "client_id=admin-cli" \
+        --data-urlencode "username=$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME" \
+        --data-urlencode "password=$KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD" \
+        --data-urlencode "grant_type=password" |
       jq -er '.access_token'
     ) || ADMIN_TOKEN=""
 
@@ -134,12 +140,12 @@ if [[ -n "$KC_MAJOR_MINOR" ]] && kc_version_gte "26.7" "$KC_MAJOR_MINOR"; then
     warn "No credential_scopes configured for user '$USERS_FRANCIS_NAME'."
   fi
 else
-  if [[ "${KEYCLOAK_VERSION:-}" == *"SNAPSHOT"* ]]; then
-    warn "SNAPSHOT build ($KEYCLOAK_VERSION); skipping credential grants (feature availability unknown)."
+  if [[ -n "$KC_VERSION_RAW" ]] && [[ "$KC_VERSION_RAW" == *"SNAPSHOT"* ]]; then
+    warn "SNAPSHOT build ($KC_VERSION_RAW); skipping credential grants (feature availability unknown)."
   elif [[ -z "$KC_MAJOR_MINOR" ]]; then
-    warn "Could not determine Keycloak version from '${KEYCLOAK_VERSION:-unknown}'; skipping credential grants."
+    warn "Could not determine Keycloak server version; skipping credential grants."
   else
-    warn "Keycloak $KEYCLOAK_VERSION < 26.7; skipping credential grants."
+    warn "Keycloak $KC_VERSION_RAW < 26.7; skipping credential grants."
   fi
 fi
 
