@@ -77,6 +77,11 @@ users:
     name: "francis"
     # Test user password
     password: "francis"
+    # Verifiable credential scopes to grant this user (Keycloak 26.7+ required)
+    credential_scopes:
+      - "IdentityCredential"
+      - "SteuerberaterCredential"
+      - "KMACredential"
     # Francis test keystore
     keystore:
       path: "${PROJECT_TARGET_DIR}/francis_kc_keystore.pkcs12"
