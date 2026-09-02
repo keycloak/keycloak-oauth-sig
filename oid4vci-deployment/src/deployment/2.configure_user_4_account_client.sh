@@ -118,7 +118,7 @@ if [[ -n "$KC_MAJOR_MINOR" ]] && kc_version_gte "26.7" "$KC_MAJOR_MINOR"; then
     ) || ADMIN_TOKEN=""
 
     if [[ -z "$ADMIN_TOKEN" ]]; then
-      warn "Failed to obtain admin token for credential grants."
+      error "Failed to obtain admin token for credential grants."
     else
       for scope in "${CREDENTIAL_SCOPES[@]}"; do
         log "Granting credential scope '$scope' to '$USERS_FRANCIS_NAME'..."
