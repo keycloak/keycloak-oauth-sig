@@ -6,7 +6,7 @@ Bring OpenID for Verifiable Credential Issuance (OID4VCI) to a vanilla Keycloak 
 
 - Opinionated Keycloak instance (Postgres + HTTPS) with the `oid4vc-vci` feature enabled.
 - `keycloak-ssi` CLI that wraps every script under `src/` and handles configuration, setup, and testing.
-- Ready-made credential definitions (IdentityCredential, SteuerberaterCredential, KMACredential) and a demo user for both pre-authorized and authorization-code flows.
+- Ready-made credential definitions (IdentityCredential, SteuerberaterCredential, KMACredential, MobileDrivingLicence), selected through `credentials.enabled`, and a demo user for both pre-authorized and authorization-code flows.
 
 ## TL;DR
 
@@ -73,6 +73,7 @@ Our config contains many settings to configure Keycloak. The more relevant are:
 - `keycloak.https_port`, `keycloak.hostname`: align with your local HTTPS requirements.
 - `database.*`: container DB parameters such as port, username, password.
 - `users.*`: Users that will be added to keycloak.
+- `credentials.enabled`: comma-separated credential client scopes to configure. The default contains the three release-compatible SD-JWT credentials and excludes the experimental mDoc sample.
 
 ## Credential Request Playbooks
 

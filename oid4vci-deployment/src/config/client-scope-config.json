@@ -469,5 +469,62 @@
         }
       }
     ]
+  },
+  {
+    "name": "MobileDrivingLicence",
+    "protocol": "oid4vc",
+    "attributes": {
+      "include.in.token.scope": "true",
+      "vc.credential_configuration_id": "MobileDrivingLicence",
+      "vc.credential_identifier": "MobileDrivingLicence",
+      "vc.format": "mso_mdoc",
+      "vc.expiry_in_seconds": "31536000",
+      "vc.verifiable_credential_type": "org.iso.18013.5.1.mDL",
+      "vc.cryptographic_binding_methods_supported": "cose_key",
+      "vc.credential_signing_alg": "ES256",
+      "vc.display": "[{\"locale\":\"en-US\",\"name\":\"Mobile Driving Licence\"}]",
+      "vc.issuer_did": "",
+      "vc.include_in_metadata": "true",
+      "vc.binding_required": "true",
+      "vc.binding_required_proof_types": "jwt"
+    },
+    "protocolMappers": [
+      {
+        "name": "given-name-mapper-mdoc",
+        "protocol": "oid4vc",
+        "protocolMapper": "oid4vc-user-attribute-mapper",
+        "config": {
+          "claim.name": "given_name",
+          "userAttribute": "firstName",
+          "mdoc.namespace": "org.iso.18013.5.1",
+          "vc.mandatory": "true",
+          "vc.display": "[{\"locale\":\"en-US\",\"name\":\"Given Name\"}]"
+        }
+      },
+      {
+        "name": "family-name-mapper-mdoc",
+        "protocol": "oid4vc",
+        "protocolMapper": "oid4vc-user-attribute-mapper",
+        "config": {
+          "claim.name": "family_name",
+          "userAttribute": "lastName",
+          "mdoc.namespace": "org.iso.18013.5.1",
+          "vc.mandatory": "true",
+          "vc.display": "[{\"locale\":\"en-US\",\"name\":\"Family Name\"}]"
+        }
+      },
+      {
+        "name": "document-number-mapper-mdoc",
+        "protocol": "oid4vc",
+        "protocolMapper": "oid4vc-static-claim-mapper",
+        "config": {
+          "claim.name": "document_number",
+          "staticValue": "D1234567",
+          "mdoc.namespace": "org.iso.18013.5.1",
+          "vc.mandatory": "true",
+          "vc.display": "[{\"locale\":\"en-US\",\"name\":\"Document Number\"}]"
+        }
+      }
+    ]
   }
 ]
