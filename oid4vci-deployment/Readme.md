@@ -6,7 +6,7 @@ Bring OpenID for Verifiable Credential Issuance (OID4VCI) to a vanilla Keycloak 
 
 - Opinionated Keycloak instance (Postgres + HTTPS) with the `oid4vc-vci` feature enabled.
 - `keycloak-ssi` CLI that wraps every script under `src/` and handles configuration, setup, and testing.
-- Ready-made credential definitions (IdentityCredential, SteuerberaterCredential, KMACredential), an opt-in mDoc sample, and a demo user for both pre-authorized and authorization-code flows.
+- Ready-made credential definitions (IdentityCredential, SteuerberaterCredential, KMACredential, MobileDrivingLicence), selected through `credentials.enabled`, and a demo user for both pre-authorized and authorization-code flows.
 
 ## TL;DR
 
@@ -74,59 +74,6 @@ Our config contains many settings to configure Keycloak. The more relevant are:
 - `database.*`: container DB parameters such as port, username, password.
 - `users.*`: Users that will be added to keycloak.
 - `credentials.enabled`: comma-separated credential client scopes to configure. The default contains the three release-compatible SD-JWT credentials and excludes the experimental mDoc sample.
-
-## Experimental mDoc Sample
-
-`MobileDrivingLicence` demonstrates an `mso_mdoc` credential using:
-
-- DocType `org.iso.18013.5.1.mDL` and namespace `org.iso.18013.5.1`.
-- `ES256` issuer signing, `cose_key` holder binding, and JWT proof of possession.
-- The demo user's `firstName` and `lastName` as `given_name` and `family_name`, plus the static specimen document number `D1234567`.
-
-The sample is excluded from `credentials.enabled` by default because mDoc support is not in Keycloak 26.7.x. Use a Keycloak main/nightly build that contains the experimental `oid4vc-mdoc` feature. Enabling the sample automatically adds that feature to `KEYCLOAK_FEATURES`.
-
-Re-running `keycloak-ssi config` reconciles the managed credential scopes and their assignments on existing clients. Disabled scopes are removed so they are no longer advertised, and all enabled credentials are automatically granted to the demo user `francis`.
-
-This is an issuance/interoperability sample, not a complete ISO/IEC 18013-5 mDL profile. A production mDL must also supply the remaining mandatory data elements with their required CBOR types, including tagged dates, portrait bytes, and structured driving privileges, and must use a production document-signer certificate and trust chain.
-
-### Run and test with Keycloak nightly
-
-Create `config.override.yaml` next to `config.yaml`:
-
-```yaml
-keycloak:
-  enable_preauth_code: true
-  enable_credential_offer_create: true
-  enable_rest_credential_offer: true
-
-keycloak_image:
-  tag: "nightly"
-
-credentials:
-  enabled: "IdentityCredential,SteuerberaterCredential,KMACredential,MobileDrivingLicence"
-```
-
-Recreate and configure the deployment so the changed feature list is applied at server startup:
-
-```bash
-./keycloak-ssi.sh compose up -d --force-recreate
-./keycloak-ssi.sh config
-```
-
-Keycloak 26.7+ requires an explicit per-user grant. The `config` command grants every credential selected in `credentials.enabled`, including `MobileDrivingLicence`, to the demo user `francis` automatically.
-
-Verify discovery and issue the credential:
-
-```bash
-curl -sk \
-  https://localhost:8443/.well-known/openid-credential-issuer/realms/oid4vc-vci \
-  | jq '.credential_configurations_supported.MobileDrivingLicence'
-
-./keycloak-ssi.sh test preauth MobileDrivingLicence
-./keycloak-ssi.sh test authcode MobileDrivingLicence
-```
-
-The discovery entry should report `format: "mso_mdoc"`, DocType `org.iso.18013.5.1.mDL`, `cose_key` binding, and ES256 (COSE algorithm `-7`). The issuance response contains the base64url-encoded CBOR `IssuerSigned` document in its `credential` value.
 
 ## Credential Request Playbooks
 

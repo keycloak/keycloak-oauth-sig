@@ -165,7 +165,7 @@ if [[ -n "$CLIENT_SCOPES_CONFIG" ]]; then
       warn "Client scope already exists; skipping."
   done
 else
-  error "Could not resolve enabled credential client scopes."
+  error "Could not create enabled credential client scopes."
 fi
 
 # -----------------------------------------------------------------------------
