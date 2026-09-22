@@ -67,6 +67,19 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Inject truststores
+# ---------------------------------------------------------------------------
+log "Injecting Keycloak truststores..."
+
+if [ -d "$WORK_DIR/truststores" ] && ls "$WORK_DIR/truststores"/*.pem 1> /dev/null 2>&1; then
+  echo "Injecting Keycloak truststores..."
+  mkdir -p "$KEYCLOAK_INSTALL_DIR/conf/truststores"
+  cp "$WORK_DIR/truststores/"*.pem "$KEYCLOAK_INSTALL_DIR/conf/truststores"
+else
+  echo "No truststores folder found at $WORK_DIR/truststores — skipping injection."
+fi
+
+# ---------------------------------------------------------------------------
 # Start Keycloak (foreground by default; '-d' to detach and log to file)
 # ---------------------------------------------------------------------------
 
@@ -86,12 +99,12 @@ if [[ "$DETACH_MODE" == "true" ]]; then
   LOG_FILE="$LOG_DIR/keycloak.log"
   log "Detaching Keycloak; logs will be written to $LOG_FILE"
   KC_BOOTSTRAP_ADMIN_USERNAME="$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME" KC_BOOTSTRAP_ADMIN_PASSWORD="$KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD" \
-  JAVA_OPTS_KC_HEAP="-Xms1g -Xmx2g" nohup bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=$KEYCLOAK_FEATURES" \
+  nohup bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=$KEYCLOAK_FEATURES" \
     >"$LOG_FILE" 2>&1 &
   echo "$!" >> "$LOG_DIR/keycloak.pid"
   disown || true
 else
   echo "$$" >> "$LOG_DIR/keycloak.pid"
   KC_BOOTSTRAP_ADMIN_USERNAME="$KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME" KC_BOOTSTRAP_ADMIN_PASSWORD="$KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD" \
-  JAVA_OPTS_KC_HEAP="-Xms1g -Xmx2g" exec bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=$KEYCLOAK_FEATURES"
+  exec bash -c "exec bin/kc.sh $START_COMMAND $DATABASE_OPTS --features=$KEYCLOAK_FEATURES"
 fi
