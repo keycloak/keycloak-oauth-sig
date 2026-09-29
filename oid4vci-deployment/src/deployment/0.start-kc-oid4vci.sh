@@ -80,6 +80,21 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Inject keystores
+# ---------------------------------------------------------------------------
+log "Injecting Keycloak keystores..."
+
+if [ -d "$WORK_DIR/keystores" ] && find "$WORK_DIR/keystores" -mindepth 1 -type d -print -quit 2>/dev/null | grep -q .; then
+  echo "Injecting Keycloak keystores..."
+  mkdir -p "$KEYCLOAK_INSTALL_DIR/data"
+  for dir in "$WORK_DIR/keystores"/*/; do
+    [ -d "$dir" ] && cp -r "$dir" "$KEYCLOAK_INSTALL_DIR/data"
+  done
+else
+  echo "No keystores folder found at $WORK_DIR/keystores — skipping injection."
+fi
+
+# ---------------------------------------------------------------------------
 # Start Keycloak (foreground by default; '-d' to detach and log to file)
 # ---------------------------------------------------------------------------
 
