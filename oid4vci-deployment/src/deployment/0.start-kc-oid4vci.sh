@@ -67,6 +67,34 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Inject truststores
+# ---------------------------------------------------------------------------
+log "Injecting Keycloak truststores..."
+
+if [ -d "$WORK_DIR/truststores" ] && ls "$WORK_DIR/truststores"/*.pem 1> /dev/null 2>&1; then
+  echo "Injecting Keycloak truststores..."
+  mkdir -p "$KEYCLOAK_INSTALL_DIR/conf/truststores"
+  cp "$WORK_DIR/truststores/"*.pem "$KEYCLOAK_INSTALL_DIR/conf/truststores"
+else
+  echo "No truststores folder found at $WORK_DIR/truststores — skipping injection."
+fi
+
+# ---------------------------------------------------------------------------
+# Inject keystores
+# ---------------------------------------------------------------------------
+log "Injecting Keycloak keystores..."
+
+if [ -d "$WORK_DIR/keystores" ] && find "$WORK_DIR/keystores" -mindepth 1 -type d -print -quit 2>/dev/null | grep -q .; then
+  echo "Injecting Keycloak keystores..."
+  mkdir -p "$KEYCLOAK_INSTALL_DIR/data"
+  for dir in "$WORK_DIR/keystores"/*/; do
+    [ -d "$dir" ] && cp -r "$dir" "$KEYCLOAK_INSTALL_DIR/data"
+  done
+else
+  echo "No keystores folder found at $WORK_DIR/keystores — skipping injection."
+fi
+
+# ---------------------------------------------------------------------------
 # Start Keycloak (foreground by default; '-d' to detach and log to file)
 # ---------------------------------------------------------------------------
 

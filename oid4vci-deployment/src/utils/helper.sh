@@ -423,10 +423,8 @@ get_keycloak_pid() {
         local saved_pid
         while IFS= read -r saved_pid || [[ -n "$saved_pid" ]]; do
             [[ -z "$saved_pid" ]] && continue
-            if kill -0 "$saved_pid" 2>/dev/null; then
-                echo "$saved_pid"
-                found=true
-            fi
+            echo "$saved_pid"
+            found=true
         done < "$pid_file"
         if [[ "$found" == "true" ]]; then
             return 0
@@ -453,7 +451,7 @@ stop_keycloak() {
         stopped=true
         log "Keycloak instance found (PID: $keycloak_pid). Shutting it down..."
         if ! kill "$keycloak_pid"; then
-            return 1
+            break
         fi
         # Wait for process to terminate
         sleep 2

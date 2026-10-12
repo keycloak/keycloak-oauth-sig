@@ -2,7 +2,7 @@
   {
     "clientId": "oid4vc-demo-public",
     "enabled": true,
-    "redirectUris": [],
+    "redirectUris": [ "https://oauthdebugger.com/*" ],
     "webOrigins": [],
     "publicClient": true,
     "frontchannelLogout": true,

@@ -195,7 +195,7 @@ jq -c '.[]' "$CLIENTS_CONFIG_FILE" | while read -r client; do
   elif [[ "$CLIENT_ID" == "oid4vc-demo-public" ]]; then
     MODIFIED_CLIENT=$(echo "$MODIFIED_CLIENT" | jq \
       --arg TEST_CLIENT_URL "$TEST_CLIENT_URL" \
-      '.redirectUris = [$TEST_CLIENT_URL + "/*"] |
+      '.redirectUris = (.redirectUris // []) + [$TEST_CLIENT_URL + "/*"] |
        .webOrigins = [$TEST_CLIENT_URL] |
        .attributes["post.logout.redirect.uris"] = ($TEST_CLIENT_URL + "##" + $TEST_CLIENT_URL + "/*")')
   fi
