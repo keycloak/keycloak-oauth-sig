@@ -3,11 +3,13 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # -----------------------------------------------------------------------------
-# Realm PKCS12 keystore. ecdsa_key is signed by a local CA. A self-signed
-# ecdsa_key keeps its private key. A certificate that is not self-signed stays.
+# Realm PKCS12 keystore. Fresh and migrated self-signed entries use the local CA.
+# Migration preserves the existing private key. An existing certificate that is
+# not self-signed stays unchanged.
 # -----------------------------------------------------------------------------
 
-# WORK_DIR is set by the CLI. Skip init when the caller already set KEYSTORE_PATH.
+# Setup loads the helper and configuration before sourcing this script.
+# Initialization runs here only when configuration has not already been loaded.
 if [[ -z "${_CONFIGURATION_LOADED:-}" ]]; then
     source "$WORK_DIR/src/utils/helper.sh"
     init_script

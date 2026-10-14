@@ -561,7 +561,7 @@ ensure_keycloak_crypto_materials() {
     local keystore_cache="$WORK_DIR/src/utils/crypto/$ks_file"
 
     if [[ -f "$keystore_cache" ]]; then
-        log "Checking keystore $keystore_cache..."
+        log "Loading cached keystore for ecdsa_key validation and migration"
         cp "$keystore_cache" "$KEYSTORE_PATH"
     fi
     source "$WORK_DIR/src/utils/crypto/generate_keystore.sh" || error "Failed to generate keystore."
