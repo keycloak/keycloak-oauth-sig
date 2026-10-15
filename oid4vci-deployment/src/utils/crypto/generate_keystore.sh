@@ -40,33 +40,14 @@ inspect_ecdsa_leaf() {
     local work="$2"
     openssl pkcs12 -in "$p12" -nokeys -clcerts \
         -passin "pass:${KEYSTORE_PASSWORD}" -out "$work/leaf.crt" >/dev/null 2>&1 || return 1
-    cat > "$work/LeafSelfSigned.java" << 'EOF'
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.InvalidKeyException;
-import java.security.SignatureException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-
-public class LeafSelfSigned {
-    public static void main(String[] args) throws Exception {
-        X509Certificate certificate = (X509Certificate) CertificateFactory.getInstance("X.509")
-                .generateCertificate(Files.newInputStream(Path.of(args[0])));
-        if (!certificate.getSubjectX500Principal().equals(certificate.getIssuerX500Principal())) {
-            System.out.println("false");
-            return;
-        }
-        try {
-            certificate.verify(certificate.getPublicKey());
-            System.out.println("true");
-        } catch (SignatureException | InvalidKeyException e) {
-            System.out.println("false");
-        }
-    }
-}
-EOF
-    java "$work/LeafSelfSigned.java" "$work/leaf.crt" > "$work/result" || return 1
-    ECDSA_LEAF_SELF_SIGNED="$(<"$work/result")"
+    # -check_ss_sig rejects a matching name signed by a different key.
+    # -no_check_time still treats an expired self-signed certificate as self-signed.
+    if openssl verify -check_ss_sig -no_check_time \
+        -CAfile "$work/leaf.crt" "$work/leaf.crt" >/dev/null 2>&1; then
+        ECDSA_LEAF_SELF_SIGNED=true
+    else
+        ECDSA_LEAF_SELF_SIGNED=false
+    fi
 }
 
 ensure_local_issuance_ca() {
