@@ -45,7 +45,7 @@ The following options can be set as environment variables before the above comma
     * Set to false to stop conformance-suite tests automatically running
 * `MVN_HOME` (default: ~/.m2)
     * Set to use a custom maven home path
-* `OPENID_GIT_TAG` (default: release-v4.1.41)
+* `OPENID_GIT_TAG` (default: release-v5.3.4)
     * The OpenID Conformance Suite Git Tag to be cloned    
 
 
@@ -227,10 +227,10 @@ the following lines in ./docker-compose.yml
 
 ## Custom files in the conformance suite
 
-The conformance-suite folder within this repository is a local copy of OpenIds FAPI conformance suite (https://gitlab.com/openid/conformance-suite/).
-Incorporating the suite and running the conformance tests within docker-compose requires adding custom files into the base OpenId FAPI conformance suite.
+The conformance-suite image is built from the OpenID FAPI conformance suite (https://gitlab.com/openid/conformance-suite/), pinned by `OPENID_GIT_TAG` (currently `release-v5.3.4`).
+Incorporating the suite and running the conformance tests within docker-compose requires adding custom files into the base OpenID FAPI conformance suite. The local `run-tests.sh` intentionally replaces the upstream script to retain this repository's custom test plans; it follows the upstream suite-root path handling and expected-failure file layout.
 Below is a list of the custom files currently used by the base conformance-suite.
-* /conformance-suite/run-tests.sh
+* /conformance-suite/.gitlab-ci/run-tests.sh
   * Script for running / creating test plans
 * /conformance-suite/Dockerfile
   * Dockerfile which installs python dependencies, exposes ports and kicks off building the project via the server-entrypoint script 
@@ -314,15 +314,13 @@ KEYCLOAK_REALM_IMPORT_FILENAME=realm-of-br-fapi1-advanced.json docker-compose -p
 
 |Conformance Profile|Test Plan|client_auth_type|fapi_profile|fapi_response_mode|fapi_auth_request_method|TEST_PLAN|
 |-------------------|---------|----------------|------------|------------------|------------------------|---------|
-|AU-CDR Adv. OP w/ Private Key|fapi1-advanced-final-test-plan|private_key_jwt|consumerdataright_au|plain_response|by_value|--fapi-aus-cdr|
-|AU-CDR Adv. OP w/ Private Key, PAR|fapi1-advanced-final-test-plan|private_key_jwt|consumerdataright_au|plain_response|pushed|--fapi-aus-cdr-par|
 |AU-CDR Adv. OP w/ Private Key, PAR, JARM|fapi1-advanced-final-test-plan|private_key_jwt|consumerdataright_au|jarm|pushed|--fapi-aus-cdr-par-jarm|
 
 Note: If you run this tests, please use `realm-fapi-aus-cdr.json` realm setting file like:
 ```
 KEYCLOAK_REALM_IMPORT_FILENAME=realm-fapi-aus-cdr.json docker-compose -p keycloak-fapi -f docker-compose.yml up --build
 ```
-According to [Australia CDR security profile specification](https://consumerdatastandardsaustralia.github.io/standards/#authentication-flows), From May 12th 2025, JARM is mandatory, and tt seems that the conformance suite from v5.1.33 only accepts the "AU-CDR Adv. OP w/ Private Key, PAR, JARM" conformance profile while the current Conformance Test Execution Platform can run the "AU-CDR Adv. OP w/ Private Key" and "AU-CDR Adv. OP w/ Private Key, PAR" conformance profile tests. Therfore, from the conformance suite version v5.1.33, it only tests "AU-CDR Adv. OP w/ Private Key, PAR, JARM" conformance profile.
+The conformance suite requires PAR and JARM for AU-CDR. The `--fapi-aus-cdr` and `--fapi-aus-cdr-par` selectors are retained as aliases for `--fapi-aus-cdr-par-jarm`.
 
 **UK Open Banking (Based on FAPI 1 Advanced Final)**
 
@@ -563,4 +561,3 @@ JSON configuration files for test plans should be created in /conformance-suite/
 ## License
 
 * [Apache License, Version 2.0](./LICENSE)
-
