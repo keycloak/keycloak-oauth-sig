@@ -1,5 +1,4 @@
 {
-    "alias": "keycloak",
     "description": "[Automated]OpenID Connect Core: 3rd party initiated login Certification Profile (response_type:code id_token)",
     "server": {
         "discoveryUrl": "https://as.keycloak-fapi.org/auth/realms/test/.well-known/openid-configuration"
@@ -46,7 +45,7 @@
                 },
                 {
                     "task": "Verify Complete",
-                    "match": "https://*/test/a/keycloak/callback*",
+                    "match": "https://*/test/*/callback*",
                     "optional": true,
                     "commands": [
                         [

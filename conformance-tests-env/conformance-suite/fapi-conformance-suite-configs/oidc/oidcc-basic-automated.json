@@ -1,5 +1,5 @@
 {
-    "alias": "keycloak",
+    "alias": "keycloak-oidcc-basic",
     "description": "[Automated]OpenID Connect Core: Basic Certification Profile (server_metadata:discovery/client_registration:static_client)",
     "server": {
         "discoveryUrl": "https://as.keycloak-fapi.org/auth/realms/test/.well-known/openid-configuration",
@@ -59,7 +59,7 @@
                 },
                 {
                     "task": "Verify Complete",
-                    "match": "https://*/test/a/keycloak/callback*",
+                    "match": "https://*/test/a/keycloak-oidcc-basic/callback*",
                     "optional": true,
                     "commands": [
                         [
@@ -143,7 +143,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://*/test/a/keycloak/callback*",
+                            "match": "https://*/test/a/keycloak-oidcc-basic/callback*",
                             "optional": true,
                             "commands": [
                                 [
@@ -227,7 +227,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://*/test/a/keycloak/callback*",
+                            "match": "https://*/test/a/keycloak-oidcc-basic/callback*",
                             "optional": true,
                             "commands": [
                                 [

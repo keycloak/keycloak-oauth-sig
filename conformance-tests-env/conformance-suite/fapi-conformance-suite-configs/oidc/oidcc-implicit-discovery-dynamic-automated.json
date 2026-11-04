@@ -1,5 +1,4 @@
 {
-    "alias": "keycloak",
     "description": "[Automated] OpenID Connect Core: Implicit Certification Profile (server_metadata:discovery/client_registration:dynamic_client)",
     "server": {
         "discoveryUrl": "https://as.keycloak-fapi.org/auth/realms/test/.well-known/openid-configuration",
@@ -47,7 +46,7 @@
                 },
                 {
                     "task": "Verify Complete",
-                    "match": "https://*/test/a/keycloak/callback*",
+                    "match": "https://*/test/*/callback*",
                     "optional": true,
                     "commands": [
                         [
@@ -131,7 +130,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://*/test/a/keycloak/callback*",
+                            "match": "https://*/test/*/callback*",
                             "optional": true,
                             "commands": [
                                 [
@@ -215,7 +214,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://*/test/a/keycloak/callback*",
+                            "match": "https://*/test/*/callback*",
                             "optional": true,
                             "commands": [
                                 [
