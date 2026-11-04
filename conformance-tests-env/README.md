@@ -533,8 +533,9 @@ Due to the nature of conformance suite, the following tests cannot be passed aut
 ##### PAR attempt with request_uri reuse
 
   * fapi1-advanced-final-par-attempt-reuse-request_uri
-  * fapi2-advanced-id2-par-attempt-reuse-request_uri
-  * fapi2-advanced-final-par-attempt-reuse-request_uri
+  * fapi2-security-profile-id2-par-attempt-reuse-request_uri
+
+`fapi2-security-profile-final-par-attempt-reuse-request_uri` is run automatically: the scripted browser logs in for the first authorization request (`match-limit: 1`), then captures Keycloak's "Invalid Request" error page for the second authorization request reusing the same `request_uri` and uploads it as the error screenshot.
 
 ##### Server Signing Key Rotation
 
@@ -544,14 +545,9 @@ Due to the nature of conformance suite, the following tests cannot be passed aut
 
 ##### FAPI2 Final PAR request reuse check with multiple authorization flow in parallel
 
-  * fapi2-security-profile-final-par-ensure-reused-request-uri-prior-to-auth-completion-succeeds
+`fapi2-security-profile-final-par-ensure-reused-request-uri-prior-to-auth-completion-succeeds` is run automatically: the scripted browser only opens the login page on the first visit to the authorization endpoint (`match-limit: 1`), then logs in on the second visit with the same `request_uri`. If Keycloak shows a "PAR not found" error page on the second visit instead, the scripted browser uploads it as the error screenshot.
 
-The following actions need to be taken manually:
-  - When the "Proceed with test" button is shown firstly, push it to open the Keycloak's login page as a new tab, but do nothing.
-  - Consecutively, when the "Proceed with test" button is shown secondly, push it, which shows an error page as a new tab.
-  - Take the snapshot of the error page, and upload it to the conformance suite server.
-
-As this test description shows, it tests [FAPI 2.0 Security Profile 5.3.2.2](https://openid.net/specs/fapi-security-profile-2_0-final.html#name-notational-conventions) Note 3. It is "recommended" item so that this error page is treated as "warning".
+As this test description shows, it tests [FAPI 2.0 Security Profile 5.3.2.2](https://openid.net/specs/fapi-security-profile-2_0-final.html#name-notational-conventions) Note 3. It is "recommended" item so that the error page is treated as "warning".
 
 **Running different test plans**
 
