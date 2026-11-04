@@ -6,8 +6,19 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 )
+
+// Delay before the callback is sent once the conformance suite has called the automated approval endpoint.
+// In ping mode, the conformance suite calls the token endpoint just before calling the automated approval endpoint,
+// and calls it again as soon as the ping notification arrives. Keycloak returns slow_down if the token endpoint
+// is called again within the CIBA polling interval (5 seconds by default), so the callback must be delayed longer than that.
+const approvedCallbackDelay = 6 * time.Second
+
+// Delay before the callback is sent when no approval arrives (e.g. manual tests, or tests where
+// the user deliberately does not authenticate). The result is then always SUCCEED.
+const fallbackCallbackDelay = 30 * time.Second
 
 type Accounts struct {
 	Accounts []Account `json:"accounts"`
@@ -33,7 +44,83 @@ type ClientNotification struct {
 	AuthReqId string `json:"auth_req_id"`
 }
 
-var isAllowed bool = true
+// pendingAuthentication is an authentication delegation request from Keycloak that has not been answered yet.
+type pendingAuthentication struct {
+	bearerToken string
+	once        sync.Once
+	timer       *time.Timer
+}
+
+// The auth_req_id sent to the automated approval endpoint cannot be linked to the bearer token
+// sent by Keycloak (both are encrypted), so an approval is applied to the most recent pending request.
+// This works because the conformance suite runs tests for the same alias one at a time,
+// and Keycloak calls this server before returning auth_req_id to the client.
+var (
+	pendingMu sync.Mutex
+	pending   []*pendingAuthentication
+)
+
+func removePending(p *pendingAuthentication) {
+	pendingMu.Lock()
+	defer pendingMu.Unlock()
+	for i, e := range pending {
+		if e == p {
+			pending = append(pending[:i], pending[i+1:]...)
+			return
+		}
+	}
+}
+
+func popLatestPending() *pendingAuthentication {
+	pendingMu.Lock()
+	defer pendingMu.Unlock()
+	if len(pending) == 0 {
+		return nil
+	}
+	p := pending[len(pending)-1]
+	pending = pending[:len(pending)-1]
+	return p
+}
+
+// sendCallback sends the authentication result to Keycloak. It is sent at most once per request.
+func (p *pendingAuthentication) sendCallback(isAllowed bool) {
+	p.once.Do(func() {
+		removePending(p)
+		log.Printf("Callback : Outgoing request.")
+
+		u := "https://as.keycloak-fapi.org/auth/realms/test/protocol/openid-connect/ext/ciba/auth/callback/"
+		notification := new(AuthenticationResultNotification)
+
+		if isAllowed {
+			notification.Status = "SUCCEED"
+		} else {
+			notification.Status = "CANCELLED"
+		}
+
+		k, _ := json.Marshal(notification)
+		req, _ := http.NewRequest("POST", u, bytes.NewBuffer(k))
+		req.Header.Set("Authorization", p.bearerToken)
+		req.Header.Set("Content-Type", "application/json")
+
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+				ServerName:         "as.keycloak-fapi.org",
+			},
+		}
+		client := &http.Client{
+			Transport: tr,
+		}
+		res, err := client.Do(req)
+		log.Printf("Callback : Incoming response.")
+		if err != nil {
+			log.Printf("Error :  " + err.Error())
+			return
+		}
+		defer res.Body.Close()
+		log.Printf("Success : " + res.Status)
+	})
+}
 
 func delegatedAuthnHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Incoming request from %s, %s.", r.Host, r.RemoteAddr)
@@ -50,43 +137,17 @@ func delegatedAuthnHandler(w http.ResponseWriter, r *http.Request) {
 	bearerToken := r.Header.Get("Authorization")
 	log.Printf("Bearer Token on Authorization Header = %s", bearerToken)
 
-	time.AfterFunc(time.Second*30, func() {
-		log.Printf("Callback : Outgoing request.")
+	p := &pendingAuthentication{bearerToken: bearerToken}
 
-		u := "https://as.keycloak-fapi.org/auth/realms/test/protocol/openid-connect/ext/ciba/auth/callback/"
-		notification := new(AuthenticationResultNotification)
-
-		if isAllowed {
-			notification.Status = "SUCCEED"
-		} else {
-			notification.Status = "CANCELLED"
-		}
-
-		k, _ := json.Marshal(notification)
-		req, _ := http.NewRequest("POST", u, bytes.NewBuffer(k))
-		req.Header.Set("Authorization", bearerToken)
-		req.Header.Set("Content-Type", "application/json")
-
-		tr := &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
-				ServerName:         "as.keycloak-fapi.org",
-			},
-		}
-		client := &http.Client{
-			Transport: tr,
-		}
-		res, err := client.Do(req)
-		log.Printf("Callback : Incoming response.")
-		if err != nil {
-			log.Printf("Error :  " + err.Error())
-		} else {
-			log.Printf("Success : " + res.Status)
-		}
-		// revert status
-		isAllowed = true
-		defer res.Body.Close()
+	// if no automated approval arrives, authenticate the user anyway after a while
+	p.timer = time.AfterFunc(fallbackCallbackDelay, func() {
+		log.Printf("Callback : No automated approval received, authentication succeeds.")
+		p.sendCallback(true)
 	})
+
+	pendingMu.Lock()
+	pending = append(pending, p)
+	pendingMu.Unlock()
 
 	w.WriteHeader(http.StatusCreated)
 
@@ -102,10 +163,15 @@ func automatedCibaApprovalHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("    action : %s", action)
 
 	// action=allow or action=deny
-	if action == "allow" {
-		isAllowed = true
+	isAllowed := action == "allow"
+
+	if p := popLatestPending(); p != nil {
+		p.timer.Stop()
+		time.AfterFunc(approvedCallbackDelay, func() {
+			p.sendCallback(isAllowed)
+		})
 	} else {
-		isAllowed = false
+		log.Printf("    no pending authentication request found")
 	}
 
 	w.WriteHeader(http.StatusNoContent)
