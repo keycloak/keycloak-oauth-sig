@@ -539,9 +539,7 @@ Due to the nature of conformance suite, the following tests cannot be passed aut
 
 ##### Server Signing Key Rotation
 
-  * oidcc-server-rotate-keys
-
- This always become `failure` status in automated tests. However, we can pass this test manually by createing a new key in sigature and disabling the exsiting key (RS256) in signature on an admin console.
+`oidcc-server-rotate-keys` is run automatically: just before the test is started, `run-test-plan.py` runs [rotate-op-keys.sh](conformance-suite/conformance-suite/rotate-op-keys.sh), which adds a new RS256 key to the realm via the Keycloak admin REST API. The new key has a lower priority than the existing key, so it is published in `jwks_uri` while the existing key remains and keeps signing tokens, which keeps tests running in parallel unaffected.
 
 ##### FAPI2 Final PAR request reuse check with multiple authorization flow in parallel
 

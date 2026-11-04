@@ -1,5 +1,5 @@
 {
-    "alias": "keycloak",
+    "alias": "keycloak-oidcc-implicit",
     "description": "[Automated] OpenID Connect Core: Implicit Certification Profile (server_metadata:static/client_registration:static_client)",
     "server": {
         "login_hint": "john",
@@ -56,7 +56,7 @@
                 },
                 {
                     "task": "Verify Complete",
-                    "match": "https://*/test/a/keycloak/callback*",
+                    "match": "https://*/test/a/keycloak-oidcc-implicit/callback*",
                     "optional": true,
                     "commands": [
                         [
@@ -140,7 +140,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://*/test/a/keycloak/callback*",
+                            "match": "https://*/test/a/keycloak-oidcc-implicit/callback*",
                             "optional": true,
                             "commands": [
                                 [
@@ -224,7 +224,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://*/test/a/keycloak/callback*",
+                            "match": "https://*/test/a/keycloak-oidcc-implicit/callback*",
                             "optional": true,
                             "commands": [
                                 [

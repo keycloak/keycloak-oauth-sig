@@ -1,5 +1,5 @@
 {
-    "alias": "keycloak",
+    "alias": "keycloak-oidcc-basic",
     "description": "[Automated]OpenID Connect Core: Basic Certification Profile (server_metadata:static/client_registration:static_client)",
     "server": {
         "login_hint": "john",
@@ -64,7 +64,7 @@
                 },
                 {
                     "task": "Verify Complete",
-                    "match": "https://*/test/a/keycloak/callback*",
+                    "match": "https://*/test/a/keycloak-oidcc-basic/callback*",
                     "optional": true,
                     "commands": [
                         [
@@ -148,7 +148,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://*/test/a/keycloak/callback*",
+                            "match": "https://*/test/a/keycloak-oidcc-basic/callback*",
                             "optional": true,
                             "commands": [
                                 [
@@ -232,7 +232,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://*/test/a/keycloak/callback*",
+                            "match": "https://*/test/a/keycloak-oidcc-basic/callback*",
                             "optional": true,
                             "commands": [
                                 [

@@ -1,5 +1,5 @@
 {
-    "alias": "keycloak",
+    "alias": "keycloak-oidcc-formpost-hybrid",
     "description": "[Automated] OpenID Connect Core: Form Post Hybrid Certification Profile (server_metadata:static/client_registration:static_client)",
     "server": {
         "login_hint": "john",
@@ -64,7 +64,7 @@
                 },
                 {
                     "task": "Verify Complete",
-                    "match": "https://*/test/a/keycloak/callback*",
+                    "match": "https://*/test/a/keycloak-oidcc-formpost-hybrid/callback*",
                     "optional": true,
                     "commands": [
                         [
@@ -148,7 +148,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://*/test/a/keycloak/callback*",
+                            "match": "https://*/test/a/keycloak-oidcc-formpost-hybrid/callback*",
                             "optional": true,
                             "commands": [
                                 [
@@ -232,7 +232,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://*/test/a/keycloak/callback*",
+                            "match": "https://*/test/a/keycloak-oidcc-formpost-hybrid/callback*",
                             "optional": true,
                             "commands": [
                                 [

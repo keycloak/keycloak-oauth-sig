@@ -136,6 +136,12 @@ services:
       - CONFORMANCE_SERVER=https://${CONFORMANCE_SUITE_FQDN}
       - CONFORMANCE_DEV_MODE=1
       - MONGODB_HOST=mongodb
+      # used by run-test-plan.py to rotate keycloak's signing keys for oidcc-server-rotate-keys test
+      - ROTATE_OP_KEYS_COMMAND=/conformance-suite/rotate-op-keys.sh
+      - KEYCLOAK_URL=http://keycloak:8080/auth
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+      - KEYCLOAK_USER=${KEYCLOAK_USER}
+      - KEYCLOAK_PASSWORD=${KEYCLOAK_PASSWORD}
     links:
       - mongodb:mongodb
     depends_on:
