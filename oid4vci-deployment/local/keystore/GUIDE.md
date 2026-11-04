@@ -36,6 +36,14 @@ openssl req -new \
 
 Once your CA issues the signed certificate (`cert.pem`), bundle it together with your private key (and optionally the intermediate/root CA chain `ca-cert.pem`) into a PKCS#12 (`.p12`) file.
 
+Once you have the issuing CA (`issuing-ca.pem`) and root CA (`root-ca.pem`) converted to PEM, combine them into a single CA chain file (`ca-cert.pem`):
+
+```bash
+cat issuing-ca.pem root-ca.pem > ca-cert.pem
+```
+
+Then bundle the signed certificate together with the private key and the CA chain into a PKCS#12 (`.p12`) file:
+
 ```bash
 openssl pkcs12 -export \
   -in cert.pem \
