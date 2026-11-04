@@ -260,10 +260,174 @@
         },
         "fapi2-security-profile-final-par-ensure-reused-request-uri-prior-to-auth-completion-succeeds": {
             "browser": [
+                {
+                    "comment": "first visit to the authorization endpoint: only open the login page, do not log in",
+                    "match": "https://as.keycloak-fapi.org/auth/realms/test/protocol/openid-connect/auth*",
+                    "match-limit": 1,
+                    "tasks": [
+                        {
+                            "task": "Verify login page is shown",
+                            "match": "https://as.keycloak-fapi.org/auth/realms/test/login-actions/authenticate*",
+                            "commands": [
+                                [
+                                    "wait",
+                                    "id",
+                                    "username",
+                                    10
+                                ]
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "comment": "second visit reusing the same request_uri: Keycloak shows an error page as the request_uri was already consumed on the first visit; if a login page is shown instead, log in",
+                    "match": "https://as.keycloak-fapi.org/auth/realms/test/protocol/openid-connect/auth*",
+                    "tasks": [
+                        {
+                            "task": "Expect PAR not found error page",
+                            "match": "https://as.keycloak-fapi.org/auth/realms/test/protocol/openid-connect/auth*",
+                            "optional": true,
+                            "commands": [
+                                [
+                                    "wait",
+                                    "xpath",
+                                    "//div[@id='kc-error-message']",
+                                    10,
+                                    ".*PAR not found, not issued or used multiple times.*",
+                                    "update-image-placeholder"
+                                ]
+                            ]
+                        },
+                        {
+                            "task": "Login",
+                            "match": "https://as.keycloak-fapi.org/auth/realms/test/login-actions/authenticate*",
+                            "optional": true,
+                            "commands": [
+                                [
+                                    "text",
+                                    "id",
+                                    "username",
+                                    "john"
+                                ],
+                                [
+                                    "text",
+                                    "id",
+                                    "password",
+                                    "john"
+                                ],
+                                [
+                                    "click",
+                                    "name",
+                                    "login"
+                                ]
+                            ]
+                        },
+                        {
+                            "task": "Authorize Client",
+                            "match": "https://as.keycloak-fapi.org/auth/realms/test/login-actions/required-action*",
+                            "optional": true,
+                            "commands": [
+                                [
+                                    "click",
+                                    "name",
+                                    "accept"
+                                ]
+                            ]
+                        },
+                        {
+                            "task": "Verify Complete",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "optional": true,
+                            "commands": [
+                                [
+                                    "wait",
+                                    "id",
+                                    "submission_complete",
+                                    10
+                                ]
+                            ]
+                        }
+                    ]
+                }
             ]
         },
         "fapi2-security-profile-final-par-attempt-reuse-request_uri": {
             "browser": [
+                {
+                    "comment": "first authorization request with the request_uri: normal login",
+                    "match": "https://as.keycloak-fapi.org/auth/realms/test/protocol/openid-connect/auth*",
+                    "match-limit": 1,
+                    "tasks": [
+                        {
+                            "task": "Initial login",
+                            "match": "https://as.keycloak-fapi.org/auth/realms/test/login-actions/authenticate*",
+                            "optional": true,
+                            "commands": [
+                                [
+                                    "text",
+                                    "id",
+                                    "username",
+                                    "john"
+                                ],
+                                [
+                                    "text",
+                                    "id",
+                                    "password",
+                                    "john"
+                                ],
+                                [
+                                    "click",
+                                    "name",
+                                    "login"
+                                ]
+                            ]
+                        },
+                        {
+                            "task": "Authorize Client",
+                            "match": "https://as.keycloak-fapi.org/auth/realms/test/login-actions/required-action*",
+                            "optional": true,
+                            "commands": [
+                                [
+                                    "click",
+                                    "name",
+                                    "accept"
+                                ]
+                            ]
+                        },
+                        {
+                            "task": "Verify Complete",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "commands": [
+                                [
+                                    "wait",
+                                    "id",
+                                    "submission_complete",
+                                    10
+                                ]
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "comment": "second authorization request reusing the same request_uri: expect an error page",
+                    "match": "https://as.keycloak-fapi.org/auth/realms/test/protocol/openid-connect/auth*",
+                    "tasks": [
+                        {
+                            "task": "Expect PAR not found error page",
+                            "match": "https://as.keycloak-fapi.org/auth/realms/test/protocol/openid-connect/auth*",
+                            "commands": [
+                                [
+                                    "wait",
+                                    "xpath",
+                                    "//div[@id='kc-error-message']",
+                                    10,
+                                    ".*PAR not found, not issued or used multiple times.*",
+                                    "update-image-placeholder"
+                                ]
+                            ]
+                        }
+                    ]
+                }
             ]
         },
         "fapi2-security-profile-final-par-attempt-to-use-expired-request_uri": {
