@@ -445,7 +445,7 @@ We tagged the environment for every keycloak verion:
 |kc-26.7.3|26.7.3|release-v5.1.45|
 |kc-26.7.4|26.7.4|release-v5.1.45|
 |kc-26.8.0|26.8.0|release-v5.1.45|
-|kc-26.8.1|26.8.1|release-v5.1.45|
+|kc-26.8.1|26.8.1|release-v5.3.4|
 
 |Keycloak version|FAPI 1.0 Advanced|FAPI-CIBA|Open Banking Brasil FAPI 1.0 (\*1,\*2),\*15|Open Finance Brasil FAPI 1.0 (\*3)|Australia Consumer Data Right (CDR) (\*8)|UK Open Banking|OpenID Connect OP (\*4)|OpenID Connect OP for Logout Profile|FAPI 2.0 Security Profile Implementer’s Draft (\*6,\*14)|FAPI 2.0 Message Signing Implementer’s Draft (\*6,\*14)|FAPI 2.0 Security Profile (\*9)|FAPI 2.0 Message Signing (\*9)|
 |-|-|-|-|-|-|-|-|-|-|-|-|-|
@@ -616,6 +616,13 @@ Note: Keycloak legacy (wildfly) is no longer supported since [keycloak 20](https
 \*15 : Open Finance Brasil, the successor of Open Banking Brasil was relased. Therefore, Open Banking Brasil is no longer checked.
 
 \*16 : [ISSUE-45250](https://github.com/keycloak/keycloak/issues/45250)
+
+Since 26.8.0, we only run the following conformance tests:
+
+|Keycloak version|OpenID Connect OP (\*4)|OpenID Connect OP for Logout Profile|FAPI 2.0 Security Profile|FAPI 2.0 Message Signing|FAPI-CIBA|
+|-|-|-|-|-|-|
+|26.8.0|x|x|x|x|x|x|
+|26.8.1|x|x|x|x|x|x|
 
 ## Other Contributions
 
