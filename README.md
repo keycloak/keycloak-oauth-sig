@@ -150,7 +150,7 @@ FAPI related accomplishments by FAPI-SIG and OAuth SIG, other contributors and k
 
 The current environment uses the following software version.
 - Keycloak 26.8.1
-- Conformance-suite version : release-v5.1.45
+- Conformance-suite version : release-v5.3.4
 
 #### FAPI 1.0 Advanced (Final)​
   - Client Authentication Method : MTLS, private_key_jwt​
