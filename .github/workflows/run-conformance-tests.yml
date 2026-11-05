@@ -38,7 +38,7 @@ jobs:
           exit $EXIT_CODE
         env:
           OPENID_GIT_URL: https://gitlab.com/openid/conformance-suite.git
-          OPENID_GIT_TAG: release-v5.1.45
+          OPENID_GIT_TAG: release-v5.3.4
           RESOURCE_FQDN: rs.keycloak-fapi.org
           CONSENT_FQDN: cs.keycloak-fapi.org
           CONFORMANCE_SUITE_FQDN: conformance-suite.keycloak-fapi.org
