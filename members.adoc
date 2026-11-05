@@ -7,8 +7,8 @@ If you think some information is outdated, either provide a pull request or send
 |Company
 |Names
 
-|Adorsys
-|https://github.com/andriimurashkin[Andrii Murashkin], https://github.com/DmitryMishchuk[Dmytro Mishchuk], Dmytro Storozhyk, https://github.com/francis-pouatcha[Francis Pouatcha], https://github.com/HryhoriiHevorkian[Hryhorii], https://github.com/valb3r[Valentyn Berezin], https://github.com/guymoyo[Guy Moyo]
+|adorsys
+|https://github.com/IngridPuppet[Ingrid Kamga], https://github.com/Ogenbertrand[Bertrand Ogen], https://github.com/Awambeng[Awambeng Rodrick], https://github.com/forkimenjeckayang[Forkim Enjeckayang], https://github.com/Vitalisn4[Vitalis Ngam]
 
 |ANS
 |Charlène Sophie, Arnaud Bourhis
