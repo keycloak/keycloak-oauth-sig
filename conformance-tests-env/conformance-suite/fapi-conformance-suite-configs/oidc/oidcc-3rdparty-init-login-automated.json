@@ -1,4 +1,7 @@
 {
+    "options": {
+        "browsercontrol_css_enable": false
+    },
     "description": "[Automated]OpenID Connect Core: 3rd party initiated login Certification Profile (response_type:code id_token)",
     "server": {
         "discoveryUrl": "https://as.keycloak-fapi.org/auth/realms/test/.well-known/openid-configuration"

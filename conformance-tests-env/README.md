@@ -245,10 +245,17 @@ Keycloak always adds the `typ` and `sid` claims to the ID token, and no realm se
 To finish these tests as passed, `test-target/keycloak/keycloak/id-token-claims-mapper` provides a script based protocol mapper that removes the claims. The Keycloak Dockerfile packages it as a provider and enables the `scripts` feature. Only `realm-fapi2-sp-final.json` uses the mapper, in its `profile` client scope, so ID tokens of the other realms are unchanged.
 Because an ID token issued with this mapper has no `typ` claim, Keycloak rejects it as an `id_token_hint` at the logout endpoint.
 
-## Parallel run of FAPI2 Final conformance tests
+`realm-oidc.json` uses two other script based protocol mappers from the same directory:
+* `remove-id-token-typ.js` removes only the `typ` claim, because the OpenID Connect conformance tests warn about `typ` but not about `sid`.
+* `add-email-to-id-token.js` adds the claims of the `email` scope to the ID token only for `response_type=id_token`. OpenID Connect Core 5.4 requires them in the ID token when no access token is issued, and the conformance tests warn if they are in the ID token otherwise. A `id.token.claim` setting of the `email` scope mappers can not express this.
+
+## Parallel run of conformance tests
 
 `run-test-plan.py` runs test plans with the same alias one after another, so each `fapi2-final-FAPI2SP-*-automated.json` and `fapi2-final-FAPI2MS-*-automated.json` config has its own alias to run its plan in parallel with the others. When adding a config, give it a new alias and register its callback URLs in the `redirectUris` of its clients in `realm-fapi2-sp-final.json` or `realm-fapi2-ms-final.json`.
 Plans that use the same client must log in as different users, otherwise they can store the user consent for the same user and client at the same time. This is why the FAPI2 SP OpenID Connect configs use `alice` instead of `john`. Each FAPI2 MS plan has its own client, so those plans all use `john`.
+
+In the OpenID Connect conformance test, the `*-static-static-automated.json` configs have their own alias and log in as `alice`, because they use the same clients as the discovery configs. Configs without an alias use dynamically registered clients.
+Most of the time of this test is spent in the browser of the conformance suite, so the `*-automated.json` configs of this test set `options.browsercontrol_css_enable` to `false` to stop it parsing the CSS of the Keycloak login pages.
 
 ## Run specified FAPI Conformance test
 

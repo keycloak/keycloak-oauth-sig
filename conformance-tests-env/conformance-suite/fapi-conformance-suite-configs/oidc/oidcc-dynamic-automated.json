@@ -1,4 +1,7 @@
 {
+    "options": {
+        "browsercontrol_css_enable": false
+    },
     "description": "[Automated] OpenID Connect Core: Dynamic Certification Profile",
     "server": {
         "discoveryUrl": "https://as.keycloak-fapi.org/auth/realms/test/.well-known/openid-configuration"
