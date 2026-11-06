@@ -257,6 +257,9 @@ Plans that use the same client must log in as different users, otherwise they ca
 In the OpenID Connect conformance test, the `*-static-static-automated.json` configs have their own alias and log in as `alice`, because they use the same clients as the discovery configs. Configs without an alias use dynamically registered clients.
 Most of the time of this test is spent in the browser of the conformance suite, so the `*-automated.json` configs of this test set `options.browsercontrol_css_enable` to `false` to stop it parsing the CSS of the Keycloak login pages.
 
+In the FAPI-CIBA conformance test, `auth_entity_server` can not link an automated approval to its authentication request by `auth_req_id`, so each `fapi-ciba-id1-*-automated.json` config has its own user as `hint_value`, and sends the same user as `login_hint` in `automated_ciba_approval_url`. Both must be kept the same, otherwise the approval does not reach the request. The ping clients in `realm-fapi-ciba.json` have the alias of their plan in their `ciba.backchannel.client.notification.endpoint`.
+`realm-fapi-ciba.json` also needs its `hmac-generated-hs512` key. `auth_req_id` is protected by a HS512 key, and if the realm has none, Keycloak creates one on first use. When the plans start at the same time, each of them creates its own key, and Keycloak rejects `auth_req_id` with `Invalid Auth Req ID`.
+
 ## Run specified FAPI Conformance test
 
 You can choose and run automatically several types of FAPI conformance test against both released keycloak container from quay.io or one you've installed on your local environment.

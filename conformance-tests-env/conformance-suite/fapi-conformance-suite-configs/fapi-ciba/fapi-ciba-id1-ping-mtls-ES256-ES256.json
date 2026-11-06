@@ -1,5 +1,5 @@
 {
-    "alias": "keycloak",
+    "alias": "keycloak-ciba-ping-mtls-es256",
     "description": "[Manual] FAPI-CIBA-ID1 Ping: Keycloak test with mtls client authentication (RequestObject:ES256/IDToken:ES256)",
     "server": {
         "discoveryUrl": "https://as.keycloak-fapi.org/auth/realms/test/.well-known/openid-configuration"

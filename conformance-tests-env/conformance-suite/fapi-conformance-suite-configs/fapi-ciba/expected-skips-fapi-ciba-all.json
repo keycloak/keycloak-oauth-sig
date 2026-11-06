@@ -1,0 +1,14 @@
+[
+    {
+        "test-name": "fapi-ciba-id1-ensure-request-object-signature-algorithm-is-RS256-fails",
+        "variant": "*",
+        "configuration-filename": "*/fapi-ciba-id1-*-ES256-ES256-automated.json",
+        "comment": "This test requires RSA keys, but the client of this config uses ES256."
+    },
+    {
+        "test-name": "fapi-ciba-id1-ensure-client-assertion-signature-algorithm-in-token-endpoint-request-is-RS256-fails",
+        "variant": "*",
+        "configuration-filename": "*/fapi-ciba-id1-*-private-key-ES256-ES256-automated.json",
+        "comment": "This test requires RSA keys, but the client of this config uses ES256."
+    }
+]
