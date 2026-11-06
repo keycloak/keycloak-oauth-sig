@@ -1468,6 +1468,8 @@ elif [ "$#" -eq 1 ] && [ "$1" = "--fapi2-sp-final-all" ]; then
 elif [ "$#" -eq 1 ] && [ "$1" = "--fapi2-ms-final-all" ]; then
     echo "Run fapi2-ms-final all tests"
     makeFAPI2MSFinalTest
+    EXPECTED_SKIPS_FILE="${SUITE_DIR}/.gitlab-ci/fapi-conformance-suite-configs/fapi2-ms-final/expected-skips-fapi2-ms-final-all.json"
+    TESTS="${TESTS} --expected-skips-file ${EXPECTED_SKIPS_FILE}"
 elif [ "$#" -eq 1 ] && [ "$1" = "--client-tests-only" ]; then
     EXPECTED_FAILURES_FILE="${SUITE_DIR}/.gitlab-ci/expected-failures-client.json"
     EXPECTED_SKIPS_FILE="${SUITE_DIR}/.gitlab-ci/expected-skips-client.json"

@@ -1,5 +1,5 @@
 {
-    "alias": "keycloak",
+    "alias": "keycloak-ms-dpop-jar-mtls",
     "description": "[Automatic] FAPI2MS Final JAR with DPoP: Keycloak test",
     "server": {
         "discoveryUrl": "https://as.keycloak-fapi.org/auth/realms/test/.well-known/openid-configuration"
@@ -95,7 +95,7 @@
                 },
                 {
                     "task": "Verify Complete",
-                    "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                    "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ms-dpop-jar-mtls/callback*",
                     "optional": true,
                     "commands": [
                         [
@@ -151,7 +151,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ms-dpop-jar-mtls/callback*",
                             "commands": [
                                 [
                                     "wait",
@@ -172,7 +172,7 @@
                     "tasks": [
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ms-dpop-jar-mtls/callback*",
                             "commands": [
                                 [
                                     "wait",
@@ -193,7 +193,7 @@
                     "tasks": [
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ms-dpop-jar-mtls/callback*",
                             "commands": [
                                 [
                                     "wait",
@@ -262,7 +262,7 @@
                     "tasks": [
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ms-dpop-jar-mtls/callback*",
                             "commands": [
                                 [
                                     "wait",
@@ -283,7 +283,7 @@
                     "tasks": [
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ms-dpop-jar-mtls/callback*",
                             "commands": [
                                 [
                                     "wait",
@@ -304,7 +304,7 @@
                     "tasks": [
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ms-dpop-jar-mtls/callback*",
                             "commands": [
                                 [
                                     "wait",
@@ -325,7 +325,7 @@
                     "tasks": [
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ms-dpop-jar-mtls/callback*",
                             "commands": [
                                 [
                                     "wait",
@@ -578,7 +578,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ms-dpop-jar-mtls/callback*",
                             "optional": true,
                             "commands": [
                                 [
@@ -638,7 +638,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ms-dpop-jar-mtls/callback*",
                             "commands": [
                                 [
                                     "wait",

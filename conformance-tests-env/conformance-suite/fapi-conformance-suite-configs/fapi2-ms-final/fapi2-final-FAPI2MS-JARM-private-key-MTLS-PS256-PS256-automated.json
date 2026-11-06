@@ -1,5 +1,5 @@
 {
-    "alias": "keycloak",
+    "alias": "keycloak-ms-jarm-pkj",
     "description": "[Automated] FAPI2MS Final JARM: Keycloak test",
     "server": {
         "discoveryUrl": "https://as.keycloak-fapi.org/auth/realms/test/.well-known/openid-configuration"
@@ -101,7 +101,7 @@
                 },
                 {
                     "task": "Verify Complete",
-                    "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                    "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ms-jarm-pkj/callback*",
                     "optional": true,
                     "commands": [
                         [
@@ -158,7 +158,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ms-jarm-pkj/callback*",
                             "commands": [
                                 [
                                     "wait",
@@ -465,7 +465,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ms-jarm-pkj/callback*",
                             "optional": true,
                             "commands": [
                                 [
@@ -525,7 +525,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ms-jarm-pkj/callback*",
                             "commands": [
                                 [
                                     "wait",

@@ -245,10 +245,10 @@ Keycloak always adds the `typ` and `sid` claims to the ID token, and no realm se
 To finish these tests as passed, `test-target/keycloak/keycloak/id-token-claims-mapper` provides a script based protocol mapper that removes the claims. The Keycloak Dockerfile packages it as a provider and enables the `scripts` feature. Only `realm-fapi2-sp-final.json` uses the mapper, in its `profile` client scope, so ID tokens of the other realms are unchanged.
 Because an ID token issued with this mapper has no `typ` claim, Keycloak rejects it as an `id_token_hint` at the logout endpoint.
 
-## Parallel run of FAPI2 SP Final conformance test
+## Parallel run of FAPI2 Final conformance tests
 
-`run-test-plan.py` runs test plans with the same alias one after another, so each `fapi2-final-FAPI2SP-*-automated.json` config has its own alias to run its plan in parallel with the others. When adding a config, give it a new alias and register its callback URLs in the `redirectUris` of its clients in `realm-fapi2-sp-final.json`.
-Plans that use the same client must log in as different users, otherwise they can store the user consent for the same user and client at the same time. This is why the OpenID Connect configs use `alice` instead of `john`.
+`run-test-plan.py` runs test plans with the same alias one after another, so each `fapi2-final-FAPI2SP-*-automated.json` and `fapi2-final-FAPI2MS-*-automated.json` config has its own alias to run its plan in parallel with the others. When adding a config, give it a new alias and register its callback URLs in the `redirectUris` of its clients in `realm-fapi2-sp-final.json` or `realm-fapi2-ms-final.json`.
+Plans that use the same client must log in as different users, otherwise they can store the user consent for the same user and client at the same time. This is why the FAPI2 SP OpenID Connect configs use `alice` instead of `john`. Each FAPI2 MS plan has its own client, so those plans all use `john`.
 
 ## Run specified FAPI Conformance test
 
