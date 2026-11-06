@@ -1,4 +1,7 @@
 {
+    "options": {
+        "browsercontrol_css_enable": false
+    },
     "description": "[Automated] OpenID Connect Core: Form Post Basic Certification Profile (server_metadata:discovery/client_registration:dynamic_client)",
     "server": {
         "discoveryUrl": "https://as.keycloak-fapi.org/auth/realms/test/.well-known/openid-configuration",

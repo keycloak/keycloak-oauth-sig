@@ -4,6 +4,16 @@
       "name": "Remove typ and sid from ID token",
       "fileName": "remove-id-token-claims.js",
       "description": "Removes the Keycloak specific typ and sid claims from the ID token"
+    },
+    {
+      "name": "Remove typ from ID token",
+      "fileName": "remove-id-token-typ.js",
+      "description": "Removes the Keycloak specific typ claim from the ID token"
+    },
+    {
+      "name": "Add email to ID token",
+      "fileName": "add-email-to-id-token.js",
+      "description": "Adds the claims of the email scope to the ID token when no access token is issued"
     }
   ]
 }

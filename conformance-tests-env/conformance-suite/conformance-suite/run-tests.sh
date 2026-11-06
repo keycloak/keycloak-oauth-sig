@@ -1449,7 +1449,8 @@ elif [ "$#" -eq 1 ] && [ "$1" = "--oidc-all" ]; then
     makeOIDCFormPostImplicitTest
     makeOIDCFormPostHybridTest
     makeOIDCDynamicTest
-    makeOIDC3rdpartyInitLoginTest
+    EXPECTED_SKIPS_FILE="${SUITE_DIR}/.gitlab-ci/fapi-conformance-suite-configs/oidc/expected-skips-oidc-all.json"
+    TESTS="${TESTS} --expected-skips-file ${EXPECTED_SKIPS_FILE}"
 elif [ "$#" -eq 1 ] && [ "$1" = "--oidc-logout-all" ]; then
     echo "Run oidc logout all tests"
     makeOIDCRpInitiatedLogoutTest

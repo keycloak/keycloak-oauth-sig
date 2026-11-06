@@ -1,0 +1,20 @@
+[
+    {
+        "test-name": "oidcc-idtoken-unsigned",
+        "variant": "*",
+        "configuration-filename": "*/oidc/oidcc-basic-discovery-dynamic-automated.json",
+        "comment": "This test requires the 'none' algorithm for ID token signing, which Keycloak does not support."
+    },
+    {
+        "test-name": "oidcc-idtoken-unsigned",
+        "variant": "*",
+        "configuration-filename": "*/oidc/oidcc-formpost-basic-discovery-dynamic-automated.json",
+        "comment": "This test requires the 'none' algorithm for ID token signing, which Keycloak does not support."
+    },
+    {
+        "test-name": "oidcc-idtoken-unsigned",
+        "variant": "*",
+        "configuration-filename": "*/oidc/oidcc-dynamic-automated.json",
+        "comment": "This test requires the 'none' algorithm for ID token signing, which Keycloak does not support."
+    }
+]

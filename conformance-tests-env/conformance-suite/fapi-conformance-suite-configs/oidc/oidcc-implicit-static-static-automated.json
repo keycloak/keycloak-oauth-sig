@@ -1,8 +1,11 @@
 {
-    "alias": "keycloak-oidcc-implicit",
+    "options": {
+        "browsercontrol_css_enable": false
+    },
+    "alias": "keycloak-oidcc-implicit-static",
     "description": "[Automated] OpenID Connect Core: Implicit Certification Profile (server_metadata:static/client_registration:static_client)",
     "server": {
-        "login_hint": "john",
+        "login_hint": "alice",
         "issuer": "https://as.keycloak-fapi.org/auth/realms/test",
         "jwks_uri": "https://as.keycloak-fapi.org/auth/realms/test/protocol/openid-connect/certs",
         "authorization_endpoint": "https://as.keycloak-fapi.org/auth/realms/test/protocol/openid-connect/auth",
@@ -27,13 +30,13 @@
                             "text",
                             "name",
                             "username",
-                            "john"
+                            "alice"
                         ],
                         [
                             "text",
                             "name",
                             "password",
-                            "john"
+                            "alice"
                         ],
                         [
                             "click",
@@ -56,7 +59,7 @@
                 },
                 {
                     "task": "Verify Complete",
-                    "match": "https://*/test/a/keycloak-oidcc-implicit/callback*",
+                    "match": "https://*/test/a/keycloak-oidcc-implicit-static/callback*",
                     "optional": true,
                     "commands": [
                         [
@@ -93,7 +96,7 @@
                                     "text",
                                     "name",
                                     "password",
-                                    "john"
+                                    "alice"
                                 ],
                                 [
                                     "click",
@@ -111,13 +114,13 @@
                                     "text",
                                     "name",
                                     "username",
-                                    "john"
+                                    "alice"
                                 ],
                                 [
                                     "text",
                                     "name",
                                     "password",
-                                    "john"
+                                    "alice"
                                 ],
                                 [
                                     "click",
@@ -140,7 +143,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://*/test/a/keycloak-oidcc-implicit/callback*",
+                            "match": "https://*/test/a/keycloak-oidcc-implicit-static/callback*",
                             "optional": true,
                             "commands": [
                                 [
@@ -177,7 +180,7 @@
                                     "text",
                                     "name",
                                     "password",
-                                    "john"
+                                    "alice"
                                 ],
                                 [
                                     "click",
@@ -195,13 +198,13 @@
                                     "text",
                                     "name",
                                     "username",
-                                    "john"
+                                    "alice"
                                 ],
                                 [
                                     "text",
                                     "name",
                                     "password",
-                                    "john"
+                                    "alice"
                                 ],
                                 [
                                     "click",
@@ -224,7 +227,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://*/test/a/keycloak-oidcc-implicit/callback*",
+                            "match": "https://*/test/a/keycloak-oidcc-implicit-static/callback*",
                             "optional": true,
                             "commands": [
                                 [

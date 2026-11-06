@@ -1,4 +1,7 @@
 {
+    "options": {
+        "browsercontrol_css_enable": false
+    },
     "alias": "keycloak-oidcc-implicit",
     "description": "[Automated] OpenID Connect Core: Implicit Certification Profile (server_metadata:discovery/client_registration:static_client)",
     "server": {

@@ -3,6 +3,9 @@
     "enabled": true,
     "sslRequired": "external",
     "registrationAllowed": false,
+    "attributes": {
+        "acr.loa.map": "{\"urn:mace:incommon:iap:silver\":\"1\"}"
+    },
     "requiredCredentials": [ "password" ],
     "users": [
         {
@@ -34,6 +37,38 @@
                 "lastName": "Doe",
                 "nickname": "John",
                 "email": "john@john.example.com",
+                "name": "DJ" 
+            }
+        },
+        {
+            "username": "alice",
+            "enabled": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "alice"
+                }
+            ],
+            "realmRoles": [
+                "offline_access"
+            ],
+            "attributes": {
+                "country": "UK",
+                "phoneNumber": "01234567890",
+                "phoneNumberVerified" : true,
+                "website": "https://alice.example.com",
+                "zoneinfo": "Europe",
+                "birthdate": "2000-10-12",
+                "gender": "Male",
+                "profile": "my profile",
+                "picture": "https://alice.example.com/picture",
+                "updatedAt": 1582521468,
+                "locale": "UK",
+                "firstName": "Alice",
+                "middleName": "Willard",
+                "lastName": "Doe",
+                "nickname": "Alice",
+                "email": "john@alice.example.com",
                 "name": "DJ" 
             }
         },
@@ -74,6 +109,8 @@
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-hybrid/callback",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-hybrid/callback?dummy1=lorem&dummy2=ipsum",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-hybrid-static/callback",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-hybrid-static/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -123,7 +160,8 @@
             "name_claims",
             "web-origins",
             "roles",
-            "auth_time"
+            "auth_time",
+            "id_token_claims"
         ],
         "optionalClientScopes": [
             "profile",
@@ -162,6 +200,8 @@
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-hybrid/callback",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-hybrid/callback?dummy1=lorem&dummy2=ipsum",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-hybrid-static/callback",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-hybrid-static/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -211,7 +251,8 @@
             "name_claims",
             "web-origins",
             "roles",
-            "auth_time"
+            "auth_time",
+            "id_token_claims"
         ],
         "optionalClientScopes": [
             "profile",
@@ -250,6 +291,8 @@
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-hybrid/callback",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-hybrid/callback?dummy1=lorem&dummy2=ipsum",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-hybrid-static/callback",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-hybrid-static/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -299,7 +342,8 @@
             "name_claims",
             "web-origins",
             "roles",
-            "auth_time"
+            "auth_time",
+            "id_token_claims"
         ],
         "optionalClientScopes": [
             "profile",
@@ -338,6 +382,8 @@
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-implicit/callback",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-implicit/callback?dummy1=lorem&dummy2=ipsum",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-implicit-static/callback",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-implicit-static/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -387,7 +433,8 @@
             "name_claims_for_implicit",
             "web-origins",
             "roles",
-            "auth_time"
+            "auth_time",
+            "id_token_claims"
         ],
           "optionalClientScopes": [
             "profile",
@@ -426,6 +473,8 @@
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-basic/callback",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-basic/callback?dummy1=lorem&dummy2=ipsum",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-basic-static/callback",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-basic-static/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -475,7 +524,8 @@
             "name_claims",
             "web-origins",
             "roles",
-            "auth_time"
+            "auth_time",
+            "id_token_claims"
         ],
         "optionalClientScopes": [
             "profile",
@@ -514,6 +564,8 @@
           "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
           "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-basic/callback",
           "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-basic/callback?dummy1=lorem&dummy2=ipsum",
+          "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-basic-static/callback",
+          "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-basic-static/callback?dummy1=lorem&dummy2=ipsum",
           "https://localhost.emobix.co.uk/test/a/keycloak/callback",
           "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
           "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -563,7 +615,8 @@
         "name_claims",
         "web-origins",
         "roles",
-        "auth_time"
+        "auth_time",
+        "id_token_claims"
       ],
         "optionalClientScopes": [
           "profile",
@@ -602,6 +655,8 @@
           "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
           "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-basic/callback",
           "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-basic/callback?dummy1=lorem&dummy2=ipsum",
+          "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-basic-static/callback",
+          "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-formpost-basic-static/callback?dummy1=lorem&dummy2=ipsum",
           "https://localhost.emobix.co.uk/test/a/keycloak/callback",
           "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
           "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -651,7 +706,8 @@
         "name_claims",
         "web-origins",
         "roles",
-        "auth_time"
+        "auth_time",
+        "id_token_claims"
       ],
         "optionalClientScopes": [
           "profile",
@@ -690,6 +746,8 @@
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-hybrid/callback",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-hybrid/callback?dummy1=lorem&dummy2=ipsum",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-hybrid-static/callback",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-hybrid-static/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -739,7 +797,8 @@
             "name_claims",
             "web-origins",
             "roles",
-            "auth_time"
+            "auth_time",
+            "id_token_claims"
         ],
         "optionalClientScopes": [
             "profile",
@@ -778,6 +837,8 @@
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-hybrid/callback",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-hybrid/callback?dummy1=lorem&dummy2=ipsum",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-hybrid-static/callback",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-hybrid-static/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -827,7 +888,8 @@
             "name_claims",
             "web-origins",
             "roles",
-            "auth_time"
+            "auth_time",
+            "id_token_claims"
         ],
         "optionalClientScopes": [
             "profile",
@@ -866,6 +928,8 @@
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-hybrid/callback",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-hybrid/callback?dummy1=lorem&dummy2=ipsum",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-hybrid-static/callback",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-hybrid-static/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -915,7 +979,8 @@
             "name_claims",
             "web-origins",
             "roles",
-            "auth_time"
+            "auth_time",
+            "id_token_claims"
         ],
         "optionalClientScopes": [
             "profile",
@@ -954,6 +1019,8 @@
               "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
               "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-implicit/callback",
               "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-implicit/callback?dummy1=lorem&dummy2=ipsum",
+              "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-implicit-static/callback",
+              "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-implicit-static/callback?dummy1=lorem&dummy2=ipsum",
               "https://localhost.emobix.co.uk/test/a/keycloak/callback",
               "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
               "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -1003,7 +1070,8 @@
               "name_claims_for_implicit",
               "web-origins",
               "roles",
-              "auth_time"
+              "auth_time",
+              "id_token_claims"
           ],
             "optionalClientScopes": [
               "profile",
@@ -1042,6 +1110,8 @@
               "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
               "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-basic/callback",
               "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-basic/callback?dummy1=lorem&dummy2=ipsum",
+              "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-basic-static/callback",
+              "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-basic-static/callback?dummy1=lorem&dummy2=ipsum",
               "https://localhost.emobix.co.uk/test/a/keycloak/callback",
               "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
               "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -1091,7 +1161,8 @@
               "name_claims",
               "web-origins",
               "roles",
-              "auth_time"
+              "auth_time",
+              "id_token_claims"
           ],
           "optionalClientScopes": [
               "profile",
@@ -1130,6 +1201,8 @@
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-basic/callback",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-basic/callback?dummy1=lorem&dummy2=ipsum",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-basic-static/callback",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-basic-static/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -1179,7 +1252,8 @@
           "name_claims",
           "web-origins",
           "roles",
-          "auth_time"
+          "auth_time",
+          "id_token_claims"
         ],
           "optionalClientScopes": [
             "profile",
@@ -1218,6 +1292,8 @@
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-basic/callback",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-basic/callback?dummy1=lorem&dummy2=ipsum",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-basic-static/callback",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oidcc-basic-static/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -1267,7 +1343,8 @@
           "name_claims",
           "web-origins",
           "roles",
-          "auth_time"
+          "auth_time",
+          "id_token_claims"
         ],
           "optionalClientScopes": [
             "profile",
@@ -1317,7 +1394,7 @@
                 "protocolMapper": "oidc-claims-param-token-mapper",
                 "consentRequired": false,
                 "config": {
-                  "id.token.claim": "false",
+                  "id.token.claim": "true",
                   "userinfo.token.claim": "true"
                 }
               }
@@ -1828,6 +1905,18 @@
                 "claim.name": "email",
                 "jsonType.label": "String"
               }
+            },
+            {
+              "id": "d7a3f5c1-8e42-4b69-b0d7-6e2c9a14f853",
+              "name": "email in id token without access token",
+              "protocol": "openid-connect",
+              "protocolMapper": "script-add-email-to-id-token.js",
+              "consentRequired": false,
+              "config": {
+                "id.token.claim": "true",
+                "access.token.claim": "false",
+                "userinfo.token.claim": "false"
+              }
             }
           ]
         },
@@ -1884,6 +1973,43 @@
               }
             }
           ]
+        },
+        {
+          "id": "3f8d2c47-9b1e-4a56-8e0d-7c6b5a493e21",
+          "name": "id_token_claims",
+          "description": "acr claim and removal of the typ claim of the ID token",
+          "protocol": "openid-connect",
+          "attributes": {
+            "include.in.token.scope": "false",
+            "display.on.consent.screen": "false",
+            "gui.order": "",
+            "consent.screen.text": ""
+          },
+          "protocolMappers": [
+            {
+              "id": "a1c7e9d2-6f34-4b8a-9d15-2e8f7b3c6a40",
+              "name": "acr",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-acr-mapper",
+              "consentRequired": false,
+              "config": {
+                "id.token.claim": "true",
+                "access.token.claim": "true"
+              }
+            },
+            {
+              "id": "c4e8b1f6-2d97-4e30-a6c8-9f1d3b7e5a12",
+              "name": "remove typ from id token",
+              "protocol": "openid-connect",
+              "protocolMapper": "script-remove-id-token-typ.js",
+              "consentRequired": false,
+              "config": {
+                "id.token.claim": "true",
+                "access.token.claim": "false",
+                "userinfo.token.claim": "false"
+              }
+            }
+          ]
         }
       ],
       "defaultDefaultClientScopes": [
@@ -1891,7 +2017,8 @@
         "roles",
         "role_list",
         "web-origins",
-        "auth_time"
+        "auth_time",
+        "id_token_claims"
       ],
       "defaultOptionalClientScopes": [
         "address",

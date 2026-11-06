@@ -1,4 +1,7 @@
 {
+    "options": {
+        "browsercontrol_css_enable": false
+    },
     "alias": "keycloak-oidcc-basic",
     "description": "[Automated]OpenID Connect Core: Basic Certification Profile (server_metadata:discovery/client_registration:static_client)",
     "server": {
