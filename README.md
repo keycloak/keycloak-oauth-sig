@@ -149,7 +149,7 @@ FAPI related accomplishments by FAPI-SIG and OAuth SIG, other contributors and k
 ### Automated Conformance Test Run Environment by this kc-fapi-sig repository
 
 The current environment uses the following software version.
-- Keycloak 26.8.1
+- Keycloak 26.8.2
 - Conformance-suite version : release-v5.3.4
 
 #### FAPI 1.0 Advanced (Final)​
@@ -623,6 +623,7 @@ Since 26.8.0, we only run the following conformance tests:
 |-|-|-|-|-|-|
 |26.8.0|x|x|x|x|x|x|
 |26.8.1|x|x|x|x|x|x|
+|26.8.2|x|x|x|x|x|x|
 
 ## Other Contributions
 
