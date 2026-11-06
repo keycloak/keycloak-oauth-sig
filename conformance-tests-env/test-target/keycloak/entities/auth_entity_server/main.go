@@ -46,15 +46,18 @@ type ClientNotification struct {
 
 // pendingAuthentication is an authentication delegation request from Keycloak that has not been answered yet.
 type pendingAuthentication struct {
+	loginHint   string
 	bearerToken string
 	once        sync.Once
 	timer       *time.Timer
 }
 
 // The auth_req_id sent to the automated approval endpoint cannot be linked to the bearer token
-// sent by Keycloak (both are encrypted), so an approval is applied to the most recent pending request.
-// This works because the conformance suite runs tests for the same alias one at a time,
-// and Keycloak calls this server before returning auth_req_id to the client.
+// sent by Keycloak (both are encrypted). The test plans run in parallel, so each plan uses its own
+// user and sends it as login_hint in its approval URL, and an approval is applied to the most recent
+// pending request of that user. This works because the conformance suite runs the tests of a plan
+// one at a time, and Keycloak calls this server before returning auth_req_id to the client.
+// An approval without login_hint, such as from a manual test, is applied to the most recent pending request.
 var (
 	pendingMu sync.Mutex
 	pending   []*pendingAuthentication
@@ -71,15 +74,17 @@ func removePending(p *pendingAuthentication) {
 	}
 }
 
-func popLatestPending() *pendingAuthentication {
+func popLatestPending(loginHint string) *pendingAuthentication {
 	pendingMu.Lock()
 	defer pendingMu.Unlock()
-	if len(pending) == 0 {
-		return nil
+	for i := len(pending) - 1; i >= 0; i-- {
+		p := pending[i]
+		if loginHint == "" || p.loginHint == loginHint {
+			pending = append(pending[:i], pending[i+1:]...)
+			return p
+		}
 	}
-	p := pending[len(pending)-1]
-	pending = pending[:len(pending)-1]
-	return p
+	return nil
 }
 
 // sendCallback sends the authentication result to Keycloak. It is sent at most once per request.
@@ -137,7 +142,7 @@ func delegatedAuthnHandler(w http.ResponseWriter, r *http.Request) {
 	bearerToken := r.Header.Get("Authorization")
 	log.Printf("Bearer Token on Authorization Header = %s", bearerToken)
 
-	p := &pendingAuthentication{bearerToken: bearerToken}
+	p := &pendingAuthentication{loginHint: authDelegateRequest.LoginHint, bearerToken: bearerToken}
 
 	// if no automated approval arrives, authenticate the user anyway after a while
 	p.timer = time.AfterFunc(fallbackCallbackDelay, func() {
@@ -159,13 +164,15 @@ func automatedCibaApprovalHandler(w http.ResponseWriter, r *http.Request) {
 
 	var auth_req_id string = r.URL.Query().Get("auth_req_id")
 	var action string = r.URL.Query().Get("action")
+	var login_hint string = r.URL.Query().Get("login_hint")
 	log.Printf("    auth_req_id : %s", auth_req_id)
 	log.Printf("    action : %s", action)
+	log.Printf("    login_hint : %s", login_hint)
 
 	// action=allow or action=deny
 	isAllowed := action == "allow"
 
-	if p := popLatestPending(); p != nil {
+	if p := popLatestPending(login_hint); p != nil {
 		p.timer.Stop()
 		time.AfterFunc(approvedCallbackDelay, func() {
 			p.sendCallback(isAllowed)

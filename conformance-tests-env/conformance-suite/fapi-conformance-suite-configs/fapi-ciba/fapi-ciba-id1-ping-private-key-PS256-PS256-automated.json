@@ -1,5 +1,5 @@
 {
-    "alias": "keycloak",
+    "alias": "keycloak-ciba-ping-pkj-ps256",
     "description": "[Automated] FAPI-CIBA-ID1 Ping: Keycloak test with private_key_jwt client authentication (RequestObject:PS256/IDToken:PS256)",
     "server": {
         "discoveryUrl": "https://as.keycloak-fapi.org/auth/realms/test/.well-known/openid-configuration"
@@ -26,7 +26,7 @@
             ]
         },
         "hint_type": "login_hint",
-        "hint_value": "john"
+        "hint_value": "ciba-ping-pkj-ps256"
     },
     "mtls": {
         "cert": "-----BEGIN CERTIFICATE-----\nMIIDJzCCAs6gAwIBAgIUaf4/a2nN138PyceHEIXBIO1iPPYwCgYIKoZIzj0EAwIw\ndjELMAkGA1UEBhMCSlAxEzARBgNVBAgTClByaXZhdGUgQ0ExFzAVBgNVBAoTDlNl\nY3VyZSBPU1MgU2lnMRYwFAYDVQQLEw1LZXljbG9hay1mYXBpMSEwHwYDVQQDExhL\nZXljbG9hay1mYXBpIFByaXZhdGUgQ0EwHhcNMjQwNjA1MTAyNzAwWhcNMjkwNjA0\nMTAyNzAwWjBhMQswCQYDVQQGEwJKUDEPMA0GA1UECBMGQ2xpZW50MRcwFQYDVQQK\nEw5TZWN1cmUgT1NTIFNpZzEWMBQGA1UECxMNS2V5Y2xvYWstZmFwaTEQMA4GA1UE\nAxMHY2xpZW50MTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAL/6QVfl\nKyYjKUV/rBPXFD7Syc70gdsOH6aIwQKGfC3L2jCt6iqCyMjFkMpUJxmGdwp+x61c\nx1ij6GCWAxfnXA/xGRGcjVfuU/QW7Xg45BEKTxshLNKVntcbGXCFAah/bIEzOM1/\nuZLkRJsA01dtupPh9YKx4OBe9UOIDeShqHzCzyjQYysjgD7AnEkfVMOW/8rUty2f\nvDV+er0/oJEtLUooLe58XKT3nvPR85gTgdOfmIWCivobHCFXWjn9e+IeEsqr6kHQ\nNjyiGC8Ilv9Ez76psC4Cir9FFf6okE8R2LBwopsHjOrs51JWkngjqXpPlwSqLiDJ\nG70icqzHupcukpMCAwEAAaOBgzCBgDAOBgNVHQ8BAf8EBAMCBaAwEwYDVR0lBAww\nCgYIKwYBBQUHAwIwDAYDVR0TAQH/BAIwADAdBgNVHQ4EFgQU5/IOtbKQOx6eAVj9\nfklxc64C3iMwHwYDVR0jBBgwFoAUWbTD6OTLVu5cfWrRujoCgyoj8xowCwYDVR0R\nBAQwAoIAMAoGCCqGSM49BAMCA0cAMEQCIFaWCQmVKKr330jTe2zLcA7CcE54FnLK\nuk9K6wGhiTK1AiBVU1ek9t/AiqAEe48on8jfbT+onWdsPPn0Lw3t1kmI7g==\n-----END CERTIFICATE-----",
@@ -62,5 +62,5 @@
     "resource": {
         "resourceUrl": "https://rs.keycloak-fapi.org/"
     },
-    "automated_ciba_approval_url": "https://aes.keycloak-fapi.org/automated/ciba/approval?auth_req_id={auth_req_id}&action={action}"
+    "automated_ciba_approval_url": "https://aes.keycloak-fapi.org/automated/ciba/approval?auth_req_id={auth_req_id}&action={action}&login_hint=ciba-ping-pkj-ps256"
 }

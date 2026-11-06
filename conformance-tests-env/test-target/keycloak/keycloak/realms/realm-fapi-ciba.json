@@ -27,6 +27,86 @@
                     "value": "mike"
                 }
             ]
+        },
+        {
+            "username": "ciba-poll-mtls-es256",
+            "enabled": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "ciba-poll-mtls-es256"
+                }
+            ]
+        },
+        {
+            "username": "ciba-poll-mtls-ps256",
+            "enabled": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "ciba-poll-mtls-ps256"
+                }
+            ]
+        },
+        {
+            "username": "ciba-poll-pkj-es256",
+            "enabled": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "ciba-poll-pkj-es256"
+                }
+            ]
+        },
+        {
+            "username": "ciba-poll-pkj-ps256",
+            "enabled": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "ciba-poll-pkj-ps256"
+                }
+            ]
+        },
+        {
+            "username": "ciba-ping-mtls-es256",
+            "enabled": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "ciba-ping-mtls-es256"
+                }
+            ]
+        },
+        {
+            "username": "ciba-ping-mtls-ps256",
+            "enabled": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "ciba-ping-mtls-ps256"
+                }
+            ]
+        },
+        {
+            "username": "ciba-ping-pkj-es256",
+            "enabled": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "ciba-ping-pkj-es256"
+                }
+            ]
+        },
+        {
+            "username": "ciba-ping-pkj-ps256",
+            "enabled": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "ciba-ping-pkj-ps256"
+                }
+            ]
         }
     ],
     "clients": [
@@ -784,7 +864,7 @@
                 "ciba.backchannel.auth.request.signing.alg": "PS256",
                 "oidc.ciba.grant.enabled": "true",
                 "ciba.backchannel.token.delivery.mode": "ping",
-                "ciba.backchannel.client.notification.endpoint": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/ciba-notification-endpoint",
+                "ciba.backchannel.client.notification.endpoint": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ciba-ping-mtls-ps256/ciba-notification-endpoint",
                 "jwks.url": "http://client_jwks_server:3000/?kid=client1-PS256",
                 "jwt.credential.kid": "client1-PS256",
                 "access.token.signed.response.alg": "RS256",
@@ -873,7 +953,7 @@
                 "ciba.backchannel.auth.request.signing.alg": "PS256",
                 "oidc.ciba.grant.enabled": "true",
                 "ciba.backchannel.token.delivery.mode": "ping",
-                "ciba.backchannel.client.notification.endpoint": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/ciba-notification-endpoint",
+                "ciba.backchannel.client.notification.endpoint": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ciba-ping-mtls-ps256/ciba-notification-endpoint",
                 "jwks.url": "http://client_jwks_server:3000/?kid=client2-PS256",
                 "jwt.credential.kid": "client2-PS256",
                 "access.token.signed.response.alg": "RS256",
@@ -962,7 +1042,7 @@
                 "ciba.backchannel.auth.request.signing.alg": "ES256",
                 "oidc.ciba.grant.enabled": "true",
                 "ciba.backchannel.token.delivery.mode": "ping",
-                "ciba.backchannel.client.notification.endpoint": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/ciba-notification-endpoint",
+                "ciba.backchannel.client.notification.endpoint": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ciba-ping-mtls-es256/ciba-notification-endpoint",
                 "jwks.url": "http://client_jwks_server:3000/?kid=client1-ES256",
                 "jwt.credential.kid": "client1-ES256",
                 "access.token.signed.response.alg": "RS256",
@@ -1051,7 +1131,7 @@
                 "ciba.backchannel.auth.request.signing.alg": "ES256",
                 "oidc.ciba.grant.enabled": "true",
                 "ciba.backchannel.token.delivery.mode": "ping",
-                "ciba.backchannel.client.notification.endpoint": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/ciba-notification-endpoint",
+                "ciba.backchannel.client.notification.endpoint": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ciba-ping-mtls-es256/ciba-notification-endpoint",
                 "jwks.url": "http://client_jwks_server:3000/?kid=client2-ES256",
                 "jwt.credential.kid": "client2-ES256",
                 "access.token.signed.response.alg": "RS256",
@@ -1139,7 +1219,7 @@
                 "ciba.backchannel.auth.request.signing.alg": "PS256",
                 "oidc.ciba.grant.enabled": "true",
                 "ciba.backchannel.token.delivery.mode": "ping",
-                "ciba.backchannel.client.notification.endpoint": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/ciba-notification-endpoint",
+                "ciba.backchannel.client.notification.endpoint": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ciba-ping-pkj-ps256/ciba-notification-endpoint",
                 "jwks.url": "http://client_jwks_server:3000/?kid=client1-PS256",
                 "jwt.credential.kid": "client1-PS256",
                 "access.token.signed.response.alg": "RS256",
@@ -1227,7 +1307,7 @@
                 "ciba.backchannel.auth.request.signing.alg": "PS256",
                 "oidc.ciba.grant.enabled": "true",
                 "ciba.backchannel.token.delivery.mode": "ping",
-                "ciba.backchannel.client.notification.endpoint": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/ciba-notification-endpoint",
+                "ciba.backchannel.client.notification.endpoint": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ciba-ping-pkj-ps256/ciba-notification-endpoint",
                 "jwks.url": "http://client_jwks_server:3000/?kid=client2-PS256",
                 "jwt.credential.kid": "client2-PS256",
                 "access.token.signed.response.alg": "RS256",
@@ -1315,7 +1395,7 @@
                 "ciba.backchannel.auth.request.signing.alg": "ES256",
                 "oidc.ciba.grant.enabled": "true",
                 "ciba.backchannel.token.delivery.mode": "ping",
-                "ciba.backchannel.client.notification.endpoint": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/ciba-notification-endpoint",
+                "ciba.backchannel.client.notification.endpoint": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ciba-ping-pkj-es256/ciba-notification-endpoint",
                 "jwks.url": "http://client_jwks_server:3000/?kid=client1-ES256",
                 "jwt.credential.kid": "client1-ES256",
                 "access.token.signed.response.alg": "RS256",
@@ -1403,7 +1483,7 @@
                 "ciba.backchannel.auth.request.signing.alg": "ES256",
                 "oidc.ciba.grant.enabled": "true",
                 "ciba.backchannel.token.delivery.mode": "ping",
-                "ciba.backchannel.client.notification.endpoint": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/ciba-notification-endpoint",
+                "ciba.backchannel.client.notification.endpoint": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-ciba-ping-pkj-es256/ciba-notification-endpoint",
                 "jwks.url": "http://client_jwks_server:3000/?kid=client2-ES256",
                 "jwt.credential.kid": "client2-ES256",
                 "access.token.signed.response.alg": "RS256",
@@ -2014,6 +2094,19 @@
                     ],
                     "algorithm": [
                         "HS256"
+                    ]
+                }
+            },
+            {
+                "name": "hmac-generated-hs512",
+                "providerId": "hmac-generated",
+                "subComponents": {},
+                "config": {
+                    "priority": [
+                        "100"
+                    ],
+                    "algorithm": [
+                        "HS512"
                     ]
                 }
             },

@@ -1,5 +1,5 @@
 {
-    "alias": "keycloak",
+    "alias": "keycloak-ciba-ping-mtls-ps256",
     "description": "[Automated] FAPI-CIBA-ID1 Ping: Keycloak test with mtls client authentication (RequestObject:PS256/IDToken:PS256)",
     "server": {
         "discoveryUrl": "https://as.keycloak-fapi.org/auth/realms/test/.well-known/openid-configuration"
@@ -26,7 +26,7 @@
             ]
         },
         "hint_type": "login_hint",
-        "hint_value": "john"
+        "hint_value": "ciba-ping-mtls-ps256"
     },
     "client2": {
         "client_id": "client2-mtls-PS256-PS256-fapi-ciba-ping-id1",
@@ -62,5 +62,5 @@
     "resource": {
         "resourceUrl": "https://rs.keycloak-fapi.org/"
     },
-    "automated_ciba_approval_url": "https://aes.keycloak-fapi.org/automated/ciba/approval?auth_req_id={auth_req_id}&action={action}"
+    "automated_ciba_approval_url": "https://aes.keycloak-fapi.org/automated/ciba/approval?auth_req_id={auth_req_id}&action={action}&login_hint=ciba-ping-mtls-ps256"
 }

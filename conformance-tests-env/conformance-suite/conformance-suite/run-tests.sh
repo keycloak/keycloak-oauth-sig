@@ -1427,6 +1427,8 @@ elif [ "$#" -eq 1 ] && [ "$1" = "--fapi-ciba-all" ]; then
     echo "Run fapi-ciba all tests"
     makeCIBAPollTest
     makeCIBAPingTest
+    EXPECTED_SKIPS_FILE="${SUITE_DIR}/.gitlab-ci/fapi-conformance-suite-configs/fapi-ciba/expected-skips-fapi-ciba-all.json"
+    TESTS="${TESTS} --expected-skips-file ${EXPECTED_SKIPS_FILE}"
 elif [ "$#" -eq 1 ] && [ "$1" = "--ob-br-fapi1-advanced-all" ]; then
     echo "Run ob-br-fapi1-advanced all tests"
     # obsoleted from conformance suite version 5.1.15
