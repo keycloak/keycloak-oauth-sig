@@ -1,0 +1,14 @@
+[
+    {
+        "test-name": "fapi2-security-profile-final-ensure-signed-request-object-with-RS256-fails",
+        "variant": "*",
+        "configuration-filename": "*fapi2-final-FAPI2MS-*-ES256-ES256-automated.json",
+        "comment": "This test requires RSA keys, but the client of this config uses ES256."
+    },
+    {
+        "test-name": "fapi2-security-profile-final-ensure-signed-client-assertion-with-RS256-fails",
+        "variant": "*",
+        "configuration-filename": "*fapi2-final-FAPI2MS-*-private-key-MTLS-ES256-ES256-automated.json",
+        "comment": "This test requires RSA keys, but the client of this config uses ES256."
+    }
+]
