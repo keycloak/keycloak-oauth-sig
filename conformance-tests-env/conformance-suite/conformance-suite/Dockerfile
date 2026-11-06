@@ -5,6 +5,11 @@ ARG OPENID_GIT_TAG
 RUN apt-get update && apt-get install -y git
 RUN git clone -b ${OPENID_GIT_TAG} ${OPENID_GIT_URL} ./conformance-suite
 ADD . ./conformance-suite/
+# wait 1s past expires_in: the expired request_uri tests otherwise wait exactly the
+# lifetime, and a backward clock correction during the wait makes them fail intermittently
+RUN cd conformance-suite \
+    && sed -i "s/return seconds;/return seconds + 1;/" src/main/java/net/openid/conformance/condition/client/WaitForExpiry.java \
+    && grep -q "return seconds + 1;" src/main/java/net/openid/conformance/condition/client/WaitForExpiry.java
 RUN cd conformance-suite && mv -f run-tests.sh ./.gitlab-ci && mvn package -DskipTests
 # rotate OP signing keys just before run-test-plan.py starts oidcc-server-rotate-keys
 RUN cd conformance-suite && sed -i 's/\r$//' rotate-op-keys.sh && chmod a+x rotate-op-keys.sh \

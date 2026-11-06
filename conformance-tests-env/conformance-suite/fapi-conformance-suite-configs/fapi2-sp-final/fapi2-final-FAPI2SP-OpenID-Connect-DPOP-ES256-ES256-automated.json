@@ -1,5 +1,5 @@
 {
-    "alias": "keycloak",
+    "alias": "keycloak-sp-oidc-dpop",
     "description": "[Automatic] FAPI2SP Final OpenID Connect: Keycloak test",
     "server": {
         "discoveryUrl": "https://as.keycloak-fapi.org/auth/realms/test/.well-known/openid-configuration"
@@ -64,13 +64,13 @@
                             "text",
                             "id",
                             "username",
-                            "john"
+                            "alice"
                         ],
                         [
                             "text",
                             "id",
                             "password",
-                            "john"
+                            "alice"
                         ],
                         [
                             "click",
@@ -93,7 +93,7 @@
                 },
                 {
                     "task": "Verify Complete",
-                    "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                    "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-oidc-dpop/callback*",
                     "commands": [
                         [
                             "wait",
@@ -148,7 +148,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-oidc-dpop/callback*",
                             "commands": [
                                 [
                                     "wait",
@@ -331,13 +331,13 @@
                                     "text",
                                     "id",
                                     "username",
-                                    "john"
+                                    "alice"
                                 ],
                                 [
                                     "text",
                                     "id",
                                     "password",
-                                    "john"
+                                    "alice"
                                 ],
                                 [
                                     "click",
@@ -360,7 +360,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-oidc-dpop/callback*",
                             "optional": true,
                             "commands": [
                                 [
@@ -391,13 +391,13 @@
                                     "text",
                                     "id",
                                     "username",
-                                    "john"
+                                    "alice"
                                 ],
                                 [
                                     "text",
                                     "id",
                                     "password",
-                                    "john"
+                                    "alice"
                                 ],
                                 [
                                     "click",
@@ -420,7 +420,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-oidc-dpop/callback*",
                             "commands": [
                                 [
                                     "wait",

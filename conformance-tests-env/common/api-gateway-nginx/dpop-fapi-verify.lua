@@ -30,6 +30,24 @@ local function verify_dpop_jose_header(header)
     return true, nil
 end
 
+-- RFC 9449 section 4.3: compare htu ignoring query and fragment, after the
+-- syntax and scheme based normalization of RFC 3986 sections 6.2.2 and 6.2.3.
+local function normalize_uri(uri)
+    local without_query = string.match(uri, "^[^?#]*")
+    local scheme, authority, path = string.match(without_query, "^(%a[%w+.-]*)://([^/]*)(.*)$")
+    if not scheme then
+        return without_query
+    end
+
+    scheme = string.lower(scheme)
+    authority = string.lower(authority)
+    if scheme == "https" then
+        authority = string.gsub(authority, ":443$", "")
+    end
+
+    return scheme .. "://" .. authority .. path
+end
+
 local function verify_dpop_payload(payload, uri, method)
 
     if not payload.jti then
@@ -40,13 +58,7 @@ local function verify_dpop_payload(payload, uri, method)
         return false, "Missing DPoP proof claims - htu"
     end
 
-    local normalized_htu = payload.htu
-    local s, e = string.find(payload.htu, "%?")
-    if s ~= nil then
-        normalized_htu = string.sub(payload.htu, 1, s - 1)
-    end
-
-    if normalized_htu ~= uri then
+    if normalize_uri(payload.htu) ~= normalize_uri(uri) then
         return false, "Invalid DPoP proof claims - htu"
     end
 
@@ -174,6 +186,33 @@ local function verify_dpop_signature(dpop_header)
     return true, nil
 end
 
+-- A DPoP proof says nothing about revocation, so ask the authorization server
+-- whether the access token is still active.
+local function verify_access_token_active(access_token)
+    local credentials = ngx.encode_base64("resource-server:" .. os.getenv("CLIENT_SECRET"))
+    local res, err = http.new():request_uri(os.getenv("INTROSPECTION_ENDPOINT_URL"), {
+        method = "POST",
+        body = ngx.encode_args({ token = access_token, token_type_hint = "access_token" }),
+        headers = {
+            ["Authorization"] = "Basic " .. credentials,
+            ["Content-Type"] = "application/x-www-form-urlencoded",
+        },
+    })
+    if not res then
+        return false, "Token introspection failed: " .. err
+    end
+    if res.status ~= 200 then
+        return false, "Token introspection failed - status: " .. res.status
+    end
+
+    local introspection = cjson.decode(res.body)
+    if not introspection or introspection.active ~= true then
+        return false, "Access token is not active"
+    end
+
+    return true, nil
+end
+
 -- Function to validate DPoP
 local function verify_dpop()
     local headers = ngx.req.get_headers()
@@ -232,6 +271,11 @@ local function verify_dpop()
     end
 
     valid, err = verify_dpop_signature(dpop_header)
+    if not valid then
+        return false, err
+    end
+
+    valid, err = verify_access_token_active(access_token)
     if not valid then
         return false, err
     end

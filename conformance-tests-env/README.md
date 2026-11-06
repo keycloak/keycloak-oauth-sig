@@ -237,6 +237,19 @@ Below is a list of the custom files currently used by the base conformance-suite
 * /conformance-suite/server-entrypoint.sh
   * Script for building the project with maven
 
+The Dockerfile also patches the upstream source at build time: `WaitForExpiry` waits 1 second longer than the `expires_in` value. The expired `request_uri` tests (`*-par-attempt-to-use-expired-request_uri`) otherwise wait exactly the `request_uri` lifetime, so a backward correction of the system clock during the wait makes them fail intermittently because the authorization server still considers the `request_uri` valid.
+
+## Custom files in the Keycloak image
+
+Keycloak always adds the `typ` and `sid` claims to the ID token, and no realm setting removes them. The FAPI 2.0 Security Profile conformance tests warn about both (`fapi2-security-profile-final-happy-flow` and `fapi2-security-profile-final-test-claims-parameter-identity-claims`).
+To finish these tests as passed, `test-target/keycloak/keycloak/id-token-claims-mapper` provides a script based protocol mapper that removes the claims. The Keycloak Dockerfile packages it as a provider and enables the `scripts` feature. Only `realm-fapi2-sp-final.json` uses the mapper, in its `profile` client scope, so ID tokens of the other realms are unchanged.
+Because an ID token issued with this mapper has no `typ` claim, Keycloak rejects it as an `id_token_hint` at the logout endpoint.
+
+## Parallel run of FAPI2 SP Final conformance test
+
+`run-test-plan.py` runs test plans with the same alias one after another, so each `fapi2-final-FAPI2SP-*-automated.json` config has its own alias to run its plan in parallel with the others. When adding a config, give it a new alias and register its callback URLs in the `redirectUris` of its clients in `realm-fapi2-sp-final.json`.
+Plans that use the same client must log in as different users, otherwise they can store the user consent for the same user and client at the same time. This is why the OpenID Connect configs use `alice` instead of `john`.
+
 ## Run specified FAPI Conformance test
 
 You can choose and run automatically several types of FAPI conformance test against both released keycloak container from quay.io or one you've installed on your local environment.
