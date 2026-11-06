@@ -1,5 +1,5 @@
 {
-    "alias": "keycloak",
+    "alias": "keycloak-sp-pkj",
     "description": "[Automated] FAPI2SP Final private key + MTLS: Keycloak test with private_key_jwt client authentication (RequestObject:PS256/IDToken:PS256)",
     "server": {
         "discoveryUrl": "https://as.keycloak-fapi.org/auth/realms/test/.well-known/openid-configuration"
@@ -101,7 +101,7 @@
                 },
                 {
                     "task": "Verify Complete",
-                    "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                    "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-pkj/callback*",
                     "commands": [
                         [
                             "wait",
@@ -157,7 +157,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-pkj/callback*",
                             "commands": [
                                 [
                                     "wait",
@@ -344,7 +344,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-pkj/callback*",
                             "optional": true,
                             "commands": [
                                 [
@@ -404,7 +404,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-pkj/callback*",
                             "commands": [
                                 [
                                     "wait",

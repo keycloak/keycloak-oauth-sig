@@ -1,0 +1,9 @@
+{
+  "mappers": [
+    {
+      "name": "Remove typ and sid from ID token",
+      "fileName": "remove-id-token-claims.js",
+      "description": "Removes the Keycloak specific typ and sid claims from the ID token"
+    }
+  ]
+}

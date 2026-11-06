@@ -1,5 +1,5 @@
 {
-    "alias": "keycloak",
+    "alias": "keycloak-sp-dpop-pkj",
     "description": "[Automatic] FAPI2SP Final private key + MTLS - DPoP Bound: Keycloak test with private_key_jwt client authentication (RequestObject:PS256/IDToken:PS256)",
     "server": {
         "discoveryUrl": "https://as.keycloak-fapi.org/auth/realms/test/.well-known/openid-configuration"
@@ -103,7 +103,7 @@
                 },
                 {
                     "task": "Verify Complete",
-                    "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                    "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-dpop-pkj/callback*",
                     "commands": [
                         [
                             "wait",
@@ -158,7 +158,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-dpop-pkj/callback*",
                             "commands": [
                                 [
                                     "wait",
@@ -370,7 +370,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-dpop-pkj/callback*",
                             "optional": true,
                             "commands": [
                                 [
@@ -430,7 +430,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-dpop-pkj/callback*",
                             "commands": [
                                 [
                                     "wait",

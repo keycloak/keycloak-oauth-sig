@@ -1,5 +1,5 @@
 {
-    "alias": "keycloak",
+    "alias": "keycloak-sp-dpop-mtls",
     "description": "[Automatic] FAPI2SP Final MTLS + MTLS - DPoP Bound: Keycloak test",
     "server": {
         "discoveryUrl": "https://as.keycloak-fapi.org/auth/realms/test/.well-known/openid-configuration"
@@ -95,7 +95,7 @@
                 },
                 {
                     "task": "Verify Complete",
-                    "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                    "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-dpop-mtls/callback*",
                     "commands": [
                         [
                             "wait",
@@ -150,7 +150,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-dpop-mtls/callback*",
                             "commands": [
                                 [
                                     "wait",
@@ -362,7 +362,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-dpop-mtls/callback*",
                             "optional": true,
                             "commands": [
                                 [
@@ -422,7 +422,7 @@
                         },
                         {
                             "task": "Verify Complete",
-                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback*",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-dpop-mtls/callback*",
                             "commands": [
                                 [
                                     "wait",

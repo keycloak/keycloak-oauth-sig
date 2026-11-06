@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"time"
 	"strings"
+	"sync"
 	"encoding/base64"
 	"github.com/lestrrat-go/jwx/jwa"
 	"github.com/lestrrat-go/jwx/jwk"
@@ -14,6 +15,7 @@ import (
 )
 
 var dpopProofJtiMap = make(map[string]string)
+var dpopProofJtiMutex sync.Mutex
 
 func decodeJoseHeader(encodedDpopProof string) []byte {
     return decodeDPoPElement(encodedDpopProof, 0)
@@ -56,13 +58,17 @@ func dpopHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	payloadJsonObj := unmarshallJson(dpl)
 	dpopProofJti := payloadJsonObj.(map[string]interface{})["jti"].(string)
+	dpopProofJtiMutex.Lock()
 	_, included := dpopProofJtiMap[dpopProofJti]
+	if !included {
+		dpopProofJtiMap[dpopProofJti] = dpopProofJti
+	}
+	dpopProofJtiMutex.Unlock()
 	if included { // replay suspect
 		log.Printf("replay suspect jti = %s", dpopProofJti)
 		http.Error(w, "replay suspect", http.StatusBadRequest)
 		return
 	}
-	dpopProofJtiMap[dpopProofJti] = dpopProofJti
 
 	joseJsonObj := unmarshallJson(djh)
 	jwkJson := joseJsonObj.(map[string]interface{})["jwk"].(interface{})

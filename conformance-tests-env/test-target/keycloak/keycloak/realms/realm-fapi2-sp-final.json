@@ -8,6 +8,10 @@
     "users": [
         {
             "username": "john",
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "john@keycloak-fapi.org",
+            "emailVerified": true,
             "enabled": true,
             "credentials": [
                 {
@@ -17,7 +21,25 @@
             ]
         },
         {
+            "username": "alice",
+            "firstName": "Alice",
+            "lastName": "Doe",
+            "email": "alice@keycloak-fapi.org",
+            "emailVerified": true,
+            "enabled": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "alice"
+                }
+            ]
+        },
+        {
             "username": "mike",
+            "firstName": "Mike",
+            "lastName": "Smith",
+            "email": "mike@keycloak-fapi.org",
+            "emailVerified": true,
             "enabled": true,
             "credentials": [
                 {
@@ -50,6 +72,10 @@
                 "https://localhost:8443/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
                 "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback",
                 "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-mtls/callback",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-mtls/callback?dummy1=lorem&dummy2=ipsum",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-oidc-mtls/callback",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-oidc-mtls/callback?dummy1=lorem&dummy2=ipsum",
                 "https://localhost.emobix.co.uk/test/a/keycloak/callback",
                 "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
                 "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -139,6 +165,10 @@
                 "https://localhost:8443/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
                 "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback",
                 "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-mtls/callback",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-mtls/callback?dummy1=lorem&dummy2=ipsum",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-oidc-mtls/callback",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-oidc-mtls/callback?dummy1=lorem&dummy2=ipsum",
                 "https://localhost.emobix.co.uk/test/a/keycloak/callback",
                 "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
                 "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -228,6 +258,8 @@
               "https://localhost:8443/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
               "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback",
               "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
+              "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-pkj/callback",
+              "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-pkj/callback?dummy1=lorem&dummy2=ipsum",
               "https://localhost.emobix.co.uk/test/a/keycloak/callback",
               "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
               "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -315,6 +347,8 @@
               "https://localhost:8443/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
               "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback",
               "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
+              "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-pkj/callback",
+              "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-pkj/callback?dummy1=lorem&dummy2=ipsum",
               "https://localhost.emobix.co.uk/test/a/keycloak/callback",
               "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
               "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -402,6 +436,10 @@
             "https://localhost:8443/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-dpop-mtls/callback",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-dpop-mtls/callback?dummy1=lorem&dummy2=ipsum",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-oidc-dpop/callback",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-oidc-dpop/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -491,6 +529,10 @@
             "https://localhost:8443/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-dpop-mtls/callback",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-dpop-mtls/callback?dummy1=lorem&dummy2=ipsum",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-oidc-dpop/callback",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-oidc-dpop/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -580,6 +622,8 @@
             "https://localhost:8443/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-dpop-pkj/callback",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-dpop-pkj/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -668,6 +712,8 @@
             "https://localhost:8443/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback",
             "https://conformance-suite.keycloak-fapi.org/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-dpop-pkj/callback",
+            "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-sp-dpop-pkj/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback",
             "https://localhost.emobix.co.uk/test/a/keycloak/callback?dummy1=lorem&dummy2=ipsum",
             "https://localhost.emobix.co.uk:8443/test/a/keycloak/callback",
@@ -945,6 +991,18 @@
           },
           "protocolMappers": [
             {
+              "id": "b6a0c1de-4f7e-4f0a-9c2b-5d3e8a1f7c21",
+              "name": "remove typ and sid from id token",
+              "protocol": "openid-connect",
+              "protocolMapper": "script-remove-id-token-claims.js",
+              "consentRequired": false,
+              "config": {
+                "id.token.claim": "true",
+                "access.token.claim": "false",
+                "userinfo.token.claim": "false"
+              }
+            },
+            {
               "id": "2c03e2a0-7248-4575-88a0-7b870ed23959",
               "name": "family name",
               "protocol": "openid-connect",
@@ -953,7 +1011,7 @@
               "config": {
                 "userinfo.token.claim": "true",
                 "user.attribute": "lastName",
-                "id.token.claim": "true",
+                "id.token.claim": "false",
                 "access.token.claim": "true",
                 "claim.name": "family_name",
                 "jsonType.label": "String"
@@ -968,7 +1026,7 @@
               "config": {
                 "userinfo.token.claim": "true",
                 "user.attribute": "picture",
-                "id.token.claim": "true",
+                "id.token.claim": "false",
                 "access.token.claim": "true",
                 "claim.name": "picture",
                 "jsonType.label": "String"
@@ -981,7 +1039,7 @@
               "protocolMapper": "oidc-full-name-mapper",
               "consentRequired": false,
               "config": {
-                "id.token.claim": "true",
+                "id.token.claim": "false",
                 "access.token.claim": "true",
                 "userinfo.token.claim": "true"
               }
@@ -995,7 +1053,7 @@
               "config": {
                 "userinfo.token.claim": "true",
                 "user.attribute": "username",
-                "id.token.claim": "true",
+                "id.token.claim": "false",
                 "access.token.claim": "true",
                 "claim.name": "preferred_username",
                 "jsonType.label": "String"
@@ -1010,7 +1068,7 @@
               "config": {
                 "userinfo.token.claim": "true",
                 "user.attribute": "locale",
-                "id.token.claim": "true",
+                "id.token.claim": "false",
                 "access.token.claim": "true",
                 "claim.name": "locale",
                 "jsonType.label": "String"
@@ -1025,7 +1083,7 @@
               "config": {
                 "userinfo.token.claim": "true",
                 "user.attribute": "profile",
-                "id.token.claim": "true",
+                "id.token.claim": "false",
                 "access.token.claim": "true",
                 "claim.name": "profile",
                 "jsonType.label": "String"
@@ -1040,7 +1098,7 @@
               "config": {
                 "userinfo.token.claim": "true",
                 "user.attribute": "updatedAt",
-                "id.token.claim": "true",
+                "id.token.claim": "false",
                 "access.token.claim": "true",
                 "claim.name": "updated_at",
                 "jsonType.label": "String"
@@ -1055,7 +1113,7 @@
               "config": {
                 "userinfo.token.claim": "true",
                 "user.attribute": "firstName",
-                "id.token.claim": "true",
+                "id.token.claim": "false",
                 "access.token.claim": "true",
                 "claim.name": "given_name",
                 "jsonType.label": "String"
@@ -1070,7 +1128,7 @@
               "config": {
                 "userinfo.token.claim": "true",
                 "user.attribute": "middleName",
-                "id.token.claim": "true",
+                "id.token.claim": "false",
                 "access.token.claim": "true",
                 "claim.name": "middle_name",
                 "jsonType.label": "String"
@@ -1085,7 +1143,7 @@
               "config": {
                 "userinfo.token.claim": "true",
                 "user.attribute": "nickname",
-                "id.token.claim": "true",
+                "id.token.claim": "false",
                 "access.token.claim": "true",
                 "claim.name": "nickname",
                 "jsonType.label": "String"
@@ -1100,7 +1158,7 @@
               "config": {
                 "userinfo.token.claim": "true",
                 "user.attribute": "website",
-                "id.token.claim": "true",
+                "id.token.claim": "false",
                 "access.token.claim": "true",
                 "claim.name": "website",
                 "jsonType.label": "String"
@@ -1115,7 +1173,7 @@
               "config": {
                 "userinfo.token.claim": "true",
                 "user.attribute": "gender",
-                "id.token.claim": "true",
+                "id.token.claim": "false",
                 "access.token.claim": "true",
                 "claim.name": "gender",
                 "jsonType.label": "String"
@@ -1130,7 +1188,7 @@
               "config": {
                 "userinfo.token.claim": "true",
                 "user.attribute": "birthdate",
-                "id.token.claim": "true",
+                "id.token.claim": "false",
                 "access.token.claim": "true",
                 "claim.name": "birthdate",
                 "jsonType.label": "String"
@@ -1145,7 +1203,7 @@
               "config": {
                 "userinfo.token.claim": "true",
                 "user.attribute": "zoneinfo",
-                "id.token.claim": "true",
+                "id.token.claim": "false",
                 "access.token.claim": "true",
                 "claim.name": "zoneinfo",
                 "jsonType.label": "String"
