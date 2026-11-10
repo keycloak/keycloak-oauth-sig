@@ -89,6 +89,7 @@ services:
     environment:
      - AUTOMATE_TESTS=${AUTOMATE_TESTS}
      - TEST_PLAN=${TEST_PLAN}
+     - KEYCLOAK_HTTP_RELATIVE_PATH=${KEYCLOAK_HTTP_RELATIVE_PATH:-/auth}
     volumes:
      - /var/run/docker.sock:/var/run/docker.sock
      - ./conformance-suite/fapi-conformance-suite-configs:/json-config
@@ -138,7 +139,9 @@ services:
       - MONGODB_HOST=mongodb
       # used by run-test-plan.py to rotate keycloak's signing keys for oidcc-server-rotate-keys test
       - ROTATE_OP_KEYS_COMMAND=/conformance-suite/rotate-op-keys.sh
-      - KEYCLOAK_URL=http://keycloak:8080/auth
+      # used by run-test-plan.py to drive keycloak for test modules waiting for it (OID4VCI issuer initiated flow, OID4VP verifier)
+      - WAITING_INTERACTION_COMMAND=python3 /conformance-suite/oid4vc-interaction.py
+      - KEYCLOAK_URL=http://keycloak:8080${KEYCLOAK_HTTP_RELATIVE_PATH:-/auth}
       - KEYCLOAK_REALM=${KEYCLOAK_REALM}
       - KEYCLOAK_USER=${KEYCLOAK_USER}
       - KEYCLOAK_PASSWORD=${KEYCLOAK_PASSWORD}
@@ -176,6 +179,7 @@ services:
      - KEYCLOAK_ADMIN=${KEYCLOAK_USER}
      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_PASSWORD}
      - KC_SPI_PUBLIC_KEY_STORAGE__INFINISPAN__MIN_TIME_BETWEEN_REQUESTS=1
+     - KC_FEATURES=${KEYCLOAK_FEATURES:-scripts}
     volumes:
       # Need to add server.pem to the image at build-time for cacerts import
 #     - ./common/https/server.pem:/etc/x509/https/tls.crt
@@ -187,7 +191,7 @@ services:
 #     - ../../bin/keycloak-conformance-test/lib:/opt/keycloak/lib
 #     - ../../bin/keycloak-conformance-test/themes:/opt/keycloak/themes
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080${KEYCLOAK_HTTP_RELATIVE_PATH:-/auth}"]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -198,7 +202,7 @@ services:
       - "--hostname=${KEYCLOAK_FQDN}"
       - "--proxy-headers=forwarded"
       - "--http-enabled=true"
-      - "--http-relative-path=/auth"
+      - "--http-relative-path=${KEYCLOAK_HTTP_RELATIVE_PATH:-/auth}"
       - "--https-certificate-file=/etc/x509/https/server.crt"
       - "--https-certificate-key-file=/etc/x509/https/tls.key"
       - "--https-client-auth=request"
@@ -212,6 +216,7 @@ services:
       - KEYCLOAK_ADMIN=${KEYCLOAK_USER}
       - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_PASSWORD}
       - KEYCLOAK_REALM_IMPORT_FILENAME=${KEYCLOAK_REALM_IMPORT_FILENAME}
+      - KEYCLOAK_HTTP_RELATIVE_PATH=${KEYCLOAK_HTTP_RELATIVE_PATH:-/auth}
     volumes:
       - ./test-target/keycloak/keycloak/realms:/opt/keycloak/import:z
     entrypoint: /usr/bin/bash
@@ -219,7 +224,7 @@ services:
       -c "
       until
         echo Connecting to Keycloak... &&
-        /opt/keycloak/bin/kcadm.sh config credentials --server http://keycloak:8080/auth --realm master --user $$KEYCLOAK_ADMIN --password $$KEYCLOAK_ADMIN_PASSWORD &&
+        /opt/keycloak/bin/kcadm.sh config credentials --server http://keycloak:8080$${KEYCLOAK_HTTP_RELATIVE_PATH%/} --realm master --user $$KEYCLOAK_ADMIN --password $$KEYCLOAK_ADMIN_PASSWORD &&
         echo Importing realm from $$KEYCLOAK_REALM_IMPORT_FILENAME to Keycloak... &&
         /opt/keycloak/bin/kcadm.sh create realms -f /opt/keycloak/import/$$KEYCLOAK_REALM_IMPORT_FILENAME
       do
@@ -248,4 +253,12 @@ services:
   auth_entity_server:
     build:
       context: ./test-target/keycloak/entities/auth_entity_server
+
+# CRL Distribution Point of the OID4VCI credential signing certificate (fetched by the conformance suite for ISO mdoc credentials)
+
+  oid4vc-crl-server:
+    build:
+      context: ./test-target/keycloak/entities/oid4vc_crl_server
+    volumes:
+      - ./test-target/keycloak/keycloak/oid4vc:/ca:ro
 

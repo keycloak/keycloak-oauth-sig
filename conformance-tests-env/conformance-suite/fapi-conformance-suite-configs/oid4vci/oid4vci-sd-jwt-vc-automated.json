@@ -1,0 +1,114 @@
+{
+    "alias": "keycloak-oid4vci",
+    "description": "OID4VCI 1.0 Final: Keycloak test with SD-JWT VC",
+    "vci": {
+        "credential_issuer_url": "https://as.keycloak-fapi.org/realms/test",
+        "credential_configuration_id": "conformance_sd_jwt_vc"
+    },
+    "credential": {
+        "trust_anchor_pem": "-----BEGIN CERTIFICATE-----\nMIICFzCCAb2gAwIBAgIUMsp7TPNDmhhPGZ76hpWcoG8F/egwCgYIKoZIzj0EAwIw\nLjELMAkGA1UEBhMCVVMxHzAdBgNVBAMMFk9JRDRWQ0kgQ29uZm9ybWFuY2UgQ0Ew\nHhcNMjYxMTA4MjI1ODEwWhcNMzYxMTA2MjI1ODEwWjAuMQswCQYDVQQGEwJVUzEf\nMB0GA1UEAwwWT0lENFZDSSBDb25mb3JtYW5jZSBDQTBZMBMGByqGSM49AgEGCCqG\nSM49AwEHA0IABEhKo8jXOzTEfxR3uPytSYjAvJ2+v+xhHKrdJFwHxX7Ff4EFcvSC\nFHaqNWCpCGWIeWuUUyguxP/JGc+9nTnLkQijgbgwgbUwEgYDVR0TAQH/BAgwBgEB\n/wIBADAOBgNVHQ8BAf8EBAMCAQYwHQYDVR0OBBYEFJFQLot8z1CEB82/FD5ldk+J\nyQ/WMCoGA1UdEgQjMCGBH29pZDR2Y2ktY29uZm9ybWFuY2VAZXhhbXBsZS5jb20w\nRAYDVR0fBD0wOzA5oDegNYYzaHR0cDovL29pZDR2Yy1jcmwtc2VydmVyOjgwODAv\nb2lkNHZjaS1pc3N1ZXItY2EuY3JsMAoGCCqGSM49BAMCA0gAMEUCIE5gOhy316Sy\n97utoks5MJ4ATz0OOeNXFCnuaa7nos0DAiEAvKvnkM9GPmIiqDqeQ80sXT3tmBb2\n+qHRI9essuTWplE=\n-----END CERTIFICATE-----\n",
+        "status_list_trust_anchor_pem": "-----BEGIN CERTIFICATE-----\nMIICFzCCAb2gAwIBAgIUMsp7TPNDmhhPGZ76hpWcoG8F/egwCgYIKoZIzj0EAwIw\nLjELMAkGA1UEBhMCVVMxHzAdBgNVBAMMFk9JRDRWQ0kgQ29uZm9ybWFuY2UgQ0Ew\nHhcNMjYxMTA4MjI1ODEwWhcNMzYxMTA2MjI1ODEwWjAuMQswCQYDVQQGEwJVUzEf\nMB0GA1UEAwwWT0lENFZDSSBDb25mb3JtYW5jZSBDQTBZMBMGByqGSM49AgEGCCqG\nSM49AwEHA0IABEhKo8jXOzTEfxR3uPytSYjAvJ2+v+xhHKrdJFwHxX7Ff4EFcvSC\nFHaqNWCpCGWIeWuUUyguxP/JGc+9nTnLkQijgbgwgbUwEgYDVR0TAQH/BAgwBgEB\n/wIBADAOBgNVHQ8BAf8EBAMCAQYwHQYDVR0OBBYEFJFQLot8z1CEB82/FD5ldk+J\nyQ/WMCoGA1UdEgQjMCGBH29pZDR2Y2ktY29uZm9ybWFuY2VAZXhhbXBsZS5jb20w\nRAYDVR0fBD0wOzA5oDegNYYzaHR0cDovL29pZDR2Yy1jcmwtc2VydmVyOjgwODAv\nb2lkNHZjaS1pc3N1ZXItY2EuY3JsMAoGCCqGSM49BAMCA0gAMEUCIE5gOhy316Sy\n97utoks5MJ4ATz0OOeNXFCnuaa7nos0DAiEAvKvnkM9GPmIiqDqeQ80sXT3tmBb2\n+qHRI9essuTWplE=\n-----END CERTIFICATE-----\n"
+    },
+    "client": {
+        "client_id": "oid4vci-client",
+        "jwks": {
+            "keys": [
+                {
+                    "kty": "EC",
+                    "use": "sig",
+                    "crv": "P-256",
+                    "kid": "ct_client_signing_key",
+                    "x5c": [
+                        "MIIBgzCCASqgAwIBAgIUSYUkMQdInurZOXTp532eBUoDj5YwCgYIKoZIzj0EAwIwKDEmMCQGA1UEAwwdT0lENFZDSSBDb25mb3JtYW5jZSBDbGllbnQgQ0EwHhcNMjYxMTA4MjI1ODEwWhcNMzYxMTA2MjI1ODEwWjAlMSMwIQYDVQQDDBpPSUQ0VkNJIENvbmZvcm1hbmNlIENsaWVudDBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABN8JTrmDMrikbc9M/QegTmpf4iNNxyCJn8vkay1M/B6AXYljLI4l9/Y/AF85hK77czwhs/ByOGE2Vyq2csW4OvijNTAzMAwGA1UdEwEB/wQCMAAwDgYDVR0PAQH/BAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUFBwMCMAoGCCqGSM49BAMCA0cAMEQCIF1M0k9rDqJHjMHgSGeR91zP6RZuUAH6KlliV2Mh9/GfAiAvRMK6j7Egq42UbJasugyzmwzvsYgYTDPYeDJ4NkhtTA=="
+                    ],
+                    "x": "3wlOuYMyuKRtz0z9B6BOal_iI03HIImfy-RrLUz8HoA",
+                    "y": "XYljLI4l9_Y_AF85hK77czwhs_ByOGE2Vyq2csW4Ovg",
+                    "alg": "ES256",
+                    "d": "8FCcfdp1xhqtSbev0YTDU4F9N9FeJ4Lm-61hDvRuFMA"
+                }
+            ]
+        }
+    },
+    "client2": {
+        "client_id": "oid4vci-client2",
+        "jwks": {
+            "keys": [
+                {
+                    "kty": "EC",
+                    "use": "sig",
+                    "crv": "P-256",
+                    "kid": "ct_client2_signing_key",
+                    "x5c": [
+                        "MIIBiDCCAS6gAwIBAgIUefznb75qivV8riFksyboGrthUzQwCgYIKoZIzj0EAwIwKjEoMCYGA1UEAwwfT0lENFZDSSBDb25mb3JtYW5jZSBDbGllbnQgMiBDQTAeFw0yNjExMDgyMjU4MTBaFw0zNjExMDYyMjU4MTBaMCcxJTAjBgNVBAMMHE9JRDRWQ0kgQ29uZm9ybWFuY2UgQ2xpZW50IDIwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQKfc3MAoo5u1Zu9g2KWV1fw5w5ruFOYt7H88Tlgo0REKzSUnfu9Zduc3YWLkjAgnIFYDF5QNSM3yS4SzJ0AhCbozUwMzAMBgNVHRMBAf8EAjAAMA4GA1UdDwEB/wQEAwIHgDATBgNVHSUEDDAKBggrBgEFBQcDAjAKBggqhkjOPQQDAgNIADBFAiBk+P2lactP8IKZBIJMT0EjkjXrHcyPbW1/BkSuzSA7KwIhAI4ozwKlPu3J2UpWjY2Z78RTuFxXjvHwHWcS/C6Zblh8"
+                    ],
+                    "x": "Cn3NzAKKObtWbvYNilldX8OcOa7hTmLex_PE5YKNERA",
+                    "y": "rNJSd-71l25zdhYuSMCCcgVgMXlA1IzfJLhLMnQCEJs",
+                    "alg": "ES256",
+                    "d": "rX86f97cAu2cfvejbIO4Sti5oF3TxzNi5w8wy3aFGs8"
+                }
+            ]
+        }
+    },
+    "browser": [
+        {
+            "match": "https://as.keycloak-fapi.org/realms/test/protocol/openid-connect/auth*",
+            "tasks": [
+                {
+                    "task": "Initial login",
+                    "match": "https://as.keycloak-fapi.org/realms/test/login-actions/authenticate*",
+                    "optional": true,
+                    "commands": [
+                        [
+                            "text",
+                            "id",
+                            "username",
+                            "john"
+                        ],
+                        [
+                            "text",
+                            "id",
+                            "password",
+                            "john"
+                        ],
+                        [
+                            "click",
+                            "name",
+                            "login"
+                        ]
+                    ]
+                },
+                {
+                    "task": "Authorize Client",
+                    "match": "https://as.keycloak-fapi.org/realms/test/login-actions/required-action*",
+                    "optional": true,
+                    "commands": [
+                        [
+                            "click",
+                            "name",
+                            "accept"
+                        ]
+                    ]
+                },
+                {
+                    "task": "Verify Complete",
+                    "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci/callback*",
+                    "commands": [
+                        [
+                            "wait",
+                            "id",
+                            "submission_complete",
+                            10
+                        ]
+                    ]
+                }
+            ]
+        }
+    ],
+    "interaction": {
+        "keycloak_url": "https://as.keycloak-fapi.org",
+        "realm": "test",
+        "username": "john",
+        "password": "john",
+        "credential_offer_client_id": "oid4vci-app"
+    }
+}

@@ -1,0 +1,55 @@
+{
+    "alias": "keycloak-oid4vp",
+    "description": "OID4VP 1.0 Final: Keycloak verifier test with SD-JWT VC (same device flow, direct_post)",
+    "publish": "private",
+    "client": {
+        "client_id": "x509_hash:YFwOUl6LmrJPKtxfw4RnO_WKbzYoRHmcKq7IOwhagAk",
+        "request_object_trust_anchor_pem": "-----BEGIN CERTIFICATE-----\nMIIBdjCCAR2gAwIBAgIUbhBDsVLg6HNUrTscgtkVuk9BEPIwCgYIKoZIzj0EAwIw\nKTEnMCUGA1UEAwweT0lENFZQIENvbmZvcm1hbmNlIFZlcmlmaWVyIENBMB4XDTI2\nMTEwODIyNTgxMFoXDTM2MTEwNjIyNTgxMFowKTEnMCUGA1UEAwweT0lENFZQIENv\nbmZvcm1hbmNlIFZlcmlmaWVyIENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE\nxvCJyDcPWemEUGvmuVufEMzdOWxFyAlEvMApFuxcW8MK0wBadZylfnIsDqxQ7Ze2\nF0Iqath5sSxWiMX96gGdrqMjMCEwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8E\nBAMCAQYwCgYIKoZIzj0EAwIDRwAwRAIgRS8D5Ejohp6ZUhZl0FvmUlnY4hV3qcnX\n5vrKkOA3k8UCIE4Gx3y8QyemwELmSXgv8rxGfbC+nFGiBaYFn7q/Lz1R\n-----END CERTIFICATE-----\n"
+    },
+    "credential": {
+        "signing_jwk": {
+            "kty": "EC",
+            "use": "sig",
+            "crv": "P-256",
+            "kid": "vp_verifier_key",
+            "x5c": [
+                "MIIBcDCCARegAwIBAgIUY8YK6T83dorW4Ebi8xEM8zCu/GQwCgYIKoZIzj0EAwIwKTEnMCUGA1UEAwweT0lENFZQIENvbmZvcm1hbmNlIFZlcmlmaWVyIENBMB4XDTI2MTEwODIyNTgxMFoXDTM2MTEwNjIyNTgxMFowJjEkMCIGA1UEAwwbT0lENFZQIENvbmZvcm1hbmNlIFZlcmlmaWVyMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEjIrVV7V+nSeF/rOzYkDAxXFVhoilHHJGIA1a1Ulk4GjZe2fE8INc8v17wBn5XeqBxkNDwX5/xUInGmBTHdp7g6MgMB4wDAYDVR0TAQH/BAIwADAOBgNVHQ8BAf8EBAMCB4AwCgYIKoZIzj0EAwIDRwAwRAIhAKhRyWUMtpy4PW7juPFg0+iT2ugMtaXEJ4q4BRSPFiO+Ah8Q70Na8ZM1LucOja8xa7HVq8Wkut+dhqmgN7AVtui5"
+            ],
+            "x": "jIrVV7V-nSeF_rOzYkDAxXFVhoilHHJGIA1a1Ulk4Gg",
+            "y": "2XtnxPCDXPL9e8AZ-V3qgcZDQ8F-f8VCJxpgUx3ae4M",
+            "alg": "ES256",
+            "d": "_yjV5lT6MvPSNfZ9yT35tF7SnV1S68wzJEMY0_w8CS0"
+        }
+    },
+    "browser": [
+        {
+            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vp/verification-evidence",
+            "tasks": [
+                {
+                    "task": "Capture verification evidence",
+                    "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vp/verification-evidence",
+                    "commands": [
+                        [
+                            "wait",
+                            "xpath",
+                            "//*",
+                            10,
+                            ".*Deferred verification evidence.*",
+                            "update-image-placeholder"
+                        ]
+                    ]
+                }
+            ]
+        }
+    ],
+    "interaction": {
+        "keycloak_url": "https://as.keycloak-fapi.org",
+        "realm": "test",
+        "client_id": "wallet-mock",
+        "identity_providers": {
+            "direct_post": "oid4vp",
+            "direct_post.jwt": "oid4vp-encrypted"
+        },
+        "cross_device": false
+    }
+}

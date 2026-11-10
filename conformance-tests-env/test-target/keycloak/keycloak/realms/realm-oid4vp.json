@@ -1,0 +1,132 @@
+{
+    "realm": "test",
+    "enabled": true,
+    "sslRequired": "external",
+    "eventsEnabled": true,
+    "eventsListeners": [
+        "jboss-logging"
+    ],
+    "clients": [
+        {
+            "clientId": "wallet-mock",
+            "enabled": true,
+            "protocol": "openid-connect",
+            "publicClient": true,
+            "standardFlowEnabled": true,
+            "directAccessGrantsEnabled": false,
+            "redirectUris": [
+                "*"
+            ]
+        }
+    ],
+    "identityProviders": [
+        {
+            "alias": "conformance-issuer-trust",
+            "providerId": "default-trust",
+            "enabled": true,
+            "config": {
+                "useX509": "true",
+                "trustedCertificates": "-----BEGIN CERTIFICATE-----\nMIIBdjCCAR2gAwIBAgIUbhBDsVLg6HNUrTscgtkVuk9BEPIwCgYIKoZIzj0EAwIw\nKTEnMCUGA1UEAwweT0lENFZQIENvbmZvcm1hbmNlIFZlcmlmaWVyIENBMB4XDTI2\nMTEwODIyNTgxMFoXDTM2MTEwNjIyNTgxMFowKTEnMCUGA1UEAwweT0lENFZQIENv\nbmZvcm1hbmNlIFZlcmlmaWVyIENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE\nxvCJyDcPWemEUGvmuVufEMzdOWxFyAlEvMApFuxcW8MK0wBadZylfnIsDqxQ7Ze2\nF0Iqath5sSxWiMX96gGdrqMjMCEwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8E\nBAMCAQYwCgYIKoZIzj0EAwIDRwAwRAIgRS8D5Ejohp6ZUhZl0FvmUlnY4hV3qcnX\n5vrKkOA3k8UCIE4Gx3y8QyemwELmSXgv8rxGfbC+nFGiBaYFn7q/Lz1R\n-----END CERTIFICATE-----\n"
+            }
+        },
+        {
+            "alias": "oid4vp",
+            "providerId": "oid4vp",
+            "enabled": true,
+            "firstBrokerLoginFlowAlias": "first broker login",
+            "config": {
+                "trustMaterialIdps": "conformance-issuer-trust",
+                "dcqlQuery": "{\n  \"credentials\": [\n    {\n      \"id\": \"pid_sd_jwt\",\n      \"format\": \"dc+sd-jwt\",\n      \"meta\": {\n        \"vct_values\": [\n          \"urn:eudi:pid:1\"\n        ]\n      },\n      \"claims\": [\n        {\n          \"path\": [\n            \"given_name\"\n          ]\n        },\n        {\n          \"path\": [\n            \"family_name\"\n          ]\n        }\n      ]\n    }\n  ],\n  \"credential_sets\": [\n    {\n      \"options\": [\n        [\n          \"pid_sd_jwt\"\n        ]\n      ],\n      \"required\": true\n    }\n  ]\n}",
+                "principalAttribute": "given_name"
+            }
+        },
+        {
+            "alias": "oid4vp-encrypted",
+            "providerId": "oid4vp",
+            "enabled": true,
+            "firstBrokerLoginFlowAlias": "first broker login",
+            "config": {
+                "trustMaterialIdps": "conformance-issuer-trust",
+                "dcqlQuery": "{\n  \"credentials\": [\n    {\n      \"id\": \"pid_sd_jwt\",\n      \"format\": \"dc+sd-jwt\",\n      \"meta\": {\n        \"vct_values\": [\n          \"urn:eudi:pid:1\"\n        ]\n      },\n      \"claims\": [\n        {\n          \"path\": [\n            \"given_name\"\n          ]\n        },\n        {\n          \"path\": [\n            \"family_name\"\n          ]\n        }\n      ]\n    }\n  ],\n  \"credential_sets\": [\n    {\n      \"options\": [\n        [\n          \"pid_sd_jwt\"\n        ]\n      ],\n      \"required\": true\n    }\n  ]\n}",
+                "principalAttribute": "given_name",
+                "responseMode": "direct_post.jwt"
+            }
+        }
+    ],
+    "components": {
+        "org.keycloak.keys.KeyProvider": [
+            {
+                "name": "hmac-generated-hs512",
+                "providerId": "hmac-generated",
+                "subComponents": {},
+                "config": {
+                    "priority": [
+                        "100"
+                    ],
+                    "enabled": [
+                        "true"
+                    ],
+                    "active": [
+                        "true"
+                    ],
+                    "algorithm": [
+                        "HS512"
+                    ]
+                }
+            },
+            {
+                "name": "aes-generated",
+                "providerId": "aes-generated",
+                "subComponents": {},
+                "config": {
+                    "priority": [
+                        "100"
+                    ],
+                    "enabled": [
+                        "true"
+                    ],
+                    "active": [
+                        "true"
+                    ]
+                }
+            },
+            {
+                "name": "oid4vp-verifier-signing-key",
+                "providerId": "java-keystore",
+                "subComponents": {},
+                "config": {
+                    "priority": [
+                        "100"
+                    ],
+                    "enabled": [
+                        "true"
+                    ],
+                    "active": [
+                        "true"
+                    ],
+                    "algorithm": [
+                        "ES256"
+                    ],
+                    "keyUse": [
+                        "SIG"
+                    ],
+                    "keystore": [
+                        "/opt/keycloak/data/test/oid4vp-verifier.p12"
+                    ],
+                    "keystorePassword": [
+                        "password"
+                    ],
+                    "keystoreType": [
+                        "PKCS12"
+                    ],
+                    "keyAlias": [
+                        "vp_verifier_key"
+                    ],
+                    "keyPassword": [
+                        "password"
+                    ]
+                }
+            }
+        ]
+    }
+}

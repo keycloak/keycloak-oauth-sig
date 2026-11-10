@@ -1325,6 +1325,43 @@ makeFAPI2MSFinalTest() {
     TESTS="${TESTS} fapi2-message-signing-final-test-plan[sender_constrain=dpop][client_auth_type=private_key_jwt][authorization_request_type=simple][openid=plain_oauth][fapi_request_method=signed_non_repudiation][fapi_profile=plain_fapi][fapi_response_mode=jarm] ${SUITE_DIR}/.gitlab-ci/fapi-conformance-suite-configs/fapi2-ms-final/fapi2-final-FAPI2MS-DPOP-JARM-private-key-MTLS-ES256-ES256-automated.json"
 }
 
+# OID4VC test plans: every test plan has its own configuration file with its own alias, so that run-test-plan.py runs
+# the test plans in parallel (test modules within a test plan run one after another).
+
+# OpenID for Verifiable Credential Issuance 1.0 Final: private_key_jwt client authentication and DPoP
+makeOID4VCITest() {
+    OID4VCI_VARIANT="[fapi_profile=vci][client_auth_type=private_key_jwt][fapi_request_method=unsigned][openid=plain_oauth][sender_constrain=dpop][fapi_response_mode=plain_response]"
+    OID4VCI_CONFIGS="${SUITE_DIR}/.gitlab-ci/fapi-conformance-suite-configs/oid4vci"
+    TESTS="${TESTS} oid4vci-1_0-issuer-test-plan[credential_format=sd_jwt_vc][vci_authorization_code_flow_variant=wallet_initiated]${OID4VCI_VARIANT} ${OID4VCI_CONFIGS}/oid4vci-sd-jwt-vc-automated.json"
+    # credential response encryption (the unsupported encryption algorithm test only runs with it)
+    TESTS="${TESTS} oid4vci-1_0-issuer-test-plan[credential_format=sd_jwt_vc][vci_authorization_code_flow_variant=wallet_initiated][vci_credential_encryption=encrypted]${OID4VCI_VARIANT} ${OID4VCI_CONFIGS}/oid4vci-sd-jwt-vc-encrypted-automated.json"
+    # oid4vc-interaction.py creates the credential offer of the issuer initiated flow
+    TESTS="${TESTS} oid4vci-1_0-issuer-test-plan[credential_format=sd_jwt_vc][vci_authorization_code_flow_variant=issuer_initiated]${OID4VCI_VARIANT} ${OID4VCI_CONFIGS}/oid4vci-sd-jwt-vc-issuer-initiated-automated.json"
+    TESTS="${TESTS} oid4vci-1_0-issuer-test-plan[credential_format=sd_jwt_vc][vci_authorization_code_flow_variant=wallet_initiated]${OID4VCI_VARIANT} ${OID4VCI_CONFIGS}/oid4vci-sd-jwt-vc-key-attestation-automated.json"
+    TESTS="${TESTS} oid4vci-1_0-issuer-test-plan[credential_format=mdoc][vci_authorization_code_flow_variant=wallet_initiated]${OID4VCI_VARIANT} ${OID4VCI_CONFIGS}/oid4vci-mdoc-automated.json"
+}
+
+# OpenID for Verifiable Credential Issuance 1.0 Final + OpenID4VC High Assurance Interoperability Profile 1.0:
+# attestation based client authentication and DPoP. The test plans include the FAPI 2.0 Security Profile tests.
+makeOID4VCIHAIPTest() {
+    OID4VCI_HAIP_CONFIGS="${SUITE_DIR}/.gitlab-ci/fapi-conformance-suite-configs/oid4vci-haip"
+    TESTS="${TESTS} oid4vci-1_0-issuer-haip-test-plan[credential_format=sd_jwt_vc][vci_authorization_code_flow_variant=wallet_initiated] ${OID4VCI_HAIP_CONFIGS}/oid4vci-haip-sd-jwt-vc-automated.json"
+    # oid4vc-interaction.py creates the credential offers of the issuer initiated flow
+    TESTS="${TESTS} oid4vci-1_0-issuer-haip-test-plan[credential_format=sd_jwt_vc][vci_authorization_code_flow_variant=issuer_initiated] ${OID4VCI_HAIP_CONFIGS}/oid4vci-haip-sd-jwt-vc-issuer-initiated-automated.json"
+    TESTS="${TESTS} oid4vci-1_0-issuer-haip-test-plan[credential_format=sd_jwt_vc][vci_authorization_code_flow_variant=wallet_initiated] ${OID4VCI_HAIP_CONFIGS}/oid4vci-haip-sd-jwt-vc-key-attestation-automated.json"
+    TESTS="${TESTS} oid4vci-1_0-issuer-haip-test-plan[credential_format=mdoc][vci_authorization_code_flow_variant=wallet_initiated] ${OID4VCI_HAIP_CONFIGS}/oid4vci-haip-mdoc-automated.json"
+}
+
+# OpenID for Verifiable Presentations 1.0 Final: Keycloak as a verifier (OID4VP identity provider)
+# oid4vc-interaction.py starts the Keycloak login and hands the authorization request over to the suite's wallet
+makeOID4VPTest() {
+    OID4VP_VARIANT="[vp_profile=plain_vp][credential_format=sd_jwt_vc][client_id_prefix=x509_hash][request_method=request_uri_signed]"
+    OID4VP_CONFIGS="${SUITE_DIR}/.gitlab-ci/fapi-conformance-suite-configs/oid4vp"
+    TESTS="${TESTS} oid4vp-1final-verifier-test-plan${OID4VP_VARIANT}[response_mode=direct_post] ${OID4VP_CONFIGS}/oid4vp-sd-jwt-vc-x509-hash-automated.json"
+    TESTS="${TESTS} oid4vp-1final-verifier-test-plan${OID4VP_VARIANT}[response_mode=direct_post.jwt] ${OID4VP_CONFIGS}/oid4vp-sd-jwt-vc-x509-hash-encrypted-automated.json"
+    TESTS="${TESTS} oid4vp-1final-verifier-test-plan${OID4VP_VARIANT}[response_mode=direct_post] ${OID4VP_CONFIGS}/oid4vp-sd-jwt-vc-x509-hash-cross-device-automated.json"
+}
+
 TESTS="${TESTS} --verbose"
 if [ "$#" -eq 0 ]; then
     echo "Run all tests"
@@ -1472,6 +1509,25 @@ elif [ "$#" -eq 1 ] && [ "$1" = "--fapi2-ms-final-all" ]; then
     echo "Run fapi2-ms-final all tests"
     makeFAPI2MSFinalTest
     EXPECTED_SKIPS_FILE="${SUITE_DIR}/.gitlab-ci/fapi-conformance-suite-configs/fapi2-ms-final/expected-skips-fapi2-ms-final-all.json"
+    TESTS="${TESTS} --expected-skips-file ${EXPECTED_SKIPS_FILE}"
+elif [ "$#" -eq 1 ] && [ "$1" = "--oid4vci-all" ]; then
+    echo "Run oid4vci all tests"
+    makeOID4VCITest
+    EXPECTED_SKIPS_FILE="${SUITE_DIR}/.gitlab-ci/fapi-conformance-suite-configs/oid4vci/expected-skips-oid4vci-all.json"
+    TESTS="${TESTS} --expected-skips-file ${EXPECTED_SKIPS_FILE}"
+elif [ "$#" -eq 1 ] && [ "$1" = "--oid4vci-haip-all" ]; then
+    echo "Run oid4vci-haip all tests"
+    makeOID4VCIHAIPTest
+    EXPECTED_FAILURES_FILE="${SUITE_DIR}/.gitlab-ci/fapi-conformance-suite-configs/oid4vci-haip/expected-failures-oid4vci-haip-all.json"
+    EXPECTED_SKIPS_FILE="${SUITE_DIR}/.gitlab-ci/fapi-conformance-suite-configs/oid4vci-haip/expected-skips-oid4vci-haip-all.json"
+    TESTS="${TESTS} --expected-failures-file ${EXPECTED_FAILURES_FILE}"
+    TESTS="${TESTS} --expected-skips-file ${EXPECTED_SKIPS_FILE}"
+elif [ "$#" -eq 1 ] && [ "$1" = "--oid4vp-all" ]; then
+    echo "Run oid4vp all tests"
+    makeOID4VPTest
+    EXPECTED_FAILURES_FILE="${SUITE_DIR}/.gitlab-ci/fapi-conformance-suite-configs/oid4vp/expected-failures-oid4vp-all.json"
+    EXPECTED_SKIPS_FILE="${SUITE_DIR}/.gitlab-ci/fapi-conformance-suite-configs/oid4vp/expected-skips-oid4vp-all.json"
+    TESTS="${TESTS} --expected-failures-file ${EXPECTED_FAILURES_FILE}"
     TESTS="${TESTS} --expected-skips-file ${EXPECTED_SKIPS_FILE}"
 elif [ "$#" -eq 1 ] && [ "$1" = "--client-tests-only" ]; then
     EXPECTED_FAILURES_FILE="${SUITE_DIR}/.gitlab-ci/expected-failures-client.json"
@@ -1683,7 +1739,7 @@ elif [ "$#" -eq 1 ] && [ "$1" = "--oidc-rp-initiated-logout" ]; then
 elif [ "$#" -eq 1 ] && [ "$1" = "--manual-oidc-rp-initiated-logout" ]; then
     makeManualOIDCRpInitiatedLogoutTest
 else
-    echo "Syntax: run-tests.sh [--client-tests-only|--server-tests-only|--ciba-tests-only|--local-provider-tests|--panva-tests-only|--ekyc-tests|--federation-tests|--ssf-tests|--vci-tests|--fapi1-advanced-all|--fapi-ciba-all|--ob-br-fapi1-advanced-all|--fapi-aus-cdr-all|--fapi-uk-ob-all|--oidc-all|--client-tests-only|--fapi1-advanced|--fapi-ciba-poll-id1|--fapi1-advanced-par|--fapi1-advanced-jarm|--fapi1-advanced-par-jarm|--fapi2-sp-id2-all|--fapi2-ms-id1-all|--fapi2-sp-final-all|--fapi2-ms-final-all|--ob-br-fapi1-advanced|--ob-br-fapi1-advanced-par|--ob-br-fapi1-advanced-jarm|--ob-br-fapi1-advanced-par-jarm|--fapi-aus-cdr|--fapi-aus-cdr-par|--oidc-config|--oidc-basic|--oidc-implicit|--oidc-hybrid|--oidc-formpost|--oidc-dynamic|--oidc-3rdparty-init-login]"
+    echo "Syntax: run-tests.sh [--client-tests-only|--server-tests-only|--ciba-tests-only|--local-provider-tests|--panva-tests-only|--ekyc-tests|--federation-tests|--ssf-tests|--vci-tests|--fapi1-advanced-all|--fapi-ciba-all|--ob-br-fapi1-advanced-all|--fapi-aus-cdr-all|--fapi-uk-ob-all|--oidc-all|--client-tests-only|--fapi1-advanced|--fapi-ciba-poll-id1|--fapi1-advanced-par|--fapi1-advanced-jarm|--fapi1-advanced-par-jarm|--fapi2-sp-id2-all|--fapi2-ms-id1-all|--fapi2-sp-final-all|--fapi2-ms-final-all|--oid4vci-all|--oid4vci-haip-all|--oid4vp-all|--ob-br-fapi1-advanced|--ob-br-fapi1-advanced-par|--ob-br-fapi1-advanced-jarm|--ob-br-fapi1-advanced-par-jarm|--fapi-aus-cdr|--fapi-aus-cdr-par|--oidc-config|--oidc-basic|--oidc-implicit|--oidc-hybrid|--oidc-formpost|--oidc-dynamic|--oidc-3rdparty-init-login]"
     exit 1
 fi
 

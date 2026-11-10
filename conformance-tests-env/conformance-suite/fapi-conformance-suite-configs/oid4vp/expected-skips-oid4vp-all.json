@@ -1,0 +1,8 @@
+[
+    {
+        "test-name": "oid4vp-1final-verifier-request-uri-method-post",
+        "variant": "*",
+        "configuration-filename": "*/oid4vp/oid4vp-sd-jwt-vc-x509-hash-*automated.json",
+        "comment": "Keycloak serves the request object at request_uri with GET only, so the suite skips the request_uri retrieval through POST."
+    }
+]

@@ -15,6 +15,10 @@ RUN cd conformance-suite && mv -f run-tests.sh ./.gitlab-ci && mvn package -Dski
 RUN cd conformance-suite && sed -i 's/\r$//' rotate-op-keys.sh && chmod a+x rotate-op-keys.sh \
     && sed -i "s|^\(                    \)await conformance.start_test(module_id)$|\1if os.environ.get('ROTATE_OP_KEYS_COMMAND'): await asyncio.to_thread(subprocess.run, os.environ['ROTATE_OP_KEYS_COMMAND'], shell=True)\n&|" scripts/run-test-plan.py \
     && grep -q "ROTATE_OP_KEYS_COMMAND" scripts/run-test-plan.py
+# drive Keycloak once a test module waits for it: OID4VCI issuer initiated credential offers and OID4VP verifier requests
+RUN cd conformance-suite && sed -i 's/\r$//' oid4vc-interaction.py run-test-plan-waiting-hook.txt && chmod a+x oid4vc-interaction.py \
+    && sed -i '/^            if state == "WAITING":$/r run-test-plan-waiting-hook.txt' scripts/run-test-plan.py \
+    && grep -q "WAITING_INTERACTION_COMMAND" scripts/run-test-plan.py
 
 FROM eclipse-temurin:21-jdk
 
