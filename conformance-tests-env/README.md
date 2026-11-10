@@ -47,6 +47,10 @@ The following options can be set as environment variables before the above comma
     * Set to use a custom maven home path
 * `OPENID_GIT_TAG` (default: release-v5.3.4)
     * The OpenID Conformance Suite Git Tag to be cloned    
+* `KEYCLOAK_FEATURES` (default: scripts)
+    * The Keycloak features to be enabled. The OID4VCI, OID4VCI-HAIP and OID4VP conformance tests need `scripts,oid4vc-vci,oid4vc-vp,oid4vc-mdoc,client-auth-abca`.
+* `KEYCLOAK_HTTP_RELATIVE_PATH` (default: /auth)
+    * The HTTP relative path of Keycloak. The OID4VCI, OID4VCI-HAIP and OID4VP conformance tests need `/`.
 
 
 **Example:**
@@ -494,6 +498,70 @@ Note: If you run this conformance tests, please use `realm-fapi2-ms-final.json` 
 KEYCLOAK_REALM_IMPORT_FILENAME=realm-fapi2-ms-final.json docker-compose -p keycloak-fapi -f docker-compose.yml up --build
 ```
 
+**OpenID for Verifiable Credential Issuance (OID4VCI) 1.0 Final: Issuer**
+
+|Conformance Profile|Test Plan|credential_format|vci_authorization_code_flow_variant|vci_credential_encryption|Test Modules|Config|TEST_PLAN|
+|-|-|-|-|-|-|-|-|
+|OID4VCI SD-JWT VC|oid4vci-1_0-issuer-test-plan|sd_jwt_vc|wallet_initiated|plain|all|oid4vci-sd-jwt-vc-automated.json|--oid4vci-all|
+|OID4VCI SD-JWT VC + encryption|oid4vci-1_0-issuer-test-plan|sd_jwt_vc|wallet_initiated|encrypted|all|oid4vci-sd-jwt-vc-encrypted-automated.json|--oid4vci-all|
+|OID4VCI SD-JWT VC issuer initiated|oid4vci-1_0-issuer-test-plan|sd_jwt_vc|issuer_initiated|plain|all|oid4vci-sd-jwt-vc-issuer-initiated-automated.json|--oid4vci-all|
+|OID4VCI SD-JWT VC key attestation|oid4vci-1_0-issuer-test-plan|sd_jwt_vc|wallet_initiated|plain|all|oid4vci-sd-jwt-vc-key-attestation-automated.json|--oid4vci-all|
+|OID4VCI mdoc|oid4vci-1_0-issuer-test-plan|mdoc|wallet_initiated|plain|all|oid4vci-mdoc-automated.json|--oid4vci-all|
+
+All of them use the variants `fapi_profile=vci`, `client_auth_type=private_key_jwt`, `sender_constrain=dpop`, `fapi_request_method=unsigned`, `openid=plain_oauth` and `fapi_response_mode=plain_response`. `oid4vci-1_0-issuer-fail-invalid-key-attestation-signature` is skipped except with `oid4vci-sd-jwt-vc-key-attestation-automated.json`, as only its credential configuration requires key attestations.
+
+**OpenID for Verifiable Credential Issuance (OID4VCI) 1.0 Final + OpenID4VC High Assurance Interoperability Profile (HAIP) 1.0: Issuer**
+
+|Conformance Profile|Test Plan|credential_format|vci_authorization_code_flow_variant|Test Modules|Config|TEST_PLAN|
+|-|-|-|-|-|-|-|
+|OID4VCI-HAIP SD-JWT VC|oid4vci-1_0-issuer-haip-test-plan|sd_jwt_vc|wallet_initiated|all (including the FAPI 2.0 Security Profile tests)|oid4vci-haip-sd-jwt-vc-automated.json|--oid4vci-haip-all|
+|OID4VCI-HAIP SD-JWT VC issuer initiated|oid4vci-1_0-issuer-haip-test-plan|sd_jwt_vc|issuer_initiated|all (including the FAPI 2.0 Security Profile tests)|oid4vci-haip-sd-jwt-vc-issuer-initiated-automated.json|--oid4vci-haip-all|
+|OID4VCI-HAIP SD-JWT VC key attestation|oid4vci-1_0-issuer-haip-test-plan|sd_jwt_vc|wallet_initiated|all (including the FAPI 2.0 Security Profile tests)|oid4vci-haip-sd-jwt-vc-key-attestation-automated.json|--oid4vci-haip-all|
+|OID4VCI-HAIP mdoc|oid4vci-1_0-issuer-haip-test-plan|mdoc|wallet_initiated|all (including the FAPI 2.0 Security Profile tests)|oid4vci-haip-mdoc-automated.json|--oid4vci-haip-all|
+
+The HAIP test plan uses attestation based client authentication (`client_attestation`) and DPoP. `oid4vci-1_0-issuer-fail-invalid-key-attestation-signature` is skipped except with `oid4vci-haip-sd-jwt-vc-key-attestation-automated.json`, as only its credential configuration requires key attestations.
+
+**OpenID for Verifiable Presentations (OID4VP) 1.0 Final: Verifier**
+
+|Conformance Profile|Test Plan|vp_profile|credential_format|client_id_prefix|request_method|response_mode|Test Modules|Config|TEST_PLAN|
+|-|-|-|-|-|-|-|-|-|-|
+|OID4VP same device|oid4vp-1final-verifier-test-plan|plain_vp|sd_jwt_vc|x509_hash|request_uri_signed|direct_post|all|oid4vp-sd-jwt-vc-x509-hash-automated.json|--oid4vp-all|
+|OID4VP same device + encryption|oid4vp-1final-verifier-test-plan|plain_vp|sd_jwt_vc|x509_hash|request_uri_signed|direct_post.jwt|all|oid4vp-sd-jwt-vc-x509-hash-encrypted-automated.json|--oid4vp-all|
+|OID4VP cross device|oid4vp-1final-verifier-test-plan|plain_vp|sd_jwt_vc|x509_hash|request_uri_signed|direct_post|all|oid4vp-sd-jwt-vc-x509-hash-cross-device-automated.json|--oid4vp-all|
+
+Keycloak is the verifier through its OID4VP identity provider (`oid4vp` for `direct_post`, `oid4vp-encrypted` for `direct_post.jwt`).
+
+Note: If you run these conformance tests, please use the corresponding realm setting file, enable the OID4VC features and serve Keycloak at the root path:
+
+|TEST_PLAN|KEYCLOAK_REALM_IMPORT_FILENAME|
+|-|-|
+|--oid4vci-all|realm-oid4vci.json|
+|--oid4vci-haip-all|realm-oid4vci-haip.json|
+|--oid4vp-all|realm-oid4vp.json|
+
+```
+KEYCLOAK_REALM_IMPORT_FILENAME=realm-oid4vci-haip.json \
+TEST_PLAN=--oid4vci-haip-all \
+KEYCLOAK_FEATURES=scripts,oid4vc-vci,oid4vc-vp,oid4vc-mdoc,client-auth-abca \
+KEYCLOAK_HTTP_RELATIVE_PATH=/ \
+docker-compose -p keycloak-fapi -f docker-compose.yml up --build
+```
+
+* `KEYCLOAK_HTTP_RELATIVE_PATH=/` is needed because the conformance suite fetches the credential issuer metadata from `https://<host>/.well-known/openid-credential-issuer/<issuer path>` (OID4VCI 1.0 Section 12.2.2), which Keycloak can only serve when it is not deployed under `/auth`. The OID4VC realms and configurations therefore use `https://as.keycloak-fapi.org/realms/test` as Keycloak's URL.
+* The realms, configurations and test module selection mirror the [Keycloak conformance tests](https://github.com/keycloak/keycloak/tree/main/tests/conformance) of Keycloak 26.8.2. The conformance suite uses `john` (password `john`) as the holder and `mike` (password `mike`) to reject the authorization.
+* The tests waiting for the system under test are driven by [oid4vc-interaction.py](conformance-suite/conformance-suite/oid4vc-interaction.py), which `run-test-plan.py` runs when a test module is waiting:
+    * OID4VCI issuer initiated flow: the holder logs in to the `oid4vci-app` client with the `verifiable_credential_offer` application initiated action, and the credential offer Keycloak creates is delivered to the test module. This is repeated each time the test module waits for a credential offer (e.g. once per client in `oid4vci-1_0-issuer-happy-flow-multiple-clients`).
+    * OID4VP: a Keycloak login with the OID4VP identity provider is started and the `openid4vp://` authorization request on the login page is delivered to the wallet of the test module. In the cross device flow, the login is completed by polling the status endpoint.
+* The OID4VCI credential signing certificate names the CRL served by the `oid4vc-crl-server` service as its CRL distribution point. The suite fetches and validates the CRL for mdoc credentials.
+* Every test plan has its own configuration file with its own alias, so the test plans of a `TEST_PLAN` run in parallel (the test modules of a test plan run one after another, as they share the same clients). Each OID4VCI-HAIP test plan includes the FAPI 2.0 Security Profile tests (63 test modules per test plan with conformance suite release-v5.3.4), so `--oid4vci-haip-all` takes the longest. To keep the test plans running in parallel from interfering with each other, the realms contain Keycloak's HMAC and AES key providers (otherwise generated on the first request, possibly several times at once), and `john` has already granted consent to the conformance clients (otherwise concurrent logins can store duplicate consents).
+* Known differences from the conformance suite's expectations of Keycloak 26.8.2 are listed in `expected-failures-*.json` and `expected-skips-*.json` of each configuration directory.
+
+The key material, realm files and configurations are generated by [generate-oid4vc.py](utils/generate-oid4vc.py). The OID4VCI credential signing certificate is valid for 365 days (ISO/IEC 18013-5 limits the validity of document signer certificates), so regenerate the key material when it has expired:
+```
+docker run --rm -v "$PWD":/work -w /work python:3.12-alpine \
+  sh -c "pip install -q cryptography && python3 utils/generate-oid4vc.py --regenerate-keys"
+```
+
 Eg. The following command runs `FAPI Adv. OP w/ Private Key, PAR, JARM` and `FAPI Adv. OP w/ MTLS, PAR, JARM` conformance test.
 ```
 TEST_PLAN=--fapi1-advanced-par-jarm docker-compose -p keycloak-fapi -f docker-compose.yml up --build
@@ -524,6 +592,12 @@ If you set `--fapi2-ms-id1-all` to `TEST_PLAN`, it runs all types of FAPI 2.0 Me
 If you set `--fapi2-sp-final-all` to `TEST_PLAN`, it runs all types of FAPI 2.0 Security Profile Final conformance tests shown above the table automatically.
 
 If you set `--fapi2-ms-final-all` to `TEST_PLAN`, it runs all types of FAPI 2.0 Message Final conformance tests shown above the table automatically.
+
+If you set `--oid4vci-all` to `TEST_PLAN`, it runs all types of OID4VCI 1.0 Final Issuer conformance tests shown above the table automatically.
+
+If you set `--oid4vci-haip-all` to `TEST_PLAN`, it runs all types of OID4VCI 1.0 Final + HAIP 1.0 Issuer conformance tests shown above the table automatically.
+
+If you set `--oid4vp-all` to `TEST_PLAN`, it runs all types of OID4VP 1.0 Final Verifier conformance tests shown above the table automatically.
 
 If you set nothing to `TEST_PLAN`, it runs FAPI conformance tests the same as set `--fapi1-advanced-all`.
 

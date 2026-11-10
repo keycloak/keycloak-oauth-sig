@@ -342,6 +342,84 @@ Note: Session OP and Front-Channel OP of OpenID Provider for Logout Profile conf
     - FAPI Request Method : signed_non_repudiation
     - FAPI Response Mode : jarm
 
+#### OpenID for Verifiable Credential Issuance (OID4VCI) 1.0 Final: Issuer
+  - OID4VCI SD-JWT VC
+    - Client Authentication Method : private_key_jwt
+    - Sender Constrain : dpop
+    - Credential Format : sd_jwt_vc
+    - Authorization Code Flow Variant : wallet_initiated
+    - Credential Response Encryption : plain
+  - OID4VCI SD-JWT VC + encryption
+    - Client Authentication Method : private_key_jwt
+    - Sender Constrain : dpop
+    - Credential Format : sd_jwt_vc
+    - Authorization Code Flow Variant : wallet_initiated
+    - Credential Response Encryption : encrypted
+  - OID4VCI SD-JWT VC issuer initiated
+    - Client Authentication Method : private_key_jwt
+    - Sender Constrain : dpop
+    - Credential Format : sd_jwt_vc
+    - Authorization Code Flow Variant : issuer_initiated
+    - Credential Response Encryption : plain
+  - OID4VCI SD-JWT VC key attestation
+    - Client Authentication Method : private_key_jwt
+    - Sender Constrain : dpop
+    - Credential Format : sd_jwt_vc (key attestations required)
+    - Authorization Code Flow Variant : wallet_initiated
+    - Credential Response Encryption : plain
+  - OID4VCI mdoc
+    - Client Authentication Method : private_key_jwt
+    - Sender Constrain : dpop
+    - Credential Format : mdoc
+    - Authorization Code Flow Variant : wallet_initiated
+    - Credential Response Encryption : plain
+
+#### OpenID for Verifiable Credential Issuance (OID4VCI) 1.0 Final + OpenID4VC High Assurance Interoperability Profile (HAIP) 1.0: Issuer
+  - OID4VCI-HAIP SD-JWT VC
+    - Client Authentication Method : client_attestation
+    - Sender Constrain : dpop
+    - Credential Format : sd_jwt_vc
+    - Authorization Code Flow Variant : wallet_initiated
+  - OID4VCI-HAIP SD-JWT VC issuer initiated
+    - Client Authentication Method : client_attestation
+    - Sender Constrain : dpop
+    - Credential Format : sd_jwt_vc
+    - Authorization Code Flow Variant : issuer_initiated
+  - OID4VCI-HAIP SD-JWT VC key attestation
+    - Client Authentication Method : client_attestation
+    - Sender Constrain : dpop
+    - Credential Format : sd_jwt_vc (key attestations required)
+    - Authorization Code Flow Variant : wallet_initiated
+  - OID4VCI-HAIP mdoc
+    - Client Authentication Method : client_attestation
+    - Sender Constrain : dpop
+    - Credential Format : mdoc
+    - Authorization Code Flow Variant : wallet_initiated
+
+Note: Each conformance profile of OID4VCI + HAIP also includes the FAPI 2.0 Security Profile conformance tests.
+
+#### OpenID for Verifiable Presentations (OID4VP) 1.0 Final: Verifier
+  - OID4VP same device
+    - VP Profile : plain_vp
+    - Credential Format : sd_jwt_vc
+    - Client ID Prefix : x509_hash
+    - Request Method : request_uri_signed
+    - Response Mode : direct_post
+  - OID4VP same device + encryption
+    - VP Profile : plain_vp
+    - Credential Format : sd_jwt_vc
+    - Client ID Prefix : x509_hash
+    - Request Method : request_uri_signed
+    - Response Mode : direct_post.jwt
+  - OID4VP cross device
+    - VP Profile : plain_vp
+    - Credential Format : sd_jwt_vc
+    - Client ID Prefix : x509_hash
+    - Request Method : request_uri_signed
+    - Response Mode : direct_post
+
+Note: Keycloak acts as an OID4VP verifier through its OID4VP identity provider. Keycloak does not check the revocation status of the presented credential with the token status list, so the conformance test of presenting a revoked credential fails.
+
 ### Passed Conformance Tests per Keycloak version
 
 To ensure that every keycloak version can pass conformance tests, we check if a new Keycloak version pass conformance tests that the older Keycloak version could pass whenever the new Keycloak version is released.
@@ -446,6 +524,7 @@ We tagged the environment for every keycloak verion:
 |kc-26.7.4|26.7.4|release-v5.1.45|
 |kc-26.8.0|26.8.0|release-v5.1.45|
 |kc-26.8.1|26.8.1|release-v5.3.4|
+|kc-26.8.2|26.8.2|release-v5.3.4|
 
 |Keycloak version|FAPI 1.0 Advanced|FAPI-CIBA|Open Banking Brasil FAPI 1.0 (\*1,\*2),\*15|Open Finance Brasil FAPI 1.0 (\*3)|Australia Consumer Data Right (CDR) (\*8)|UK Open Banking|OpenID Connect OP (\*4)|OpenID Connect OP for Logout Profile|FAPI 2.0 Security Profile Implementer’s Draft (\*6,\*14)|FAPI 2.0 Message Signing Implementer’s Draft (\*6,\*14)|FAPI 2.0 Security Profile (\*9)|FAPI 2.0 Message Signing (\*9)|
 |-|-|-|-|-|-|-|-|-|-|-|-|-|
@@ -619,11 +698,13 @@ Note: Keycloak legacy (wildfly) is no longer supported since [keycloak 20](https
 
 Since 26.8.0, we only run the following conformance tests:
 
-|Keycloak version|OpenID Connect OP (\*4)|OpenID Connect OP for Logout Profile|FAPI 2.0 Security Profile|FAPI 2.0 Message Signing|FAPI-CIBA|
-|-|-|-|-|-|-|
-|26.8.0|x|x|x|x|x|x|
-|26.8.1|x|x|x|x|x|x|
-|26.8.2|x|x|x|x|x|x|
+|Keycloak version|OpenID Connect OP (\*4)|OpenID Connect OP for Logout Profile|FAPI 2.0 Security Profile|FAPI 2.0 Message Signing|FAPI-CIBA|OpenID4VCI as Issuer|OpenID4VCP + HAIP as Issuer|OpenID4VP as Verifier|
+|-|-|-|-|-|-|-|-|-|
+|26.8.0|x|x|x|x|x|x|x|(\*17)|
+|26.8.1|x|x|x|x|x|x|x|-|
+|26.8.2|x|x|x|x|x|x|x|-|
+
+\*17 : `present-revoked-credential` test fails because Keycloak doesn't fetch token status lists. [ISSUE-50665](https://github.com/keycloak/keycloak/issues/50665)
 
 ## Other Contributions
 

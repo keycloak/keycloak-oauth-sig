@@ -1,0 +1,422 @@
+{
+    "alias": "keycloak-oid4vci-haip-mdoc",
+    "description": "OID4VCI 1.0 Final + HAIP: Keycloak test with ISO mdoc",
+    "vci": {
+        "credential_issuer_url": "https://as.keycloak-fapi.org/realms/test",
+        "credential_configuration_id": "conformance_mso_mdoc",
+        "client_attestation_issuer": "https://example.com/client-attester",
+        "client_attester_keys_jwks": {
+            "keys": [
+                {
+                    "kty": "EC",
+                    "use": "sig",
+                    "crv": "P-256",
+                    "kid": "ct_client_attester_key",
+                    "x5c": [
+                        "MIIBiDCCAS6gAwIBAgIUZMI5uwl8u2o9bqBDr8Fpf/WqZFYwCgYIKoZIzj0EAwIwKjEoMCYGA1UEAwwfT0lENFZDSSBDb25mb3JtYW5jZSBBdHRlc3RlciBDQTAeFw0yNjExMDgyMjU4MTBaFw0zNjExMDYyMjU4MTBaMCcxJTAjBgNVBAMMHE9JRDRWQ0kgQ29uZm9ybWFuY2UgQXR0ZXN0ZXIwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAARgVrz0gwG+GvvoPddB15+fIzq3RCdyUHRgeC3jMN+lTFvIsjL+jL9dbBr0SybRdPVo+G5hQWTEBtztIT2bXpnTozUwMzAMBgNVHRMBAf8EAjAAMA4GA1UdDwEB/wQEAwIHgDATBgNVHSUEDDAKBggrBgEFBQcDBDAKBggqhkjOPQQDAgNIADBFAiEAzFIpxa3P72vGRLYseSVzg160F/B/SwEusjRm+I0dn8oCIHkrS7cVce6mqaKoAh2PiAKsQhQY3u6PlfsxP50T8gp/"
+                    ],
+                    "x": "YFa89IMBvhr76D3XQdefnyM6t0QnclB0YHgt4zDfpUw",
+                    "y": "W8iyMv6Mv11sGvRLJtF09Wj4bmFBZMQG3O0hPZtemdM",
+                    "alg": "ES256",
+                    "d": "8RXlZTvmqp8-Fwn7H1LdYnc1M_-7jJaYO1wp8dwf6F8"
+                }
+            ]
+        },
+        "key_attestation_jwks": {
+            "keys": [
+                {
+                    "kty": "EC",
+                    "use": "sig",
+                    "crv": "P-256",
+                    "kid": "ct_client_attester_key",
+                    "x5c": [
+                        "MIIBiDCCAS6gAwIBAgIUZMI5uwl8u2o9bqBDr8Fpf/WqZFYwCgYIKoZIzj0EAwIwKjEoMCYGA1UEAwwfT0lENFZDSSBDb25mb3JtYW5jZSBBdHRlc3RlciBDQTAeFw0yNjExMDgyMjU4MTBaFw0zNjExMDYyMjU4MTBaMCcxJTAjBgNVBAMMHE9JRDRWQ0kgQ29uZm9ybWFuY2UgQXR0ZXN0ZXIwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAARgVrz0gwG+GvvoPddB15+fIzq3RCdyUHRgeC3jMN+lTFvIsjL+jL9dbBr0SybRdPVo+G5hQWTEBtztIT2bXpnTozUwMzAMBgNVHRMBAf8EAjAAMA4GA1UdDwEB/wQEAwIHgDATBgNVHSUEDDAKBggrBgEFBQcDBDAKBggqhkjOPQQDAgNIADBFAiEAzFIpxa3P72vGRLYseSVzg160F/B/SwEusjRm+I0dn8oCIHkrS7cVce6mqaKoAh2PiAKsQhQY3u6PlfsxP50T8gp/"
+                    ],
+                    "x": "YFa89IMBvhr76D3XQdefnyM6t0QnclB0YHgt4zDfpUw",
+                    "y": "W8iyMv6Mv11sGvRLJtF09Wj4bmFBZMQG3O0hPZtemdM",
+                    "alg": "ES256",
+                    "d": "8RXlZTvmqp8-Fwn7H1LdYnc1M_-7jJaYO1wp8dwf6F8"
+                }
+            ]
+        }
+    },
+    "credential": {
+        "trust_anchor_pem": "-----BEGIN CERTIFICATE-----\nMIICFzCCAb2gAwIBAgIUMsp7TPNDmhhPGZ76hpWcoG8F/egwCgYIKoZIzj0EAwIw\nLjELMAkGA1UEBhMCVVMxHzAdBgNVBAMMFk9JRDRWQ0kgQ29uZm9ybWFuY2UgQ0Ew\nHhcNMjYxMTA4MjI1ODEwWhcNMzYxMTA2MjI1ODEwWjAuMQswCQYDVQQGEwJVUzEf\nMB0GA1UEAwwWT0lENFZDSSBDb25mb3JtYW5jZSBDQTBZMBMGByqGSM49AgEGCCqG\nSM49AwEHA0IABEhKo8jXOzTEfxR3uPytSYjAvJ2+v+xhHKrdJFwHxX7Ff4EFcvSC\nFHaqNWCpCGWIeWuUUyguxP/JGc+9nTnLkQijgbgwgbUwEgYDVR0TAQH/BAgwBgEB\n/wIBADAOBgNVHQ8BAf8EBAMCAQYwHQYDVR0OBBYEFJFQLot8z1CEB82/FD5ldk+J\nyQ/WMCoGA1UdEgQjMCGBH29pZDR2Y2ktY29uZm9ybWFuY2VAZXhhbXBsZS5jb20w\nRAYDVR0fBD0wOzA5oDegNYYzaHR0cDovL29pZDR2Yy1jcmwtc2VydmVyOjgwODAv\nb2lkNHZjaS1pc3N1ZXItY2EuY3JsMAoGCCqGSM49BAMCA0gAMEUCIE5gOhy316Sy\n97utoks5MJ4ATz0OOeNXFCnuaa7nos0DAiEAvKvnkM9GPmIiqDqeQ80sXT3tmBb2\n+qHRI9essuTWplE=\n-----END CERTIFICATE-----\n",
+        "status_list_trust_anchor_pem": "-----BEGIN CERTIFICATE-----\nMIICFzCCAb2gAwIBAgIUMsp7TPNDmhhPGZ76hpWcoG8F/egwCgYIKoZIzj0EAwIw\nLjELMAkGA1UEBhMCVVMxHzAdBgNVBAMMFk9JRDRWQ0kgQ29uZm9ybWFuY2UgQ0Ew\nHhcNMjYxMTA4MjI1ODEwWhcNMzYxMTA2MjI1ODEwWjAuMQswCQYDVQQGEwJVUzEf\nMB0GA1UEAwwWT0lENFZDSSBDb25mb3JtYW5jZSBDQTBZMBMGByqGSM49AgEGCCqG\nSM49AwEHA0IABEhKo8jXOzTEfxR3uPytSYjAvJ2+v+xhHKrdJFwHxX7Ff4EFcvSC\nFHaqNWCpCGWIeWuUUyguxP/JGc+9nTnLkQijgbgwgbUwEgYDVR0TAQH/BAgwBgEB\n/wIBADAOBgNVHQ8BAf8EBAMCAQYwHQYDVR0OBBYEFJFQLot8z1CEB82/FD5ldk+J\nyQ/WMCoGA1UdEgQjMCGBH29pZDR2Y2ktY29uZm9ybWFuY2VAZXhhbXBsZS5jb20w\nRAYDVR0fBD0wOzA5oDegNYYzaHR0cDovL29pZDR2Yy1jcmwtc2VydmVyOjgwODAv\nb2lkNHZjaS1pc3N1ZXItY2EuY3JsMAoGCCqGSM49BAMCA0gAMEUCIE5gOhy316Sy\n97utoks5MJ4ATz0OOeNXFCnuaa7nos0DAiEAvKvnkM9GPmIiqDqeQ80sXT3tmBb2\n+qHRI9essuTWplE=\n-----END CERTIFICATE-----\n"
+    },
+    "client": {
+        "client_id": "oid4vci-client"
+    },
+    "client2": {
+        "client_id": "oid4vci-client2"
+    },
+    "browser": [
+        {
+            "match": "https://as.keycloak-fapi.org/realms/test/protocol/openid-connect/auth*",
+            "tasks": [
+                {
+                    "task": "Initial login",
+                    "match": "https://as.keycloak-fapi.org/realms/test/login-actions/authenticate*",
+                    "optional": true,
+                    "commands": [
+                        [
+                            "text",
+                            "id",
+                            "username",
+                            "john"
+                        ],
+                        [
+                            "text",
+                            "id",
+                            "password",
+                            "john"
+                        ],
+                        [
+                            "click",
+                            "name",
+                            "login"
+                        ]
+                    ]
+                },
+                {
+                    "task": "Authorize Client",
+                    "match": "https://as.keycloak-fapi.org/realms/test/login-actions/required-action*",
+                    "optional": true,
+                    "commands": [
+                        [
+                            "click",
+                            "name",
+                            "accept"
+                        ]
+                    ]
+                },
+                {
+                    "task": "Verify Complete",
+                    "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-haip-mdoc/callback*",
+                    "commands": [
+                        [
+                            "wait",
+                            "id",
+                            "submission_complete",
+                            10
+                        ]
+                    ]
+                }
+            ]
+        }
+    ],
+    "interaction": {
+        "keycloak_url": "https://as.keycloak-fapi.org",
+        "realm": "test",
+        "username": "john",
+        "password": "john",
+        "credential_offer_client_id": "oid4vci-app"
+    },
+    "override": {
+        "fapi2-security-profile-final-user-rejects-authentication": {
+            "browser": [
+                {
+                    "match": "https://as.keycloak-fapi.org/realms/test/protocol/openid-connect/auth*",
+                    "tasks": [
+                        {
+                            "task": "Initial login",
+                            "match": "https://as.keycloak-fapi.org/realms/test/login-actions/authenticate*",
+                            "optional": true,
+                            "commands": [
+                                [
+                                    "text",
+                                    "id",
+                                    "username",
+                                    "mike"
+                                ],
+                                [
+                                    "text",
+                                    "id",
+                                    "password",
+                                    "mike"
+                                ],
+                                [
+                                    "click",
+                                    "name",
+                                    "login"
+                                ]
+                            ]
+                        },
+                        {
+                            "task": "Authorize Client - not allow grant to reject an authentication flow",
+                            "match": "https://as.keycloak-fapi.org/realms/test/login-actions/required-action*",
+                            "optional": false,
+                            "commands": [
+                                [
+                                    "click",
+                                    "name",
+                                    "cancel"
+                                ]
+                            ]
+                        },
+                        {
+                            "task": "Verify Complete",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-haip-mdoc/callback*",
+                            "commands": [
+                                [
+                                    "wait",
+                                    "id",
+                                    "submission_complete",
+                                    10
+                                ]
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "fapi2-security-profile-final-par-attempt-to-use-expired-request_uri": {
+            "browser": [
+                {
+                    "match": "https://as.keycloak-fapi.org/realms/test/protocol/openid-connect/auth*",
+                    "tasks": [
+                        {
+                            "task": "Expect Keycloak error page",
+                            "match": "https://as.keycloak-fapi.org/realms/test/protocol/openid-connect/auth*",
+                            "commands": [
+                                [
+                                    "wait",
+                                    "id",
+                                    "kc-error-message",
+                                    10,
+                                    ".*Invalid Request.*",
+                                    "update-image-placeholder"
+                                ]
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "fapi2-security-profile-final-par-attempt-to-use-request_uri-for-different-client": {
+            "browser": [
+                {
+                    "match": "https://as.keycloak-fapi.org/realms/test/protocol/openid-connect/auth*",
+                    "tasks": [
+                        {
+                            "task": "Expect Keycloak error page",
+                            "match": "https://as.keycloak-fapi.org/realms/test/protocol/openid-connect/auth*",
+                            "commands": [
+                                [
+                                    "wait",
+                                    "id",
+                                    "kc-error-message",
+                                    10,
+                                    ".*Invalid Request.*",
+                                    "update-image-placeholder"
+                                ]
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "fapi2-security-profile-final-state-only-outside-request-object-not-used": {
+            "browser": [
+                {
+                    "match": "https://as.keycloak-fapi.org/realms/test/protocol/openid-connect/auth*",
+                    "tasks": [
+                        {
+                            "task": "Expect Keycloak error page",
+                            "match": "https://as.keycloak-fapi.org/realms/test/protocol/openid-connect/auth*",
+                            "commands": [
+                                [
+                                    "wait",
+                                    "id",
+                                    "kc-error-message",
+                                    10,
+                                    ".*PAR request did not include query parameter.*",
+                                    "update-image-placeholder"
+                                ]
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "fapi2-security-profile-final-ensure-unsigned-authorization-request-without-using-par-fails": {
+            "browser": [
+                {
+                    "match": "https://as.keycloak-fapi.org/realms/test/protocol/openid-connect/auth*",
+                    "tasks": [
+                        {
+                            "task": "Expect Keycloak error page",
+                            "match": "https://as.keycloak-fapi.org/realms/test/protocol/openid-connect/auth*",
+                            "commands": [
+                                [
+                                    "wait",
+                                    "id",
+                                    "kc-error-message",
+                                    10,
+                                    ".*PAR request_uri not included.*",
+                                    "update-image-placeholder"
+                                ]
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "fapi2-security-profile-final-par-attempt-reuse-request_uri": {
+            "browser": [
+                {
+                    "comment": "first authorization request with the request_uri: normal login",
+                    "match-limit": 1,
+                    "match": "https://as.keycloak-fapi.org/realms/test/protocol/openid-connect/auth*",
+                    "tasks": [
+                        {
+                            "task": "Initial login",
+                            "match": "https://as.keycloak-fapi.org/realms/test/login-actions/authenticate*",
+                            "optional": true,
+                            "commands": [
+                                [
+                                    "text",
+                                    "id",
+                                    "username",
+                                    "john"
+                                ],
+                                [
+                                    "text",
+                                    "id",
+                                    "password",
+                                    "john"
+                                ],
+                                [
+                                    "click",
+                                    "name",
+                                    "login"
+                                ]
+                            ]
+                        },
+                        {
+                            "task": "Authorize Client",
+                            "match": "https://as.keycloak-fapi.org/realms/test/login-actions/required-action*",
+                            "optional": true,
+                            "commands": [
+                                [
+                                    "click",
+                                    "name",
+                                    "accept"
+                                ]
+                            ]
+                        },
+                        {
+                            "task": "Verify Complete",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-haip-mdoc/callback*",
+                            "commands": [
+                                [
+                                    "wait",
+                                    "id",
+                                    "submission_complete",
+                                    10
+                                ]
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "comment": "second authorization request reusing the same request_uri: expect an error page",
+                    "match": "https://as.keycloak-fapi.org/realms/test/protocol/openid-connect/auth*",
+                    "tasks": [
+                        {
+                            "task": "Expect Keycloak error page",
+                            "match": "https://as.keycloak-fapi.org/realms/test/protocol/openid-connect/auth*",
+                            "commands": [
+                                [
+                                    "wait",
+                                    "id",
+                                    "kc-error-message",
+                                    10,
+                                    ".*PAR not found, not issued or used multiple times.*",
+                                    "update-image-placeholder"
+                                ]
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "fapi2-security-profile-final-par-ensure-reused-request-uri-prior-to-auth-completion-succeeds": {
+            "browser": [
+                {
+                    "comment": "first visit to the authorization endpoint: only open the login page, do not log in",
+                    "match": "https://as.keycloak-fapi.org/realms/test/protocol/openid-connect/auth*",
+                    "match-limit": 1,
+                    "tasks": [
+                        {
+                            "task": "Load login page without authenticating",
+                            "match": "https://as.keycloak-fapi.org/realms/test/login-actions/authenticate*",
+                            "commands": [
+                                [
+                                    "wait",
+                                    "id",
+                                    "username",
+                                    10
+                                ]
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "comment": "second visit reusing the same request_uri: log in",
+                    "match": "https://as.keycloak-fapi.org/realms/test/protocol/openid-connect/auth*",
+                    "tasks": [
+                        {
+                            "task": "Initial login",
+                            "match": "https://as.keycloak-fapi.org/realms/test/login-actions/authenticate*",
+                            "optional": true,
+                            "commands": [
+                                [
+                                    "text",
+                                    "id",
+                                    "username",
+                                    "john"
+                                ],
+                                [
+                                    "text",
+                                    "id",
+                                    "password",
+                                    "john"
+                                ],
+                                [
+                                    "click",
+                                    "name",
+                                    "login"
+                                ]
+                            ]
+                        },
+                        {
+                            "task": "Authorize Client",
+                            "match": "https://as.keycloak-fapi.org/realms/test/login-actions/required-action*",
+                            "optional": true,
+                            "commands": [
+                                [
+                                    "click",
+                                    "name",
+                                    "accept"
+                                ]
+                            ]
+                        },
+                        {
+                            "task": "Verify Complete",
+                            "match": "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-haip-mdoc/callback*",
+                            "commands": [
+                                [
+                                    "wait",
+                                    "id",
+                                    "submission_complete",
+                                    10
+                                ]
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

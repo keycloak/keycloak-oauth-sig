@@ -1,0 +1,26 @@
+[
+    {
+        "test-name": "oid4vci-1_0-issuer-fail-invalid-key-attestation-signature",
+        "variant": "*",
+        "configuration-filename": "*/oid4vci/oid4vci-sd-jwt-vc-automated.json",
+        "comment": "This test requires a credential configuration requiring key attestations. It is run with oid4vci-sd-jwt-vc-key-attestation-automated.json."
+    },
+    {
+        "test-name": "oid4vci-1_0-issuer-fail-invalid-key-attestation-signature",
+        "variant": "*",
+        "configuration-filename": "*/oid4vci/oid4vci-sd-jwt-vc-encrypted-automated.json",
+        "comment": "This test requires a credential configuration requiring key attestations. It is run with oid4vci-sd-jwt-vc-key-attestation-automated.json."
+    },
+    {
+        "test-name": "oid4vci-1_0-issuer-fail-invalid-key-attestation-signature",
+        "variant": "*",
+        "configuration-filename": "*/oid4vci/oid4vci-sd-jwt-vc-issuer-initiated-automated.json",
+        "comment": "This test requires a credential configuration requiring key attestations. It is run with oid4vci-sd-jwt-vc-key-attestation-automated.json."
+    },
+    {
+        "test-name": "oid4vci-1_0-issuer-fail-invalid-key-attestation-signature",
+        "variant": "*",
+        "configuration-filename": "*/oid4vci/oid4vci-mdoc-automated.json",
+        "comment": "This test requires a credential configuration requiring key attestations. It is run with oid4vci-sd-jwt-vc-key-attestation-automated.json."
+    }
+]

@@ -1,0 +1,38 @@
+[
+    {
+        "test-name": "oid4vp-1final-verifier-present-revoked-credential",
+        "variant": "*",
+        "configuration-filename": "*/oid4vp/oid4vp-sd-jwt-vc-x509-hash-*automated.json",
+        "current-block": "",
+        "condition": "EnsureVerifierFetchedRevocationList",
+        "expected-result": "failure",
+        "comment": "Keycloak does not fetch the token status list referenced by the presented credential, so it does not check the revocation status of the credential."
+    },
+    {
+        "test-name": "oid4vp-1final-verifier-happy-flow",
+        "variant": "*",
+        "configuration-filename": "*/oid4vp/oid4vp-sd-jwt-vc-x509-hash-*automated.json",
+        "current-block": "",
+        "condition": "EnsureVerifierFetchedRevocationList",
+        "expected-result": "warning",
+        "comment": "Keycloak does not fetch the token status list referenced by the presented credential, so it does not check the revocation status of the credential."
+    },
+    {
+        "test-name": "oid4vp-1final-verifier-minimal-cnf-jwk",
+        "variant": "*",
+        "configuration-filename": "*/oid4vp/oid4vp-sd-jwt-vc-x509-hash-*automated.json",
+        "current-block": "",
+        "condition": "EnsureVerifierFetchedRevocationList",
+        "expected-result": "warning",
+        "comment": "Keycloak does not fetch the token status list referenced by the presented credential, so it does not check the revocation status of the credential."
+    },
+    {
+        "test-name": "oid4vp-1final-verifier-request-uri-fetched-twice",
+        "variant": "*",
+        "configuration-filename": "*/oid4vp/oid4vp-sd-jwt-vc-x509-hash-*automated.json",
+        "current-block": "",
+        "condition": "EnsureVerifierFetchedRevocationList",
+        "expected-result": "warning",
+        "comment": "Keycloak does not fetch the token status list referenced by the presented credential, so it does not check the revocation status of the credential."
+    }
+]

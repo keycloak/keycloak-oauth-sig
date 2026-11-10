@@ -1,0 +1,20 @@
+[
+    {
+        "test-name": "fapi2-security-profile-final-happy-flow",
+        "variant": "*",
+        "configuration-filename": "*/oid4vci-haip/oid4vci-haip-*-automated.json",
+        "current-block": "",
+        "condition": "CheckDiscEndpointScopesSupportedContainsRequestedScopes",
+        "expected-result": "warning",
+        "comment": "Keycloak does not list the credential scopes (client scopes of the oid4vc protocol) in scopes_supported of its authorization server metadata. The server is permitted to not advertise scopes it supports."
+    },
+    {
+        "test-name": "fapi2-security-profile-final-dpop-negative-tests",
+        "variant": "*",
+        "configuration-filename": "*/oid4vci-haip/oid4vci-haip-*-automated.json",
+        "current-block": "Try DPoP proof expecting Scheme based normalization of htu claim, where the port is not considered if that is the default for the scheme.",
+        "condition": "EnsureHttpStatusCodeIs200or201",
+        "expected-result": "warning",
+        "comment": "Keycloak's credential endpoint does not apply scheme based normalization (RFC 3986 6.2.3) when comparing the htu claim of a DPoP proof."
+    }
+]

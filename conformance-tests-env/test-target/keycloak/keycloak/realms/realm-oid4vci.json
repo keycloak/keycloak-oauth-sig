@@ -1,0 +1,758 @@
+{
+    "realm": "test",
+    "enabled": true,
+    "sslRequired": "external",
+    "eventsEnabled": true,
+    "eventsListeners": [
+        "jboss-logging"
+    ],
+    "verifiableCredentialsEnabled": true,
+    "defaultSignatureAlgorithm": "ES256",
+    "attributes": {
+        "CreateDefaultClientScopes": "true",
+        "oid4vci.request.zip.algorithms": "DEF",
+        "oid4vci.time.claims.strategy": "ROUND",
+        "oid4vci.time.round.unit": "HOUR",
+        "oid4vci.batch_credential_issuance.batch_size": "20",
+        "parRequestUriLifespan": "15"
+    },
+    "clientScopes": [
+        {
+            "name": "conformance_sd_jwt_vc",
+            "protocol": "oid4vc",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "vc.format": "dc+sd-jwt",
+                "vc.credential_build_config.hash_algorithm": "SHA-256",
+                "vc.credential_build_config.sd_jwt.visible_claims": "id,iat,nbf,exp,jti",
+                "vc.credential_build_config.token_jws_type": "dc+sd-jwt",
+                "vc.sd_jwt.number_of_decoys": "10",
+                "vc.expiry_in_seconds": "7200",
+                "vc.credential_configuration_id": "conformance_sd_jwt_vc",
+                "vc.credential_identifier": "conformance_sd_jwt_vc",
+                "vc.credential_signing_alg": "ES256",
+                "vc.verifiable_credential_type": "urn:example:sd-jwt-credential",
+                "vc.display": "[{\"name\":\"conformance_sd_jwt_vc\",\"locale\":\"en-US\"}]",
+                "vc.binding_required": "true",
+                "vc.binding_required_proof_types": "jwt",
+                "vc.cryptographic_binding_methods_supported": "jwk"
+            },
+            "protocolMappers": [
+                {
+                    "name": "did-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-subject-id-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "id",
+                        "userAttribute": "did"
+                    }
+                },
+                {
+                    "name": "email-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-user-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "email",
+                        "userAttribute": "email"
+                    }
+                },
+                {
+                    "name": "first-name-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-user-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "firstName",
+                        "userAttribute": "firstName"
+                    }
+                },
+                {
+                    "name": "last-name-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-user-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "lastName",
+                        "userAttribute": "lastName"
+                    }
+                },
+                {
+                    "name": "address-street-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-user-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "address.street_address",
+                        "userAttribute": "address_street_address"
+                    }
+                },
+                {
+                    "name": "address-locality-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-user-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "address.locality",
+                        "userAttribute": "address_locality"
+                    }
+                },
+                {
+                    "name": "generated-id-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-generated-id-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "jti"
+                    }
+                },
+                {
+                    "name": "static-scope-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-static-claim-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "scope-name",
+                        "staticValue": "conformance_sd_jwt_vc"
+                    }
+                },
+                {
+                    "name": "issued-at-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-issued-at-time-claim-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "iat",
+                        "truncateToTimeUnit": "HOURS",
+                        "valueSource": "COMPUTE"
+                    }
+                },
+                {
+                    "name": "not-before-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-issued-at-time-claim-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "nbf",
+                        "valueSource": "COMPUTE"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "conformance_sd_jwt_vc_key_attestation",
+            "protocol": "oid4vc",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "vc.format": "dc+sd-jwt",
+                "vc.credential_build_config.hash_algorithm": "SHA-256",
+                "vc.credential_build_config.sd_jwt.visible_claims": "id,iat,nbf,exp,jti",
+                "vc.credential_build_config.token_jws_type": "dc+sd-jwt",
+                "vc.sd_jwt.number_of_decoys": "10",
+                "vc.expiry_in_seconds": "7200",
+                "vc.credential_configuration_id": "conformance_sd_jwt_vc_key_attestation",
+                "vc.credential_identifier": "conformance_sd_jwt_vc_key_attestation",
+                "vc.credential_signing_alg": "ES256",
+                "vc.verifiable_credential_type": "urn:example:sd-jwt-credential",
+                "vc.display": "[{\"name\":\"conformance_sd_jwt_vc_key_attestation\",\"locale\":\"en-US\"}]",
+                "vc.binding_required": "true",
+                "vc.binding_required_proof_types": "jwt",
+                "vc.cryptographic_binding_methods_supported": "jwk",
+                "vc.key_attestations_required": "true"
+            },
+            "protocolMappers": [
+                {
+                    "name": "did-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-subject-id-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "id",
+                        "userAttribute": "did"
+                    }
+                },
+                {
+                    "name": "email-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-user-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "email",
+                        "userAttribute": "email"
+                    }
+                },
+                {
+                    "name": "first-name-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-user-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "firstName",
+                        "userAttribute": "firstName"
+                    }
+                },
+                {
+                    "name": "last-name-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-user-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "lastName",
+                        "userAttribute": "lastName"
+                    }
+                },
+                {
+                    "name": "address-street-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-user-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "address.street_address",
+                        "userAttribute": "address_street_address"
+                    }
+                },
+                {
+                    "name": "address-locality-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-user-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "address.locality",
+                        "userAttribute": "address_locality"
+                    }
+                },
+                {
+                    "name": "generated-id-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-generated-id-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "jti"
+                    }
+                },
+                {
+                    "name": "static-scope-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-static-claim-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "scope-name",
+                        "staticValue": "conformance_sd_jwt_vc_key_attestation"
+                    }
+                },
+                {
+                    "name": "issued-at-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-issued-at-time-claim-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "iat",
+                        "truncateToTimeUnit": "HOURS",
+                        "valueSource": "COMPUTE"
+                    }
+                },
+                {
+                    "name": "not-before-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-issued-at-time-claim-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "nbf",
+                        "valueSource": "COMPUTE"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "conformance_mso_mdoc",
+            "protocol": "oid4vc",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "vc.format": "mso_mdoc",
+                "vc.credential_build_config.hash_algorithm": "SHA-256",
+                "vc.credential_build_config.sd_jwt.visible_claims": "id,iat,nbf,exp,jti",
+                "vc.credential_build_config.token_jws_type": "dc+sd-jwt",
+                "vc.sd_jwt.number_of_decoys": "10",
+                "vc.expiry_in_seconds": "7200",
+                "vc.credential_configuration_id": "conformance_mso_mdoc",
+                "vc.credential_identifier": "conformance_mso_mdoc",
+                "vc.credential_signing_alg": "ES256",
+                "vc.verifiable_credential_type": "org.example.conformance.mdoc",
+                "vc.display": "[{\"name\":\"conformance_mso_mdoc\",\"locale\":\"en-US\"}]",
+                "vc.binding_required": "true",
+                "vc.binding_required_proof_types": "jwt",
+                "vc.cryptographic_binding_methods_supported": "cose_key"
+            },
+            "protocolMappers": [
+                {
+                    "name": "did-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-subject-id-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "id",
+                        "userAttribute": "did",
+                        "mdoc.namespace": "org.example.conformance"
+                    }
+                },
+                {
+                    "name": "given-name-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-user-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "given_name",
+                        "userAttribute": "firstName",
+                        "mdoc.namespace": "org.example.conformance"
+                    }
+                },
+                {
+                    "name": "family-name-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-user-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "family_name",
+                        "userAttribute": "lastName",
+                        "mdoc.namespace": "org.example.conformance"
+                    }
+                },
+                {
+                    "name": "birth-date-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-static-claim-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "birth_date",
+                        "staticValue": "1986-03-22",
+                        "mdoc.namespace": "org.example.conformance"
+                    }
+                },
+                {
+                    "name": "issue-date-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-static-claim-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "issue_date",
+                        "staticValue": "2019-10-20",
+                        "mdoc.namespace": "org.example.conformance"
+                    }
+                },
+                {
+                    "name": "expiry-date-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-static-claim-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "expiry_date",
+                        "staticValue": "2029-10-20",
+                        "mdoc.namespace": "org.example.conformance"
+                    }
+                },
+                {
+                    "name": "issuing-country-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-static-claim-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "issuing_country",
+                        "staticValue": "US",
+                        "mdoc.namespace": "org.example.conformance"
+                    }
+                },
+                {
+                    "name": "issuing-authority-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-static-claim-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "issuing_authority",
+                        "staticValue": "Keycloak Conformance",
+                        "mdoc.namespace": "org.example.conformance"
+                    }
+                },
+                {
+                    "name": "document-number-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-static-claim-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "document_number",
+                        "staticValue": "TEST-1234567",
+                        "mdoc.namespace": "org.example.conformance"
+                    }
+                },
+                {
+                    "name": "un-distinguishing-sign-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-static-claim-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "un_distinguishing_sign",
+                        "staticValue": "USA",
+                        "mdoc.namespace": "org.example.conformance"
+                    }
+                },
+                {
+                    "name": "portrait-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-static-claim-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "portrait",
+                        "staticValue": "conformance-portrait",
+                        "mdoc.namespace": "org.example.conformance"
+                    }
+                },
+                {
+                    "name": "driving-privileges-mapper",
+                    "protocol": "oid4vc",
+                    "protocolMapper": "oid4vc-static-claim-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "claim.name": "driving_privileges",
+                        "staticValue": "[]",
+                        "mdoc.namespace": "org.example.conformance"
+                    }
+                }
+            ]
+        }
+    ],
+    "users": [
+        {
+            "username": "john",
+            "enabled": true,
+            "email": "john@example.test",
+            "emailVerified": true,
+            "firstName": "John",
+            "lastName": "Doe",
+            "attributes": {
+                "did": [
+                    "did:key:john"
+                ],
+                "address_street_address": [
+                    "221B Baker Street"
+                ],
+                "address_locality": [
+                    "London"
+                ]
+            },
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "john",
+                    "temporary": false
+                }
+            ],
+            "realmRoles": [
+                "default-roles-test"
+            ],
+            "verifiableCredentials": [
+                {
+                    "credentialScopeName": "conformance_sd_jwt_vc",
+                    "revision": "TyIn3Ndo-T2x0M9kGsSjSt",
+                    "createdDate": 1767225600000
+                },
+                {
+                    "credentialScopeName": "conformance_sd_jwt_vc_key_attestation",
+                    "revision": "XFzuG4pinjJ2Qt3eEGSIxK",
+                    "createdDate": 1767225600000
+                },
+                {
+                    "credentialScopeName": "conformance_mso_mdoc",
+                    "revision": "RBkej3HYZ5LI-jYNpMm2EP",
+                    "createdDate": 1767225600000
+                }
+            ],
+            "clientConsents": [
+                {
+                    "clientId": "oid4vci-client",
+                    "grantedClientScopes": [
+                        "basic",
+                        "profile",
+                        "roles",
+                        "email",
+                        "conformance_sd_jwt_vc",
+                        "conformance_sd_jwt_vc_key_attestation",
+                        "conformance_mso_mdoc"
+                    ],
+                    "createdDate": 1767225600000,
+                    "lastUpdatedDate": 1767225600000
+                },
+                {
+                    "clientId": "oid4vci-client2",
+                    "grantedClientScopes": [
+                        "basic",
+                        "profile",
+                        "roles",
+                        "email",
+                        "conformance_sd_jwt_vc",
+                        "conformance_sd_jwt_vc_key_attestation",
+                        "conformance_mso_mdoc"
+                    ],
+                    "createdDate": 1767225600000,
+                    "lastUpdatedDate": 1767225600000
+                }
+            ]
+        },
+        {
+            "username": "mike",
+            "enabled": true,
+            "email": "mike@example.test",
+            "emailVerified": true,
+            "firstName": "Mike",
+            "lastName": "Doe",
+            "attributes": {
+                "did": [
+                    "did:key:mike"
+                ],
+                "address_street_address": [
+                    "221B Baker Street"
+                ],
+                "address_locality": [
+                    "London"
+                ]
+            },
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "mike",
+                    "temporary": false
+                }
+            ],
+            "realmRoles": [
+                "default-roles-test"
+            ]
+        }
+    ],
+    "components": {
+        "org.keycloak.keys.KeyProvider": [
+            {
+                "name": "hmac-generated-hs512",
+                "providerId": "hmac-generated",
+                "subComponents": {},
+                "config": {
+                    "priority": [
+                        "100"
+                    ],
+                    "enabled": [
+                        "true"
+                    ],
+                    "active": [
+                        "true"
+                    ],
+                    "algorithm": [
+                        "HS512"
+                    ]
+                }
+            },
+            {
+                "name": "aes-generated",
+                "providerId": "aes-generated",
+                "subComponents": {},
+                "config": {
+                    "priority": [
+                        "100"
+                    ],
+                    "enabled": [
+                        "true"
+                    ],
+                    "active": [
+                        "true"
+                    ]
+                }
+            },
+            {
+                "name": "oid4vci-conformance-signing-key",
+                "providerId": "java-keystore",
+                "subComponents": {},
+                "config": {
+                    "priority": [
+                        "0"
+                    ],
+                    "enabled": [
+                        "true"
+                    ],
+                    "active": [
+                        "true"
+                    ],
+                    "algorithm": [
+                        "ES256"
+                    ],
+                    "keyUse": [
+                        "SIG"
+                    ],
+                    "keystore": [
+                        "/opt/keycloak/data/test/oid4vci-signing.p12"
+                    ],
+                    "keystorePassword": [
+                        "password"
+                    ],
+                    "keystoreType": [
+                        "PKCS12"
+                    ],
+                    "keyAlias": [
+                        "oid4vci-conformance-signing"
+                    ],
+                    "keyPassword": [
+                        "password"
+                    ]
+                }
+            },
+            {
+                "name": "oid4vci-conformance-ecdh-encryption-key",
+                "providerId": "ecdh-generated",
+                "subComponents": {},
+                "config": {
+                    "priority": [
+                        "0"
+                    ],
+                    "enabled": [
+                        "true"
+                    ],
+                    "active": [
+                        "true"
+                    ],
+                    "ecdhAlgorithm": [
+                        "ECDH-ES"
+                    ],
+                    "ecdhEllipticCurveKey": [
+                        "P-256"
+                    ]
+                }
+            }
+        ],
+        "org.keycloak.userprofile.UserProfileProvider": [
+            {
+                "providerId": "declarative-user-profile",
+                "subComponents": {},
+                "config": {
+                    "kc.user.profile.config": [
+                        "{\"attributes\":[{\"name\":\"username\",\"displayName\":\"${username}\",\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"validations\":{\"length\":{\"min\":3,\"max\":255},\"username-prohibited-characters\":{},\"up-username-not-idn-homograph\":{}}},{\"name\":\"email\",\"displayName\":\"${email}\",\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"validations\":{\"email\":{},\"length\":{\"max\":255}}},{\"name\":\"firstName\",\"displayName\":\"${firstName}\",\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}}},{\"name\":\"lastName\",\"displayName\":\"${lastName}\",\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}}}],\"groups\":[{\"name\":\"user-metadata\",\"displayHeader\":\"User metadata\",\"displayDescription\":\"Attributes, which refer to user metadata\"}],\"unmanagedAttributePolicy\":\"ENABLED\"}"
+                    ]
+                }
+            }
+        ]
+    },
+    "clients": [
+        {
+            "clientId": "oid4vci-client",
+            "enabled": true,
+            "protocol": "openid-connect",
+            "publicClient": false,
+            "clientAuthenticatorType": "client-jwt",
+            "standardFlowEnabled": true,
+            "implicitFlowEnabled": false,
+            "serviceAccountsEnabled": false,
+            "directAccessGrantsEnabled": false,
+            "consentRequired": true,
+            "redirectUris": [
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci/callback",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-encrypted/callback",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-haip-mdoc/callback",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-haip-sd-jwt-vc/callback",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-haip-sd-jwt-vc-issuer-initiated/callback",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-haip-sd-jwt-vc-key-attestation/callback",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-issuer-initiated/callback",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-key-attestation/callback",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-mdoc/callback"
+            ],
+            "webOrigins": [
+                "https://conformance-suite.keycloak-fapi.org"
+            ],
+            "defaultClientScopes": [
+                "basic",
+                "profile",
+                "roles"
+            ],
+            "optionalClientScopes": [
+                "conformance_sd_jwt_vc",
+                "conformance_sd_jwt_vc_key_attestation",
+                "conformance_mso_mdoc",
+                "email"
+            ],
+            "attributes": {
+                "oid4vci.enabled": "true",
+                "use.jwks.string": "true",
+                "jwks.string": "{\"keys\":[{\"kty\":\"EC\",\"use\":\"sig\",\"crv\":\"P-256\",\"kid\":\"ct_client_signing_key\",\"x5c\":[\"MIIBgzCCASqgAwIBAgIUSYUkMQdInurZOXTp532eBUoDj5YwCgYIKoZIzj0EAwIwKDEmMCQGA1UEAwwdT0lENFZDSSBDb25mb3JtYW5jZSBDbGllbnQgQ0EwHhcNMjYxMTA4MjI1ODEwWhcNMzYxMTA2MjI1ODEwWjAlMSMwIQYDVQQDDBpPSUQ0VkNJIENvbmZvcm1hbmNlIENsaWVudDBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABN8JTrmDMrikbc9M/QegTmpf4iNNxyCJn8vkay1M/B6AXYljLI4l9/Y/AF85hK77czwhs/ByOGE2Vyq2csW4OvijNTAzMAwGA1UdEwEB/wQCMAAwDgYDVR0PAQH/BAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUFBwMCMAoGCCqGSM49BAMCA0cAMEQCIF1M0k9rDqJHjMHgSGeR91zP6RZuUAH6KlliV2Mh9/GfAiAvRMK6j7Egq42UbJasugyzmwzvsYgYTDPYeDJ4NkhtTA==\"],\"x\":\"3wlOuYMyuKRtz0z9B6BOal_iI03HIImfy-RrLUz8HoA\",\"y\":\"XYljLI4l9_Y_AF85hK77czwhs_ByOGE2Vyq2csW4Ovg\",\"alg\":\"ES256\"}]}",
+                "oid4vci.attester_trust_idps": "conformance-attester-x509",
+                "dpop.bound.access.tokens": "true"
+            }
+        },
+        {
+            "clientId": "oid4vci-client2",
+            "enabled": true,
+            "protocol": "openid-connect",
+            "publicClient": false,
+            "clientAuthenticatorType": "client-jwt",
+            "standardFlowEnabled": true,
+            "implicitFlowEnabled": false,
+            "serviceAccountsEnabled": false,
+            "directAccessGrantsEnabled": false,
+            "consentRequired": true,
+            "redirectUris": [
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci/callback*",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-encrypted/callback*",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-haip-mdoc/callback*",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-haip-sd-jwt-vc/callback*",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-haip-sd-jwt-vc-issuer-initiated/callback*",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-haip-sd-jwt-vc-key-attestation/callback*",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-issuer-initiated/callback*",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-key-attestation/callback*",
+                "https://conformance-suite.keycloak-fapi.org/test/a/keycloak-oid4vci-mdoc/callback*"
+            ],
+            "webOrigins": [
+                "https://conformance-suite.keycloak-fapi.org"
+            ],
+            "defaultClientScopes": [
+                "basic",
+                "profile",
+                "roles"
+            ],
+            "optionalClientScopes": [
+                "conformance_sd_jwt_vc",
+                "conformance_sd_jwt_vc_key_attestation",
+                "conformance_mso_mdoc",
+                "email"
+            ],
+            "attributes": {
+                "oid4vci.enabled": "true",
+                "use.jwks.string": "true",
+                "jwks.string": "{\"keys\":[{\"kty\":\"EC\",\"use\":\"sig\",\"crv\":\"P-256\",\"kid\":\"ct_client2_signing_key\",\"x5c\":[\"MIIBiDCCAS6gAwIBAgIUefznb75qivV8riFksyboGrthUzQwCgYIKoZIzj0EAwIwKjEoMCYGA1UEAwwfT0lENFZDSSBDb25mb3JtYW5jZSBDbGllbnQgMiBDQTAeFw0yNjExMDgyMjU4MTBaFw0zNjExMDYyMjU4MTBaMCcxJTAjBgNVBAMMHE9JRDRWQ0kgQ29uZm9ybWFuY2UgQ2xpZW50IDIwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQKfc3MAoo5u1Zu9g2KWV1fw5w5ruFOYt7H88Tlgo0REKzSUnfu9Zduc3YWLkjAgnIFYDF5QNSM3yS4SzJ0AhCbozUwMzAMBgNVHRMBAf8EAjAAMA4GA1UdDwEB/wQEAwIHgDATBgNVHSUEDDAKBggrBgEFBQcDAjAKBggqhkjOPQQDAgNIADBFAiBk+P2lactP8IKZBIJMT0EjkjXrHcyPbW1/BkSuzSA7KwIhAI4ozwKlPu3J2UpWjY2Z78RTuFxXjvHwHWcS/C6Zblh8\"],\"x\":\"Cn3NzAKKObtWbvYNilldX8OcOa7hTmLex_PE5YKNERA\",\"y\":\"rNJSd-71l25zdhYuSMCCcgVgMXlA1IzfJLhLMnQCEJs\",\"alg\":\"ES256\"}]}",
+                "oid4vci.attester_trust_idps": "conformance-attester-x509",
+                "dpop.bound.access.tokens": "true"
+            }
+        },
+        {
+            "clientId": "oid4vci-app",
+            "enabled": true,
+            "protocol": "openid-connect",
+            "publicClient": true,
+            "standardFlowEnabled": true,
+            "serviceAccountsEnabled": false,
+            "directAccessGrantsEnabled": false,
+            "redirectUris": [
+                "https://as.keycloak-fapi.org/realms/test/account/*"
+            ],
+            "defaultClientScopes": [
+                "basic",
+                "profile",
+                "roles"
+            ]
+        }
+    ],
+    "identityProviders": [
+        {
+            "alias": "conformance-attester-x509",
+            "providerId": "default-trust",
+            "enabled": true,
+            "config": {
+                "useX509": "true",
+                "trustedCertificates": "-----BEGIN CERTIFICATE-----\nMIIBeTCCAR+gAwIBAgIUSxNEndvb7ma33+GTbV0jsbomxuMwCgYIKoZIzj0EAwIw\nKjEoMCYGA1UEAwwfT0lENFZDSSBDb25mb3JtYW5jZSBBdHRlc3RlciBDQTAeFw0y\nNjExMDgyMjU4MTBaFw0zNjExMDYyMjU4MTBaMCoxKDAmBgNVBAMMH09JRDRWQ0kg\nQ29uZm9ybWFuY2UgQXR0ZXN0ZXIgQ0EwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNC\nAASZ2TPpRFdW9aN3HJMUUaWCFk4XwYsHXOC0wQ8gRs6LB0CR+SMj/cTysavA+0ro\nmQZ8GDNezQrdiIAG5hhuLWYHoyMwITAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB\n/wQEAwIBBjAKBggqhkjOPQQDAgNIADBFAiEA7x+pj4BLgsyLbrOS3LXoh/NV5KzE\nKqrYeasuqGYt3ZICIEDy0V6jMt5GYVoRt7D3gahFlp7QzWmDuZte1vgQWiVw\n-----END CERTIFICATE-----\n",
+                "requiredExtendedKeyUsages": "1.3.6.1.5.5.7.3.4"
+            }
+        }
+    ]
+}

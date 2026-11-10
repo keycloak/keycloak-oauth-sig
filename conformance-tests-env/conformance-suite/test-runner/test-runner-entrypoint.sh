@@ -11,7 +11,7 @@ done
 echo "Conformance suite server is available"
 
 # Wait for keycloak test realm to be imported (keycloak-import service sleeps 60s before importing)
-until curl --output /dev/null --silent --fail http://keycloak:8080/auth/realms/test 2>/dev/null
+until curl --output /dev/null --silent --fail http://keycloak:8080${KEYCLOAK_HTTP_RELATIVE_PATH%/}/realms/test 2>/dev/null
 do
     echo "Still waiting for keycloak test realm to be available"
     sleep 10

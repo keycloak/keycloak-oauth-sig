@@ -1,0 +1,3 @@
+                # drive the system under test for modules waiting for input the conformance suite cannot trigger, see oid4vc-interaction.py
+                if os.environ.get('WAITING_INTERACTION_COMMAND'):
+                    await asyncio.to_thread(subprocess.run, os.environ['WAITING_INTERACTION_COMMAND'], shell=True, env={**os.environ, 'MODULE_ID': module_id, 'MODULE_NAME': module, 'MODULE_VARIANT': json.dumps({**(variant or {}), **(moduledict.get('variant') or {})}), 'MODULE_INFO': json.dumps(test_module_info), 'MODULE_CONFIG': json.dumps(parsed_config)})
