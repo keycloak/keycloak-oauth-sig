@@ -120,6 +120,23 @@ else
 fi
 
 # -----------------------------------------------------------------------------
+# Enable the Token Status List when configured
+# -----------------------------------------------------------------------------
+# Requires the token-status-link plugin in the Keycloak providers directory.
+if [[ "${STATUS_LIST_ENABLED:-false}" == "true" ]]; then
+  log "Enabling Token Status List for realm '$KEYCLOAK_REALM' (revocable credentials)..."
+  [[ -n "${STATUS_LIST_SERVER_URL:-}" ]] || \
+    error "status_list.server_url is required when status_list.enabled=true."
+  STATUS_LIST_ATTRS=$(jq -n \
+    --arg status_url "$STATUS_LIST_SERVER_URL" \
+    '{attributes: {"status-list-enabled": "true", "status-list-server-url": $status_url}}')
+  echo "$STATUS_LIST_ATTRS" | kcadm update realms/"$KEYCLOAK_REALM" -o -f - >/dev/null \
+    || error "Failed to enable Token Status List for realm '$KEYCLOAK_REALM'."
+else
+  log "Token Status List disabled (status_list.enabled != true); skipping realm attributes."
+fi
+
+# -----------------------------------------------------------------------------
 # Select enabled credential client scopes
 # -----------------------------------------------------------------------------
 CLIENT_SCOPE_CONFIG_FILE="$WORK_DIR/src/config/client-scope-config.json"
@@ -143,11 +160,32 @@ DISABLED_CREDENTIALS=$(jq -n \
   --argjson managed "$MANAGED_CREDENTIALS" \
   '$managed - $enabled')
 
+# Add the status mapper and the status claim to the enabled SD-JWT scopes.
+STATUS_LIST_ENABLED_BOOL=$([ "${STATUS_LIST_ENABLED:-false}" = "true" ] && echo true || echo false)
+
 CLIENT_SCOPES_CONFIG=$(jq \
   --argjson enabled "$ENABLED_CREDENTIALS" \
   --arg ISSUER_DID "$KEYCLOAK_ISSUER_DID" \
+  --argjson statusListsEnabled "$STATUS_LIST_ENABLED_BOOL" \
   'map(select(.name as $name | $enabled | index($name)))
-   | map(.attributes["vc.issuer_did"] = $ISSUER_DID)' \
+   | map(.attributes["vc.issuer_did"] = $ISSUER_DID)
+   | if $statusListsEnabled then
+       map(. as $s | if $s.attributes["vc.format"] == "dc+sd-jwt" then
+         $s
+         | .attributes["vc.credential_build_config.sd_jwt.visible_claims"] =
+             ((.attributes["vc.credential_build_config.sd_jwt.visible_claims"]
+               | split(",")
+               | map(gsub("^\\s+|\\s+$"; "") | select(length > 0))
+               | if index("status") then . else . + ["status"] end)
+              | join(","))
+         | .protocolMappers += [{
+             "name": "status-list-claim-mapper",
+             "protocol": "oid4vc",
+             "protocolMapper": "oid4vc-status-list-claim-mapper",
+             "config": {}
+           }]
+       else $s end)
+     else . end' \
   "$CLIENT_SCOPE_CONFIG_FILE")
 
 log "Enabled credentials: $(jq -r 'join(", ")' <<< "$ENABLED_CREDENTIALS")"

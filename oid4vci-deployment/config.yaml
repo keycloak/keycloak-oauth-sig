@@ -47,7 +47,7 @@ keycloak:
 # -----------------------------------------------------------------------------
 keycloak_image:
   registry: "quay.io/keycloak/keycloak"
-  tag: "26.7.0"
+  tag: "26.8.0"
 
 # -----------------------------------------------------------------------------
 # Keystore configuration
@@ -101,6 +101,20 @@ credentials:
   # MobileDrivingLicence is intentionally excluded because mDoc support requires
   # a Keycloak main/nightly build with the experimental oid4vc-mdoc feature.
   enabled: "IdentityCredential,SteuerberaterCredential,KMACredential"
+
+# -----------------------------------------------------------------------------
+# Token Status List (revocable credentials)
+# See docs/revocable-credentials.md.
+# -----------------------------------------------------------------------------
+status_list:
+  # Enable the status list at the realm level.
+  enabled: true
+  # Status list server URL as seen from the Keycloak service.
+  server_url: "http://status-list-server:8000"
+  # token-status-link plugin version.
+  plugin_version: "0.5.2"
+  # Status list server image
+  image: "ghcr.io/adorsys/status-list-server:v1.2.0-memory"
 
 # -----------------------------------------------------------------------------
 # Endpoints configuration

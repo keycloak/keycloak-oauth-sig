@@ -4,6 +4,9 @@ target/
 # Keystore files
 *.pkcs12
 
+# Provider JARs (downloaded, see providers/README.md)
+providers/*.jar
+
 # IDE and editor configs
 /.idea/
 .vscode/

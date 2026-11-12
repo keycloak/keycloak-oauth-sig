@@ -11,7 +11,7 @@ services:
       - db_data:/var/lib/postgresql
 
   app:
-    image: ${KEYCLOAK_IMAGE_REGISTRY:-quay.io/keycloak/keycloak}:${KEYCLOAK_IMAGE_TAG:-26.7.0}
+    image: ${KEYCLOAK_IMAGE_REGISTRY:-quay.io/keycloak/keycloak}:${KEYCLOAK_IMAGE_TAG:-26.8.0}
     environment:
       # Database configuration
       KC_DB: postgres
@@ -34,6 +34,9 @@ services:
       - ./target:/opt/keycloak/target
       # Realm keystores under ${kc.home.dir}/data/<realm>/ (Keycloak 26.6.4+)
       - ./target/keycloak-data:/opt/keycloak/data
+      # Drop extra providers (e.g. the Token Status plugin for revocable
+      # credentials) into ./providers to mount them into Keycloak.
+      - ./providers:/opt/keycloak/providers
 
     command:
       - start
@@ -63,6 +66,34 @@ services:
       - ./target:/workspace/target
       - /var/run/docker.sock:/var/run/docker.sock
     entrypoint: ["bash", "keycloak-ssi.sh"]
+
+  # ---------------------------------------------------------------------------
+  # Status list server (OAuth Token Status List) for revocable credentials.
+  # Runs behind the `status-list` profile. Uses the in-memory image from the
+  # status-list-server registry (see config.yaml: status_list.image).
+  # Keycloak reaches it at status_list.server_url.
+  status-list-server:
+    profiles: ["status-list"]
+    image: ${STATUS_LIST_IMAGE:-ghcr.io/adorsys/status-list-server:v1.2.0-memory}
+    container_name: status-list-server
+    environment:
+      APP_ENV: development
+      APP_SERVER__HOST: 0.0.0.0
+      APP_SERVER__PORT: 8000
+      APP_SERVER__MANAGEMENT__HOST: 0.0.0.0
+      APP_SERVER__MANAGEMENT__PORT: 8001
+      APP_SERVER__ADMIN__HOST: 0.0.0.0
+      APP_SERVER__ADMIN__PORT: 8002
+      APP_SERVER__CERT__STORE__CERTIFICATE_PATH: /etc/status-list/certs/dev.crt
+      APP_SERVER__CERT__STORE__SIGNING_KEY_PATH: /etc/status-list/certs/dev.key
+      APP_CACHE__BACKEND: memory
+      APP_TELEMETRY__ENABLED: "false"
+    ports:
+      - "${STATUS_LIST_PUBLIC_PORT:-8000}:8000"
+      - "${STATUS_LIST_MANAGEMENT_PORT:-8001}:8001"
+      - "${STATUS_LIST_ADMIN_PORT:-8002}:8002"
+    volumes:
+      - ./certs/status-list:/etc/status-list/certs:ro
 
 volumes:
   db_data:
