@@ -127,6 +127,11 @@ if [[ "${STATUS_LIST_ENABLED:-false}" == "true" ]]; then
   log "Enabling Token Status List for realm '$KEYCLOAK_REALM' (revocable credentials)..."
   [[ -n "${STATUS_LIST_SERVER_URL:-}" ]] || \
     error "status_list.server_url is required when status_list.enabled=true."
+  # Fail fast when the plugin JAR is missing instead of attaching mappers
+  # Keycloak cannot load.
+  [[ -n "$(ls -1 "$WORK_DIR"/providers/keycloak-token-status-plugin-*.jar 2>/dev/null)" ]] || \
+    error "Token Status plugin JAR not found in ./providers. Install it (see docs/revocable-credentials.md) or set status_list.enabled=false in config.override.yaml."
+  log "Token Status plugin found in ./providers."
   STATUS_LIST_ATTRS=$(jq -n \
     --arg status_url "$STATUS_LIST_SERVER_URL" \
     '{attributes: {"status-list-enabled": "true", "status-list-server-url": $status_url}}')
@@ -134,6 +139,7 @@ if [[ "${STATUS_LIST_ENABLED:-false}" == "true" ]]; then
     || error "Failed to enable Token Status List for realm '$KEYCLOAK_REALM'."
 else
   log "Token Status List disabled (status_list.enabled != true); skipping realm attributes."
+  log "Note: previously applied status-list realm attributes and mappers on existing scopes are NOT removed automatically; see docs/revocable-credentials.md ('Turning it off') for manual cleanup."
 fi
 
 # -----------------------------------------------------------------------------

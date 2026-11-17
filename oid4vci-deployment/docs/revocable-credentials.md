@@ -3,13 +3,15 @@
 This guide shows how to **issue and revoke credentials** with the Keycloak
 OID4VC issuer in this repository, end to end, entirely on your local machine with Docker.
 Once issued, a credential can be revoked (for example because it was compromised), and
-the current status is checked against a dedicated status list server so a revoked
-credential can no longer be presented.
+its current status is published on a dedicated status list server. A status-aware
+verifier that fetches and validates that status list will reject a revoked credential.
 
 The flow combines three components:
 
-- **Keycloak + the [Keycloak Token Status plugin](https://github.com/ADORSYS-GIS/token-status-link)**:
-  the OID4VC issuer that reports each credential's status.
+- **Keycloak**: the OID4VC issuer that issues the credentials.
+- **The [Keycloak Token Status plugin](https://github.com/ADORSYS-GIS/token-status-link)**:
+  the plugin that registers the realm as an issuer on the status list server, adds the
+  `status` claim to issued credentials, and serves the revocation endpoint.
 - **The [status list server](https://github.com/adorsys/status-list-server)**: the service
   that stores and publishes the [OAuth Token Status List](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/)
   tokens used to check revocation.
@@ -29,6 +31,7 @@ The flow combines three components:
 ```mermaid
 flowchart LR
     subgraph KC["Keycloak + plugins"]
+        S["Keycloak startup<br/>(plugin active)"]
         I["OID4VCI issuer"]
         M["status-list-claim-mapper<br/>on SD-JWT credential scope"]
         R["/realms/{realm}/status-list/revoke"]
@@ -39,8 +42,9 @@ flowchart LR
     end
     W["Wallet obtains credential<br/>with status claim"]
 
-    I -->|"register issuer + publish status"| MGMT
-    M --> MGMT
+    S -->|"startup: register realm as issuer"| MGMT
+    I --> M
+    M -->|"on issuance: publish status bit"| MGMT
     R -->|"mark credential INVALID"| MGMT
     W --> R
 ```
@@ -49,15 +53,21 @@ flowchart LR
    realm level by setting two realm attributes (`status-list-enabled=true` and
    `status-list-server-url`). The enabled **SD-JWT** credential scopes automatically get
    the `oid4vc-status-list-claim-mapper` protocol mapper and expose the `status` claim.
-   This only happens when `status_list.enabled` is `true` (it is by default), so
-   deployments without the plugin are unaffected.
-2. **Issuance.** When Keycloak issues a credential, the mapper publishes the credential's
-   status bit to the status list server (which registers the Keycloak realm as an issuer
-   and stores the status list) and adds a `status` claim to the credential pointing at
-   the status list.
-3. **Revocation.** A client calls Keycloak's `/realms/{realm}/status-list/revoke` endpoint,
-   which sets the credential's status to `INVALID` in the status list. Anyone who later
-   reads that status list sees the credential as revoked and will not accept it.
+   This happens when `status_list.enabled` is `true`, which is the default in this demo
+   deployment. In that case the config step also requires the plugin JAR in `./providers`
+   and fails fast if it is missing; set `status_list.enabled: false` in
+   `config.override.yaml` to run without the status-list feature (see
+   [Turning it off](#turning-it-off) for what is and is not cleaned up).
+2. **Registration (Keycloak startup).** When Keycloak starts with the plugin installed and
+   the realm attributes set, the plugin registers the realm as an issuer on the status list
+   server. This is a background operation performed once per Keycloak startup, which is why the flow below restarts Keycloak after `config` before issuing.
+3. **Issuance.** When Keycloak issues a credential, the mapper publishes the credential's
+   status bit to the status list server (which stores the status list) and adds a `status`
+   claim to the credential pointing at the status list.
+4. **Revocation.** A client calls Keycloak's `/realms/{realm}/status-list/revoke` endpoint,
+   which sets the credential's status to `INVALID` in the status list. A status-aware
+   verifier that later fetches and validates that status list will treat the credential
+   as revoked.
 
 The plugin's full configuration reference and HTTP endpoints are documented in the
 [plugin technical reference](https://github.com/ADORSYS-GIS/token-status-link).
@@ -99,6 +109,10 @@ curl -fL -o providers/keycloak-token-status-plugin-0.5.2.jar \
 #    server image (status_list.image) is pulled from the registry.
 ./keycloak-ssi.sh compose --profile status-list up -d
 
+# `up -d` returns before Keycloak is ready, and `config` exits when Keycloak is
+# not reachable yet. Wait until the realm endpoint responds:
+until curl -k -sf https://localhost:8443/realms/master > /dev/null; do sleep 2; done
+
 # 3) Configure realm, credential scopes, users and the status-list plugin
 ./keycloak-ssi.sh config
 
@@ -107,31 +121,43 @@ curl -fL -o providers/keycloak-token-status-plugin-0.5.2.jar \
 #    this step is required before issuing.
 ./keycloak-ssi.sh compose up -d --force-recreate app
 
-# Confirm the realm registered as an issuer:
-docker logs oid4vci-deployment-app-1 | grep "Successfully registered realm as issuer"
+# Registration runs in the background after Keycloak starts, so wait for it
+# here (up to ~60s) instead of checking the log once:
+for _ in $(seq 1 30); do
+  docker logs oid4vci-deployment-app-1 2>&1 | grep "Successfully registered realm as issuer" && break
+  sleep 2
+done
 ```
 
 The `--profile status-list` profile starts all of the services at once: the Keycloak
 `app`, the Postgres `db`, and the `status-list-server` (pulled from the registry).
 
 Keycloak is available at `https://localhost:8443` (admin `admin`/`admin`). The status
-list server listens on:
+list server listens on a single port:
 
-| Port | Listener            |
-| ---- | ------------------- |
-| 8000 | Public status lists |
-| 8001 | Management          |
-| 8002 | Admin / health      |
+| Port | Listener                                                                                 |
+| ---- | ---------------------------------------------------------------------------------------- |
+| 8000 | Public status lists, management API (issuer registration, status publication) and health |
 
 > **Note on the server URL.** With Compose, Keycloak reaches the server at the container
 > service name: `status_list.server_url: http://status-list-server:8000` (the default).
 > If you run Keycloak outside Compose (tarball/`keycloak-ssi setup`), point the URL at the
 > published host port instead (`http://localhost:8000`).
 
+> **Note on the demo certificates.** The Compose file mounts
+> `certs/status-list/dev.key` and `dev.crt` as the local server's signing key and
+> certificate. This is disposable local-demo material: never use it outside local
+> development. Non-local setups must generate and protect their own signing key and
+> certificate.
+
 ## Configuration
 
-Everything the deployment applies is driven by `config.yaml` (override with
-`config.override.yaml` or environment variables `STATUS_LIST_*`):
+Everything the deployment applies is driven by `config.yaml`; override values with a
+`config.override.yaml` (see the Configuration Model in the `Readme.md`). Note that host
+environment variables such as `STATUS_LIST_ENABLED=false` do **not** override these
+settings for the `config` command: the CLI exports the merged YAML values, and (when
+running inside the Compose `cli` container) host variables are not passed through. Make
+the feature opt-in by setting `status_list.enabled: false` in `config.override.yaml`:
 
 | Key                          | Default                                            | Purpose                                                                 |
 | ---------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------- |
@@ -162,13 +188,14 @@ TLS trust), see the [plugin configuration properties](https://github.com/ADORSYS
 
 ### 2. Verify the status claim is in the credential
 
-Decode the SD-JWT returned by the test (paste it into [jwt.io](https://jwt.io), or decode the
-payload locally) and confirm a `status` claim is present, pointing at a status list on the
-server:
+The test prints the credential endpoint's JSON response. Save it into a file (for example
+`response.json`), extract the SD-JWT from the `credentials[0].credential` field, decode the
+payload and confirm a `status` claim is present, pointing at a status list on the server:
 
 ```bash
-# Decode the payload of the SD-JWT from the test output and show the status claim
-echo '<paste the SD-JWT here>' | cut -d'.' -f2 | base64 -d 2>/dev/null | jq '.status'
+# Extract the SD-JWT from the credential response, then decode the payload and show the status claim
+jq -r '.credentials[0].credential' response.json \
+  | cut -d'.' -f2 | base64 -d 2>/dev/null | jq '.status'
 ```
 
 Expected output:
@@ -176,7 +203,7 @@ Expected output:
 ```json
 {
   "status_list": {
-    "idx": <index>,
+    "idx": 0,
     "uri": "http://status-list-server:8000/api/v1/status-lists/<list_id>"
   }
 }
@@ -199,14 +226,18 @@ The credential reports `status: "VALID"` (and `mappingStatus: "SUCCESS"`).
 
 ### 4. Revoke the credential
 
-POST to the plugin's revocation endpoint with `mode=issued_credential_revocation` and the
-`credential_id` (picked automatically from the first issued credential):
+The endpoint lists all issued credentials, including older ones from previous runs (the
+Compose database persists between runs), so the first entry is not necessarily the
+credential you issued in step 1. Pick the `credentialId` of the credential you issued in
+step 1 and revoke it with `mode=issued_credential_revocation`:
 
 ```bash
-CREDENTIAL_ID=$(curl -k -s -H "Authorization: Bearer $TOKEN" \
-  https://localhost:8443/realms/oid4vc-vci/status-list/issued-credential-status \
-  | jq -r '.credentials[0].credentialId')
+# Pick the credentialId of the credential issued in step 1, e.g. by copying it
+# from the output of step 3:
+CREDENTIAL_ID=<paste credentialId>
+```
 
+```bash
 curl -k -s -X POST \
   -H "Authorization: Bearer $TOKEN" \
   -d "mode=issued_credential_revocation&credential_id=$CREDENTIAL_ID&reason=compromised" \
@@ -233,15 +264,55 @@ curl -s -H "Accept: application/statuslist+jwt" \
 ```
 
 **What happens:** revocation flips the credential's bit to `INVALID` in the status list it
-points to. Any verifier that fetches that status list will see the credential as revoked and
-reject presenting it, so a revoked credential can no longer be used.
+points to and republishes the signed list. It does not stop a wallet from presenting the
+credential: a status-aware **verifier** that fetches the status list, validates its
+signature against the issuer's trusted signing certificate, and checks the presented
+credential's `status` claim is what actually rejects it. This guide verifies the
+revocation through the plugin's local status API and the published list itself;
+demonstrating verifier-side rejection is out of scope.
 
 ## Turning it off
 
-To stop emitting status claims without removing the setup, set
-`status_list.enabled: false` in `config.override.yaml` and re-run
-`keycloak-ssi config`. The realm attributes are not applied and the credential scopes are
-created without the status mapper, so normal issuance is unaffected.
+To stop configuring the status-list feature, set `status_list.enabled: false` in
+`config.override.yaml` and re-run `keycloak-ssi config`. The config step then skips the
+realm attributes and creates credential scopes without the status mapper.
+
+Settings that were applied earlier are **not** removed automatically: the
+`status-list-enabled` and `status-list-server-url` realm attributes stay set, and
+already-created scopes keep the `status-list-claim-mapper` mapper and the `status` entry
+in `vc.credential_build_config.sd_jwt.visible_claims` (existing scopes are skipped on
+re-configuration). Clean these up through the Admin REST API before re-using the realm
+without the feature:
+
+```bash
+# Admin token for the Admin REST API (admin/admin is the local demo default)
+ADMIN_TOKEN=$(curl -k -s -X POST https://localhost:8443/realms/master/protocol/openid-connect/token \
+  -d "grant_type=password&client_id=admin-cli&username=admin&password=admin" | jq -r .access_token)
+BASE="https://localhost:8443/admin/realms/oid4vc-vci"
+
+# 1) Remove the status-list realm attributes
+curl -k -s -H "Authorization: Bearer $ADMIN_TOKEN" "$BASE" \
+  | jq '.attributes |= del(.["status-list-enabled"], .["status-list-server-url"])' \
+  | curl -k -s -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" \
+      -H "Content-Type: application/json" -d @- "$BASE"
+
+# 2) For each remaining SD-JWT scope, remove the status mapper
+curl -k -s -H "Authorization: Bearer $ADMIN_TOKEN" "$BASE/client-scopes" \
+  | jq -c '.[] | select(.protocolMappers[]?.protocolMapper == "oid4vc-status-list-claim-mapper")' \
+  | while read -r scope; do
+      SCOPE_ID=$(jq -r '.id' <<< "$scope")
+      MAPPER_ID=$(jq -r '.protocolMappers[] | select(.protocolMapper == "oid4vc-status-list-claim-mapper") | .id' <<< "$scope")
+      # 2a) delete the status-list claim mapper (mapper endpoints live under /models)
+      curl -k -s -o /dev/null -w "DELETE mapper: HTTP %{http_code}\n" -X DELETE -H "Authorization: Bearer $ADMIN_TOKEN" \
+        "$BASE/client-scopes/$SCOPE_ID/protocol-mappers/models/$MAPPER_ID"
+      # 2b) PUT the scope back with the mapper filtered out and the status
+      #     entry dropped; otherwise the update would re-add the mapper
+      curl -k -s -o /dev/null -w "PUT scope: HTTP %{http_code}\n" -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" \
+        -H "Content-Type: application/json" \
+        -d "$(jq 'del(.protocolMappers[] | select(.protocolMapper == "oid4vc-status-list-claim-mapper"))' <<< "$scope")" \
+        "$BASE/client-scopes/$SCOPE_ID"
+    done
+```
 
 ## Compatibility & troubleshooting
 
@@ -262,5 +333,9 @@ created without the status mapper, so normal issuance is unaffected.
   flow after upgrading either one. Newer (develop-branch) server builds moved
   registration to an administrative API and will not work with this plugin.
 - **Restarts and in-memory data.** The local status list server uses the in-memory
-  backend, so its data is gone after the container is removed. Restarting a fresh server
-  is fine for a demo.
+  backend, so its data is lost whenever the server process restarts, not only when the
+  container is removed (this includes `docker compose up -d --force-recreate`,
+  `restart`, and host reboots). Previously issued credentials keep pointing at list IDs
+  the restarted server no longer knows, and re-registering the issuer does not restore
+  those lists, so their status URIs no longer resolve. Re-issue credentials after any
+  status list server restart.

@@ -80,19 +80,14 @@ services:
       APP_ENV: development
       APP_SERVER__HOST: 0.0.0.0
       APP_SERVER__PORT: 8000
-      APP_SERVER__MANAGEMENT__HOST: 0.0.0.0
-      APP_SERVER__MANAGEMENT__PORT: 8001
-      APP_SERVER__ADMIN__HOST: 0.0.0.0
-      APP_SERVER__ADMIN__PORT: 8002
       APP_SERVER__CERT__STORE__CERTIFICATE_PATH: /etc/status-list/certs/dev.crt
       APP_SERVER__CERT__STORE__SIGNING_KEY_PATH: /etc/status-list/certs/dev.key
       APP_CACHE__BACKEND: memory
       APP_TELEMETRY__ENABLED: "false"
     ports:
       - "${STATUS_LIST_PUBLIC_PORT:-8000}:8000"
-      - "${STATUS_LIST_MANAGEMENT_PORT:-8001}:8001"
-      - "${STATUS_LIST_ADMIN_PORT:-8002}:8002"
     volumes:
+      # Demo-only signing material; do not reuse outside local development.
       - ./certs/status-list:/etc/status-list/certs:ro
 
 volumes:
