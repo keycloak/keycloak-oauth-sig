@@ -101,11 +101,19 @@ tested pair and re-test the flow after upgrading either one.
 From the `oid4vci-deployment` directory:
 
 ```bash
-# 1) Install the Token Status plugin into ./providers before starting Keycloak
+# 1) Enable the pre-authorized code flow this guide relies on. The defaults are
+#    off, so create config.override.yaml with (or merge these keys into an
+#    existing one) and start the stack with them in place:
+keycloak:
+  enable_preauth_code: true
+  enable_rest_credential_offer: true
+  enable_credential_offer_create: true
+
+# 2) Install the Token Status plugin into ./providers before starting Keycloak
 curl -fL -o providers/keycloak-token-status-plugin-0.5.2.jar \
   https://repo1.maven.org/maven2/io/github/adorsys-gis/keycloak-token-status-plugin/0.5.2/keycloak-token-status-plugin-0.5.2.jar
 
-# 2) Start Keycloak, Postgres and the status list server together. The status list
+# 3) Start Keycloak, Postgres and the status list server together. The status list
 #    server image (status_list.image) is pulled from the registry.
 ./keycloak-ssi.sh compose --profile status-list up -d
 
@@ -113,10 +121,10 @@ curl -fL -o providers/keycloak-token-status-plugin-0.5.2.jar \
 # not reachable yet. Wait until the realm endpoint responds:
 until curl -k -sf https://localhost:8443/realms/master > /dev/null; do sleep 2; done
 
-# 3) Configure realm, credential scopes, users and the status-list plugin
+# 4) Configure realm, credential scopes, users and the status-list plugin
 ./keycloak-ssi.sh config
 
-# 4) Restart Keycloak so the Token Status plugin registers the realm as an issuer
+# 5) Restart Keycloak so the Token Status plugin registers the realm as an issuer
 #    on the status list server. The plugin's startup health check is reliable, so
 #    this step is required before issuing.
 ./keycloak-ssi.sh compose up -d --force-recreate app

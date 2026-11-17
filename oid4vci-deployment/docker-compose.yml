@@ -43,7 +43,13 @@ services:
       - --features=${KEYCLOAK_FEATURES}
 
     depends_on:
-      - db
+      db:
+        condition: service_started
+      # Start the status list server before Keycloak when the status-list
+      # profile is enabled; ignored when the profile is off.
+      status-list-server:
+        condition: service_started
+        required: false
 
     ports:
       - "${KEYCLOAK_HTTPS_PORT}:${KEYCLOAK_HTTPS_PORT}"
