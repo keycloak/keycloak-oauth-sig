@@ -107,8 +107,9 @@ credentials:
 # See docs/revocable-credentials.md.
 # -----------------------------------------------------------------------------
 status_list:
-  # Enable the status list at the realm level.
-  enabled: true
+  # Enable the status list at the realm level. Opt-in: set to true (e.g. in
+  # config.override.yaml) and install the token-status-link plugin JAR.
+  enabled: false
   # Status list server URL as seen from the Keycloak service.
   server_url: "http://status-list-server:8000"
   # token-status-link plugin version.
