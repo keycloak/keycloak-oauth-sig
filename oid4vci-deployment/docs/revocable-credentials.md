@@ -283,7 +283,8 @@ curl -s -H "Accept: application/statuslist+jwt" \
 **What happens:** revocation flips the credential's bit to `INVALID` in the status list it
 points to and republishes the signed list. It does not stop a wallet from presenting the
 credential: a status-aware **verifier** that fetches the status list, validates its
-signature against the issuer's trusted signing certificate, and checks the presented
+signature against the status list server's trusted signing certificate (here
+`certs/status-list/dev.crt`; not the credential issuer's key), and checks the presented
 credential's `status` claim is what actually rejects it. This guide verifies the
 revocation through the plugin's local status API and the published list itself;
 demonstrating verifier-side rejection is out of scope.
