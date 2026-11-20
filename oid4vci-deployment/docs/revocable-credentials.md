@@ -102,10 +102,11 @@ tested pair and re-test the flow after upgrading either one.
 
 From the `oid4vci-deployment` directory:
 
-```bash
-# 1) Enable the pre-authorized code flow this guide relies on and opt in to the
-#    status list feature (both are off by default). Create config.override.yaml
-#    with (or merge these keys into an existing one):
+1. Enable the pre-authorized code flow this guide relies on and opt in to the status
+   list feature (both are off by default). Save this as `config.override.yaml` (or merge
+   these keys into an existing one):
+
+```yaml
 keycloak:
   enable_preauth_code: true
   enable_rest_credential_offer: true
@@ -114,8 +115,11 @@ keycloak:
 status_list:
   enabled: true
   server_url: "http://status-list-server:8000"
+```
 
-# 2) Install the Token Status plugin into ./providers before starting Keycloak
+2. Install the Token Status plugin and start the stack:
+
+```bash
 curl -fL -o providers/keycloak-token-status-plugin-0.5.2.jar \
   https://repo1.maven.org/maven2/io/github/adorsys-gis/keycloak-token-status-plugin/0.5.2/keycloak-token-status-plugin-0.5.2.jar
 
@@ -156,10 +160,12 @@ list server listens on a single port:
 With Compose, Keycloak reaches the server at the container service name
 (`status_list.server_url: http://status-list-server:8000`, the default); if you run
 Keycloak outside Compose (tarball/`keycloak-ssi setup`), point the URL at the published
-host port (`http://localhost:8000`). The server signs its status lists with the demo key
-and certificate under `certs/status-list/`, which is disposable local-demo material:
-never use it outside local development, non-local setups need their own protected
-signing key and certificate.
+host port (`http://localhost:8000`). Credentials carry their status URI as built from
+that URL, so the URI only resolves inside the Compose network; a wallet or verifier
+outside the network must use the published host port instead. The server signs its status
+lists with the demo key and certificate under `certs/status-list/`, which is disposable
+local-demo material: never use it outside local development, non-local setups need their
+own protected signing key and certificate.
 
 ## Configuration
 
@@ -200,15 +206,16 @@ TLS trust), see the [plugin configuration properties](https://github.com/ADORSYS
 ### 2. Verify the status claim is in the credential
 
 The test prints the credential endpoint's JSON response. Save it into a file (for example
-`response.json`), extract the SD-JWT from the `credentials[0].credential` field, decode the
-payload and confirm a `status` claim is present, pointing at a status list on the server:
+`response.json`), extract the SD-JWT from the `credentials[0].credential` field, and decode
+the payload with the URL-safe alphabet and padding restored, since the JWT segments are
+base64url encoded:
 
 ```bash
 # Extract the SD-JWT from the credential response, then decode the payload and show the status claim
-jq -r '.credentials[0].credential | split(".")[1] | @base64d' response.json | jq '.status'
+jq -r '.credentials[0].credential | split(".")[1] | gsub("-";"+") | gsub("_";"/") | . + ("=" * ((4 - length % 4) % 4)) | @base64d' response.json | jq '.status'
 ```
 
-Expected output:
+Expected output (the URI is a Compose network internal address, see above):
 
 ```json
 {
@@ -266,11 +273,11 @@ curl -k -s -H "Authorization: Bearer $TOKEN" \
 ```
 
 The status is now `INVALID`. Optionally fetch the signed status list token the credential
-points to (its `uri` from step 2) to see the update:
+points to, using the `list_id` from its `uri` shown in step 2:
 
 ```bash
 curl -s -H "Accept: application/statuslist+jwt" \
-  http://localhost:8000/api/v1/status-lists/<list_id> -o statuslist.jwt
+  "http://localhost:8000/api/v1/status-lists/<list_id>" -o statuslist.jwt
 ```
 
 **What happens:** revocation flips the credential's bit to `INVALID` in the status list it
@@ -329,8 +336,9 @@ curl -k -s -H "Authorization: Bearer $ADMIN_TOKEN" "$BASE/client-scopes" \
   `status_list.enabled=true` was applied (`status-list-enabled` realm attribute). Watch
   the Keycloak log for the plugin's registration messages:
   `--log-level=INFO,io.github.adorsysgis.keycloakstatuslist:DEBUG`. Realms configured
-  before this feature keep their existing scopes without the mapper: recreate the realm
-  (`./keycloak-ssi.sh compose down -v` and re-run the guide) or attach
+  before this feature keep their existing scopes without the mapper: the cleanest remedy
+  is a realm recreation via `./keycloak-ssi.sh compose down -v` (this removes **all**
+  stored Keycloak data, not just the realm) followed by re-running the guide, or attach
   `oid4vc-status-list-claim-mapper` manually.
 - **Server not reachable from Keycloak.** Confirm `status_list.server_url` resolves from
   the Keycloak container. With Compose use `http://status-list-server:8000`; with a host
