@@ -114,7 +114,22 @@ log "Custom key provider registration complete."
 # -----------------------------------------------------------------------------
 log "Updating realm attributes..."
 if [[ -f "$WORK_DIR/src/config/realm-attributes.json" ]]; then
-  cat "$WORK_DIR/src/config/realm-attributes.json" | kcadm update realms/"$KEYCLOAK_REALM" -o -f - >/dev/null || error "Realm update failed"
+  # Attribute updates replace the whole map, so the status-list attributes
+  # are merged into this payload instead of being set in a second update.
+  if [[ "${STATUS_LIST_ENABLED:-false}" == "true" ]]; then
+    [[ -n "${STATUS_LIST_SERVER_URL:-}" ]] || \
+      error "status_list.server_url is required when status_list.enabled=true."
+    [[ -n "$(ls -1 "$WORK_DIR"/providers/keycloak-token-status-plugin-*.jar 2>/dev/null)" ]] || \
+      error "Token Status plugin JAR not found in ./providers. Install it (see docs/revocable-credentials.md) or set status_list.enabled=false in config.override.yaml."
+    jq --arg url "$STATUS_LIST_SERVER_URL" --arg realm "$KEYCLOAK_REALM" \
+      '.attributes["status-list-enabled"] = "true" |
+       .attributes["status-list-server-url"] = $url |
+       .attributes["status-list-token-issuer-prefix"] = $realm' \
+      "$WORK_DIR/src/config/realm-attributes.json" \
+      | kcadm update realms/"$KEYCLOAK_REALM" -o -f - >/dev/null || error "Realm update failed"
+  else
+    cat "$WORK_DIR/src/config/realm-attributes.json" | kcadm update realms/"$KEYCLOAK_REALM" -o -f - >/dev/null || error "Realm update failed"
+  fi
 else
   warn "realm-attributes.json not found; skipping realm attribute update."
 fi
@@ -143,11 +158,32 @@ DISABLED_CREDENTIALS=$(jq -n \
   --argjson managed "$MANAGED_CREDENTIALS" \
   '$managed - $enabled')
 
+# Add the status mapper and the status claim to the enabled SD-JWT scopes.
+STATUS_LIST_ENABLED_BOOL=$([ "${STATUS_LIST_ENABLED:-false}" = "true" ] && echo true || echo false)
+
 CLIENT_SCOPES_CONFIG=$(jq \
   --argjson enabled "$ENABLED_CREDENTIALS" \
   --arg ISSUER_DID "$KEYCLOAK_ISSUER_DID" \
+  --argjson statusListsEnabled "$STATUS_LIST_ENABLED_BOOL" \
   'map(select(.name as $name | $enabled | index($name)))
-   | map(.attributes["vc.issuer_did"] = $ISSUER_DID)' \
+   | map(.attributes["vc.issuer_did"] = $ISSUER_DID)
+   | if $statusListsEnabled then
+       map(. as $s | if $s.attributes["vc.format"] == "dc+sd-jwt" then
+         $s
+         | .attributes["vc.credential_build_config.sd_jwt.visible_claims"] =
+             ((.attributes["vc.credential_build_config.sd_jwt.visible_claims"]
+               | split(",")
+               | map(gsub("^\\s+|\\s+$"; "") | select(length > 0))
+               | if index("status") then . else . + ["status"] end)
+              | join(","))
+         | .protocolMappers += [{
+             "name": "status-list-claim-mapper",
+             "protocol": "oid4vc",
+             "protocolMapper": "oid4vc-status-list-claim-mapper",
+             "config": {}
+           }]
+       else $s end)
+     else . end' \
   "$CLIENT_SCOPE_CONFIG_FILE")
 
 log "Enabled credentials: $(jq -r 'join(", ")' <<< "$ENABLED_CREDENTIALS")"
