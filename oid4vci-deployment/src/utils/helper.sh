@@ -197,6 +197,7 @@ export_yaml_as_env() {
     
     # Collect features to start Keycloak with
     KEYCLOAK_FEATURES="${KEYCLOAK_FEATURES:-oid4vc-vci}"
+    append_keycloak_feature "oid4vc-vp"
 
     [[ "${KEYCLOAK_ENABLE_PREAUTH_CODE:-}" == "true" ]] && \
         append_keycloak_feature "oid4vc-vci-preauth-code"
