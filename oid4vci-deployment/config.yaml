@@ -113,7 +113,7 @@ status_list:
   # Status list server URL as seen from the Keycloak service.
   server_url: "http://status-list-server:8000"
   # token-status-link plugin version.
-  plugin_version: "0.5.2"
+  plugin_version: "0.5.3"
   # Status list server image
   image: "ghcr.io/adorsys/status-list-server:v1.2.0-memory"
 
@@ -155,7 +155,7 @@ ssl:
 # -----------------------------------------------------------------------------
 database:
   # Database exposed port
-  exposed_port: "5433"
+  exposed_port: "5436"
   # Database name
   name: "keycloak"
   # Database username

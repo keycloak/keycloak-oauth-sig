@@ -9,6 +9,11 @@ services:
       - "${DATABASE_EXPOSED_PORT}:5432"
     volumes:
       - db_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME} -d ${DATABASE_NAME}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   app:
     image: ${KEYCLOAK_IMAGE_REGISTRY:-quay.io/keycloak/keycloak}:${KEYCLOAK_IMAGE_TAG:-26.8.0}
@@ -44,7 +49,7 @@ services:
 
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
       # Start the status list server before Keycloak when the status-list
       # profile is enabled; ignored when the profile is off.
       status-list-server:

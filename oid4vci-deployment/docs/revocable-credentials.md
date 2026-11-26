@@ -57,12 +57,12 @@ flowchart LR
    `./providers` and fails fast if it is missing. The enabled **SD-JWT** credential scopes
    then automatically get the `oid4vc-status-list-claim-mapper` protocol mapper and expose
    the `status` claim. Deployments that do not opt in are unaffected.
-2. **Registration (Keycloak startup).** When Keycloak starts with the plugin installed and
-   the realm attributes set, the plugin registers the realm as an issuer on the status list
-   server, bound to the realm's active credential-signing key. This is a background
-   operation performed once per Keycloak startup, which is why the flow below restarts
-   Keycloak after `config` before issuing: the restart guarantees the registration binds
-   the final signing key, not a pre-configuration default.
+2. **Registration.** The plugin registers the realm as an issuer on the status list
+   server, bound to the realm's active credential-signing key. Registration is triggered
+   when the realm is created and again when the `status-list-enabled` realm attribute is
+   set (plugin 0.5.3+): each attempt resolves the realm fresh, so once `keycloak-ssi
+   config` has applied the attributes and key providers, registration completes without
+   restarting Keycloak.
 3. **Issuance.** When Keycloak issues a credential, the mapper publishes the credential's
    status bit to the status list server (which stores the status list) and adds a `status`
    claim to the credential pointing at the status list.
@@ -94,7 +94,7 @@ keycloak_image:
   tag: "26.8.0"
 ```
 
-The tested and verified combination is the **token-status-link plugin 0.5.2** with the
+The tested and verified combination is the **token-status-link plugin 0.5.3** with the
 **status list server image v1.2.0-memory**. Keep `status_list.plugin_version` and `status_list.image` on a
 tested pair and re-test the flow after upgrading either one.
 
@@ -120,8 +120,8 @@ status_list:
 2. Install the Token Status plugin and start the stack:
 
 ```bash
-curl -fL -o providers/keycloak-token-status-plugin-0.5.2.jar \
-  https://repo1.maven.org/maven2/io/github/adorsys-gis/keycloak-token-status-plugin/0.5.2/keycloak-token-status-plugin-0.5.2.jar
+curl -fL -o providers/keycloak-token-status-plugin-0.5.3.jar \
+  https://repo1.maven.org/maven2/io/github/adorsys-gis/keycloak-token-status-plugin/0.5.3/keycloak-token-status-plugin-0.5.3.jar
 
 # 3) Start Keycloak, Postgres and the status list server together. The status list
 #    server image (status_list.image) is pulled from the registry.
@@ -134,17 +134,9 @@ until curl -k -sf https://localhost:8443/realms/master > /dev/null; do sleep 2; 
 # 4) Configure realm, credential scopes, users and the status-list plugin
 ./keycloak-ssi.sh config
 
-# 5) Restart Keycloak so the Token Status plugin registers the realm as an issuer
-#    on the status list server. The plugin's startup health check is reliable, so
-#    this step is required before issuing.
-./keycloak-ssi.sh compose up -d --force-recreate app
-
-# Registration runs in the background after Keycloak starts, so wait for it
-# here (up to ~60s) instead of checking the log once:
-for _ in $(seq 1 30); do
-  docker logs oid4vci-deployment-app-1 2>&1 | grep "Successfully registered realm as issuer" && break
-  sleep 2
-done
+# 5) Confirm the plugin registered the realm as an issuer. The registration is
+#    triggered when the status-list attribute is applied during config:
+docker logs oid4vci-deployment-app-1 2>&1 | grep "Successfully registered realm as issuer"
 ```
 
 The `--profile status-list` profile starts all of the services at once: the Keycloak
@@ -180,7 +172,7 @@ the feature by setting `status_list.enabled: true` in `config.override.yaml`:
 | ---------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------- |
 | `status_list.enabled`        | `false`                                            | Opt in to the plugin + status claim emission at the realm level         |
 | `status_list.server_url`     | `http://status-list-server:8000`                   | Status list server URL as seen by Keycloak                              |
-| `status_list.plugin_version` | `0.5.2`                                            | Pinned plugin version (documentation/installation)                      |
+| `status_list.plugin_version` | `0.5.3`                                            | Pinned plugin version (documentation/installation)                      |
 | `status_list.image`          | `ghcr.io/adorsys/status-list-server:v1.2.0-memory` | Status list server image (built from `main` with the in-memory feature) |
 
 When enabled, the config step performs two things:
@@ -272,8 +264,9 @@ curl -k -s -H "Authorization: Bearer $TOKEN" \
   | jq --arg id "$CREDENTIAL_ID" '.credentials[] | select(.credentialId == $id) | {credentialId, status, mappingStatus}'
 ```
 
-The status is now `INVALID`. Optionally fetch the signed status list token the credential
-points to, using the `list_id` from its `uri` shown in step 2:
+The status is now `INVALID` (the update may take a moment to propagate, so give the
+status list a second before querying). Optionally fetch the signed status list token the
+credential points to, using the `list_id` from its `uri` shown in step 2:
 
 ```bash
 curl -s -H "Accept: application/statuslist+jwt" \
@@ -347,14 +340,8 @@ curl -k -s -H "Authorization: Bearer $ADMIN_TOKEN" "$BASE/client-scopes" \
 - **Issuance fails.** Status publication is non-fatal by default
   (the realm attribute `status-list-mandatory=false`). If you set it to `true`, a failing
   status list server will block issuance. Change it back while debugging.
-- **Status publication fails with `401 jwt_error`.** The issuer was registered with the
-  wrong signing key, either before the credential-signing key was provisioned or from a
-  realm snapshot taken during creation. Simply restarting Keycloak re-registers the
-  issuer, but the server keeps the **first** key binding, so clear it too: restart the
-  status list server (in-memory, so this clears all bindings) and then recreate Keycloak:
-  `docker restart status-list-server && ./keycloak-ssi.sh compose up -d --force-recreate app`.
 - **API contract / version mismatch.** The plugin registers the realm as an issuer
-  with `POST /api/v1/credentials`. Keep `status_list.plugin_version` (0.5.2) and
+  with `POST /api/v1/credentials`. Keep `status_list.plugin_version` (0.5.3) and
   `status_list.image` (`...:v1.2.0-memory`, i.e. `main`) on a tested pair and re-run the
   flow after upgrading either one. Newer (develop-branch) server builds moved
   registration to an administrative API and will not work with this plugin.

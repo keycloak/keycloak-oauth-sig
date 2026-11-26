@@ -16,8 +16,8 @@ To enable credential revocation (see `docs/revocable-credentials.md`), place the
 JAR here. It is published to Maven Central. Example (pin the version you tested):
 
 ```bash
-curl -fL -o providers/keycloak-token-status-plugin-0.5.2.jar \
-  https://repo1.maven.org/maven2/io/github/adorsys-gis/keycloak-token-status-plugin/0.5.2/keycloak-token-status-plugin-0.5.2.jar
+curl -fL -o providers/keycloak-token-status-plugin-0.5.3.jar \
+  https://repo1.maven.org/maven2/io/github/adorsys-gis/keycloak-token-status-plugin/0.5.3/keycloak-token-status-plugin-0.5.3.jar
 ```
 
 Set `status_list.plugin_version` in `config.yaml` to match the version you download.
