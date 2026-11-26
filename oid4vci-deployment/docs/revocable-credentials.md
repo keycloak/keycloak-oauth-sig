@@ -61,7 +61,7 @@ flowchart LR
    server, bound to the realm's active credential-signing key. Registration is triggered
    when the realm is created and again when the `status-list-enabled` realm attribute is
    set (plugin 0.5.3+): each attempt resolves the realm fresh, so once `keycloak-ssi
-   config` has applied the attributes and key providers, registration completes without
+config` has applied the attributes and key providers, registration completes without
    restarting Keycloak.
 3. **Issuance.** When Keycloak issues a credential, the mapper publishes the credential's
    status bit to the status list server (which stores the status list) and adds a `status`
@@ -117,18 +117,20 @@ status_list:
   server_url: "http://status-list-server:8000"
 ```
 
-2. Install the Token Status plugin and start the stack:
+2. Install the Token Status plugin, start the stack, configure it and confirm the
+   issuer registration:
 
 ```bash
+# 1) Install the Token Status plugin into ./providers before starting Keycloak
 curl -fL -o providers/keycloak-token-status-plugin-0.5.3.jar \
   https://repo1.maven.org/maven2/io/github/adorsys-gis/keycloak-token-status-plugin/0.5.3/keycloak-token-status-plugin-0.5.3.jar
 
-# 3) Start Keycloak, Postgres and the status list server together. The status list
+# 2) Start Keycloak, Postgres and the status list server together. The status list
 #    server image (status_list.image) is pulled from the registry.
 ./keycloak-ssi.sh compose --profile status-list up -d
 
-# `up -d` returns before Keycloak is ready, and `config` exits when Keycloak is
-# not reachable yet. Wait until the realm endpoint responds:
+# 3) `up -d` returns before Keycloak is ready, and `config` exits when Keycloak is
+#    not reachable yet. Wait until the realm endpoint responds:
 until curl -k -sf https://localhost:8443/realms/master > /dev/null; do sleep 2; done
 
 # 4) Configure realm, credential scopes, users and the status-list plugin
@@ -264,9 +266,8 @@ curl -k -s -H "Authorization: Bearer $TOKEN" \
   | jq --arg id "$CREDENTIAL_ID" '.credentials[] | select(.credentialId == $id) | {credentialId, status, mappingStatus}'
 ```
 
-The status is now `INVALID` (the update may take a moment to propagate, so give the
-status list a second before querying). Optionally fetch the signed status list token the
-credential points to, using the `list_id` from its `uri` shown in step 2:
+The status is now `INVALID`. Optionally fetch the signed status list token the credential
+points to, using the `list_id` from its `uri` shown in step 2:
 
 ```bash
 curl -s -H "Accept: application/statuslist+jwt" \

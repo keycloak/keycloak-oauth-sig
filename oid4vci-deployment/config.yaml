@@ -155,7 +155,7 @@ ssl:
 # -----------------------------------------------------------------------------
 database:
   # Database exposed port
-  exposed_port: "5436"
+  exposed_port: "5433"
   # Database name
   name: "keycloak"
   # Database username
